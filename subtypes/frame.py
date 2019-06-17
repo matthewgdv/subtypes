@@ -65,7 +65,7 @@ class Frame(pd.DataFrame):
 
     @_check_import_is_available
     def to_alchemy(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail") -> Any:
-        from mattlib.libs.sql import Alchemy
+        from sqlhandler import Alchemy
         return Alchemy(schemas={schema, None}, database=database).frame_to_table(self, table=table, schema=schema, if_exists=if_exists)
 
     def sanitize_colnames(self, case: str = DEFAULT_COLUMN_CASE) -> Frame:
@@ -88,7 +88,7 @@ class Frame(pd.DataFrame):
 
     @_check_import_is_available
     def to_desktop_as_excel(self, name: str, with_timestamp: bool = True, index: bool = False, **kwargs: Any) -> PathLike:
-        from mattlib.libs.path import Dir
+        from pathmagic import Dir
 
         desktop = Dir.from_desktop()
         file = desktop.newfile(f"{name}_{DateTime.today().isoformat_date(dashes=False) if with_timestamp else ''}.xlsx")
@@ -172,7 +172,7 @@ class Frame(pd.DataFrame):
     @_check_import_is_available
     def _get_path_constructor(cls) -> Type[PathLike]:
         if cls.DEFAULT_PATH_TYPE == Frame.PathType.PathMagic:
-            from mattlib.libs.path import File
+            from pathmagic import File
             return File
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.PathLib:
             import pathlib
