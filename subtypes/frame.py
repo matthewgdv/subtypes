@@ -61,7 +61,7 @@ class Frame(pd.DataFrame):
     def to_excel(self, filepath: PathLike, sheet_name: str = DEFAULT_SHEET_NAME, index: bool = False, **kwargs: Any) -> PathLike:
         with ExcelWriter(filepath) as writer:
             self._write_to_excel(writer=writer, sheet_name=sheet_name, index=index, **kwargs)
-        return self._get_path_constructor(filepath)
+        return self._get_path_constructor()(filepath)
 
     @_check_import_is_available
     def to_alchemy(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail") -> Any:
@@ -132,7 +132,7 @@ class Frame(pd.DataFrame):
         with ExcelWriter(filepath=filepath) as writer:
             for idx, frame in enumerate(frames):
                 frame._write_to_excel(writer=writer, sheet_name=f"Sheet{idx + 1}", index=index, **kwargs)
-        return cls._get_path_constructor(filepath)
+        return cls._get_path_constructor()(filepath)
 
     @classmethod
     def from_excel(cls, filepath: os.PathLike, case: str = DEFAULT_COLUMN_CASE, skipcols: int = 0, infer_headers: bool = True, infer_range: str = DEFAULT_INFER_RANGE, password: str = None, **kwargs: Any) -> Frame:
