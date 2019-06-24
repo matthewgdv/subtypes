@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import itertools
 import functools
 import os
@@ -48,15 +49,16 @@ class Frame(pd.DataFrame):
     columns: Index
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self._clean_dtypes()
+        with self._using_parent_constructor():
+            super().__init__(*args, **kwargs)
+            self._clean_dtypes()
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(rows={len(self.index)}, columns={list(self.columns)})"
 
     @property
     def _constructor(self) -> Type[Frame]:
-        return type(self)
+        return type(self) if self._using_own_constructor() else pd.DataFrame
 
     def to_excel(self, filepath: PathLike, sheet_name: str = DEFAULT_SHEET_NAME, index: bool = False, **kwargs: Any) -> PathLike:
         with ExcelWriter(filepath) as writer:
@@ -167,6 +169,18 @@ class Frame(pd.DataFrame):
         attrs = list(dict.fromkeys([name for obj in objects for name in vars(obj)]))
         valid_attrs = attrs if private else [name for name in attrs if not name.startswith("_")]
         return cls([tuple(vars(obj).get(attr) for attr in valid_attrs) for obj in objects], columns=valid_attrs)
+
+    def _using_own_constructor(self) -> None:
+        return object.__getattribute__(self, "_own_constructor_")
+
+    def _use_own_constructor(self, own: bool) -> None:
+        object.__setattr__(self, "_own_constructor_", own)
+
+    @contextlib.contextmanager
+    def _using_parent_constructor(self) -> None:
+        self._use_own_constructor(False)
+        yield
+        self._use_own_constructor(True)
 
     @classmethod
     @_check_import_is_available
