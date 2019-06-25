@@ -8,6 +8,7 @@ import warnings
 
 import regex as re
 import inflect
+from lazy_property import LazyWritableProperty
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -22,8 +23,6 @@ class Str(collections.UserString, str):  # type: ignore
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.data: str
         super().__init__(*args, **kwargs)
-        self._re: RegexSettings = None
-        self._fuzzy: FuzzyMatcher = None
 
     @no_type_check
     def __setitem__(self, key, item):
@@ -80,7 +79,7 @@ class Str(collections.UserString, str):  # type: ignore
     # regex
 
     def configure_re(self, dotall: bool = True, ignorecase: bool = True, multiline: bool = False) -> Str:
-        self._re = RegexSettings(dotall=dotall, ignorecase=ignorecase, multiline=multiline)
+        self.re = RegexSettings(dotall=dotall, ignorecase=ignorecase, multiline=multiline)
         return self
 
     def search(self, regex: str, **kwargs: Any) -> Match[str]:
@@ -140,7 +139,7 @@ class Str(collections.UserString, str):  # type: ignore
     # fuzzy matching
 
     def configure_fuzzy(self, tokenize: bool = False, partial: bool = False) -> Str:
-        self._fuzzy = FuzzyMatcher(tokenize=tokenize, partial=partial)
+        self.fuzzy = FuzzyMatcher(tokenize=tokenize, partial=partial)
         return self
 
     def fuzzy_match(self, other: str) -> int:
@@ -150,17 +149,13 @@ class Str(collections.UserString, str):  # type: ignore
         match_scores = {self.fuzzy_match(match): match for match in possible_matches}
         return [(match_scores[score], score) for index, score in itertools.takewhile(lambda tup: tup[0] < num, enumerate(sorted(match_scores, reverse=True)))]
 
-    @property
+    @LazyWritableProperty
     def fuzzy(self) -> FuzzyMatcher:
-        if self._fuzzy is None:
-            self._fuzzy = FuzzyMatcher()
-        return self._fuzzy
+        return FuzzyMatcher()
 
-    @property
+    @LazyWritableProperty
     def re(self) -> RegexSettings:
-        if self._re is None:
-            self._re = RegexSettings()
-        return self._re
+        return RegexSettings()
 
 
 class RegexSettings:
