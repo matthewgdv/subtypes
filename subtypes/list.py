@@ -3,15 +3,17 @@ from __future__ import annotations
 import collections
 from typing import Any, Dict, Iterable, List, Tuple, no_type_check
 
+from lazy_property import LazyProperty
+
 from .str import FuzzyMatcher
 
 
 class List_(collections.UserList, list):  # type: ignore
     data: list
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.fuzzy = FuzzyMatcher()
-        super().__init__(*args, **kwargs)
+    @LazyProperty
+    def fuzzy(self) -> FuzzyMatcher:
+        return FuzzyMatcher()
 
     @no_type_check
     def append(self, item):
