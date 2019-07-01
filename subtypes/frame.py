@@ -76,10 +76,10 @@ class Frame(pd.DataFrame):
 
         if case is not None:
             clean_case = case.strip().lower()
-            if clean_case == "snake":
+            if clean_case == Frame.ColumnCase.Snake:
                 df.columns = [Str(str(colname)).snake_case() for colname in df.columns]
-            elif clean_case in ["camel", "pascal"]:
-                df.columns = [Str(str(colname)).camel_case(pascal=clean_case == "pascal") for colname in df.columns]
+            elif clean_case in [Frame.ColumnCase.Camel, Frame.ColumnCase.Pascal]:
+                df.columns = [Str(str(colname)).camel_case(pascal=clean_case == Frame.ColumnCase.Pascal) for colname in df.columns]
             else:
                 raise ValueError(f"Unrecognized case '{case}', must be 'snake', 'camel', or 'pascal'.")
 
