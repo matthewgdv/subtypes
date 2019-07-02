@@ -83,7 +83,7 @@ class DateTime(dt.datetime):
         return " ".join((day, month, year) if day_first else (month, day, year))
 
     def isoformat_date(self, dashes: bool = True, reverse: bool = False) -> str:
-        codes = (FormatCode.YEAR.WITH_CENTURY, FormatCode.Month.NUM, FormatCode.DAY.NUM)
+        codes = (FormatCode.YEAR.WITH_CENTURY, FormatCode.MONTH.NUM, FormatCode.DAY.NUM)
         return self.strftime(f"{'-' if dashes else ''}".join(codes if not reverse else reversed(codes)))
 
     def filetag_date(self) -> str:
