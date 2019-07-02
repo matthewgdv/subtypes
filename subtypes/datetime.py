@@ -133,8 +133,8 @@ class DateTime(dt.datetime):
         return Second(self)
 
     @LazyProperty
-    def Microsecond(self) -> Microsecond:
-        return Microsecond(self)
+    def MicroSecond(self) -> MicroSecond:
+        return MicroSecond(self)
 
 
 class DateTimeAccessor:
@@ -244,7 +244,7 @@ class Second(DateTimeAccessor):
         return self._datetime.strftime(FormatCode.SECOND.NUM)
 
 
-class Microsecond(DateTimeAccessor):
+class MicroSecond(DateTimeAccessor):
     @property
     def num(self) -> str:
         return self._datetime.strftime(FormatCode.MICROSECOND.NUM)
