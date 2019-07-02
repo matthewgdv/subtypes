@@ -6,11 +6,11 @@ import aenum
 
 
 class EnumMeta(aenum.EnumMeta):
-    def __repr__(self) -> str:
-        return f"{self.__name__}({', '.join([repr(member) for member in self])})"
+    def __repr__(cls) -> str:
+        return f"{cls.__name__}({', '.join([repr(member) for member in cls])})"
 
-    def __str__(self) -> str:
-        return f"{', '.join([member.value for member in self])}"
+    def __str__(cls) -> str:
+        return f"{', '.join([member.value for member in cls])}"
 
     def __getattribute__(cls, name: str) -> Any:
         value = super().__getattribute__(name)
@@ -27,3 +27,6 @@ class EnumMeta(aenum.EnumMeta):
 class Enum(aenum.Enum, metaclass=EnumMeta):
     def __repr__(self) -> str:
         return f"[{self.name}: {repr(self.value)}]"
+
+    def __str__(self) -> str:
+        return str(self.value)
