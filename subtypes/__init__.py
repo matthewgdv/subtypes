@@ -1,9 +1,9 @@
-__all__ = ["Singleton", "Enum", "Markup", "Str", "RegexSettings", "FuzzyMatcher", "NestedParser", "List_", "DateTime", "Frame"]
+__all__ = ["Enum", "Markup", "Str", "RegexSettings", "FuzzyMatcher", "NestedParser", "List_", "Dict_", "DateTime", "Frame"]
 
-from .singleton import Singleton
 from .enum import Enum
 from .markup import Markup
 from .str import Str, RegexSettings, FuzzyMatcher
 from .list import List_
+from .dict import Dict_
 from .datetime import DateTime
 from .frame import Frame
