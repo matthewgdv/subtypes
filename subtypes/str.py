@@ -98,19 +98,19 @@ class Str(collections.UserString, str):  # type: ignore
     # casing
 
     def camel_case(self, pascal: bool = True, preserve_upper: bool = True) -> Str:
-        final = self.sub(r"[^A-Za-z0-9]+(.|$)", lambda m: m.group(1).upper())                                     # strip away any substrings of non-alphanumeric characters and uppercase whatever follows them
+        final = self.sub(r"[^A-Za-z0-9]+(.|$)", lambda m: m.group(1).upper())                                       # strip away any substrings of non-alphanumeric characters and uppercase whatever follows them
         if not preserve_upper:
-            final = final.sub(r"([A-Z])([A-Z]+)(?=[A-Z][a-z]+)", lambda m: f"{m.group(1)}{m.group(2).lower()}")   # replace consecutive uppercase letters after the first with lowercase letters unless followed by lowercase letters
-            final = final.sub(r"([A-Z])([A-Z]+)", lambda m: f"{m.group(1)}{m.group(2).lower()}")                  # replace consecutive uppercase letters after the first with lowercase letters
-        final[0] = final[0].upper() if pascal else final[0].lower()                                               # capitalize the first word if pascal-casing else lower-case it
+            final = final.sub(r"([A-Z])([A-Z]+)(?=[A-Z][a-z]+)", lambda m: f"{m.group(1)}{m.group(2).lower()}")     # replace consecutive uppercase letters after the first with lowercase letters unless followed by lowercase letters
+            final = final.sub(r"([A-Z])([A-Z]+)", lambda m: f"{m.group(1)}{m.group(2).lower()}")                    # replace consecutive uppercase letters after the first with lowercase letters
+        final[0] = final[0].upper() if pascal else final[0].lower()                                                 # capitalize the first word if pascal-casing else lower-case it
         return final
 
     def snake_case(self) -> Str:
-        stage1 = regexmod.sub(r"[^A-Za-z0-9]+", r"_", self.data)              # strip sequences of non-alphanumeric characters (including whitespace) and replace them with a single underscore
-        stage2 = regexmod.sub(r"([^A-Z_])([A-Z])", r"\1_\2", stage1)          # place an underscore at every boundary between a non-uppercase, non-underscore character and an uppercase character
-        stage3 = regexmod.sub(r"([A-Z]+)([A-Z])([a-z])", r"\1_\2\3", stage2)  # when finding multiple uppercase characters in a row place an underscore before the last one in the sequence if followed by a lowercase character
-        final = regexmod.sub(r"(_+)", r"_", stage3)                           # replace multiple underscores with a single underscore
-        return type(self)(final.lower().strip("_"))                     # lowercase whatever is left and strip away trailing underscores
+        stage1 = regexmod.sub(r"[^A-Za-z0-9]+", r"_", self.data)                # strip sequences of non-alphanumeric characters (including whitespace) and replace them with a single underscore
+        stage2 = regexmod.sub(r"([^A-Z_])([A-Z])", r"\1_\2", stage1)            # place an underscore at every boundary between a non-uppercase, non-underscore character and an uppercase character
+        stage3 = regexmod.sub(r"([A-Z]+)([A-Z])([a-z])", r"\1_\2\3", stage2)    # when finding multiple uppercase characters in a row place an underscore before the last one in the sequence if followed by a lowercase character
+        final = regexmod.sub(r"(_+)", r"_", stage3)                             # replace multiple underscores with a single underscore
+        return type(self)(final.lower().strip("_"))                             # lowercase whatever is left and strip away trailing underscores
 
     def plural(self) -> Str:
         """Produce a 'pluralized' name, e.g. 'SomeTerm' -> 'SomeTerms'"""
@@ -154,36 +154,62 @@ class Str(collections.UserString, str):  # type: ignore
     def splitre(self, regex: str, **kwargs: Any) -> List[Str]:
         return [type(self)(item) for item in regexmod.split(regex, self.data, flags=self.re(), **kwargs)]
 
+    # slicing methods (with regex)
+
     def before(self, regex: str, raise_if_absent: bool = False) -> Str:
-        matches = self._before_after_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
         return type(self)("") if not matches else type(self)(self.data[:matches[0].span()[0]])
 
     def before_first(self, regex: str, raise_if_absent: bool = False) -> Str:
-        matches = self._before_after_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
         return type(self)("") if not matches else type(self)(self.data[:matches[0].span()[0]])
 
     def before_last(self, regex: str, raise_if_absent: bool = False) -> Str:
-        matches = self._before_after_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
         return type(self)("") if not matches else type(self)(self.data[:matches[-1].span()[0]])
 
     def after(self, regex: str, raise_if_absent: bool = False) -> Str:
-        matches = self._before_after_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
         return type(self)("") if not matches else type(self)(self.data[matches[0].span()[1]:])
 
     def after_first(self, regex: str, raise_if_absent: bool = False) -> Str:
-        matches = self._before_after_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
         return type(self)("") if not matches else type(self)(self.data[matches[0].span()[1]:])
 
     def after_last(self, regex: str, raise_if_absent: bool = False) -> Str:
-        matches = self._before_after_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
         return type(self)("") if not matches else type(self)(self.data[matches[-1].span()[1]:])
 
-    def _before_after_helper(self, regex: str, raise_if_absent: bool = False, multiple_matches_forbidden: bool = False) -> List[Match[str]]:
+    def from_(self, regex: str, raise_if_absent: bool = False) -> Str:
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self)("") if not matches else type(self)(self.data[matches[0].span()[0]:])
+
+    def from_first(self, regex: str, raise_if_absent: bool = False) -> Str:
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)("") if not matches else type(self)(self.data[matches[0].span()[0]:])
+
+    def from_last(self, regex: str, raise_if_absent: bool = False) -> Str:
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)("") if not matches else type(self)(self.data[matches[-1].span()[0]:])
+
+    def until(self, regex: str, raise_if_absent: bool = False) -> Str:
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self)("") if not matches else type(self)(self.data[:matches[0].span()[1]])
+
+    def until_first(self, regex: str, raise_if_absent: bool = False) -> Str:
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)("") if not matches else type(self)(self.data[:matches[0].span()[1]])
+
+    def until_last(self, regex: str, raise_if_absent: bool = False) -> Str:
+        matches = self._slice_helper(regex, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)("") if not matches else type(self)(self.data[:matches[-1].span()[1]])
+
+    def _slice_helper(self, regex: str, raise_if_absent: bool = False, multiple_matches_forbidden: bool = False) -> List[Match[str]]:
         matches = list(self.finditer(regex=regex))
 
         if multiple_matches_forbidden:
             if len(matches) > 1:
-                raise RuntimeError(f"Too many matches, return value would be ambigous (Expected 1, got {len(matches)}). Use one of: {', '.join([f'{type(self).__name__}.{method}()' for method in ('before_first', 'before_last', 'after_first', 'after_last')])}")
+                raise RuntimeError(f"Too many matches, return value would be ambigous (Expected 1, got {len(matches)}).")
 
         if raise_if_absent and not matches:
             raise RuntimeError(f"'{regex}' could not be found in '{self}'.")

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import collections
-from typing import Any, Dict, Iterable, List, Tuple, no_type_check
+from typing import Any, Dict, Iterable, List, Tuple, Match, no_type_check
 
 from lazy_property import LazyProperty
 
@@ -96,3 +96,63 @@ class List_(collections.UserList, list):  # type: ignore
         adjusted = [[f"{with_seps[num][index]}{tab_sizes[index][num] * delimiter}" for index in indices] for num in range(len(with_seps))]
 
         return f"{linesep}".join(["".join(sublist).rstrip() for sublist in adjusted])
+
+    def before(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self)() if not matches else type(self)(self[:matches[0]])
+
+    def before_first(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)() if not matches else type(self)(self[:matches[0]])
+
+    def before_last(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)() if not matches else type(self)(self[:matches[-1]])
+
+    def after(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self)() if not matches else type(self)(self[matches[0]+1:])
+
+    def after_first(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)() if not matches else type(self)(self[matches[0]+1:])
+
+    def after_last(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)() if not matches else type(self)(self[matches[-1]+1:])
+
+    def from_(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self)() if not matches else type(self)(self[matches[0]:])
+
+    def from_first(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)() if not matches else type(self)(self[matches[0]:])
+
+    def from_last(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)() if not matches else type(self)(self[matches[-1]:])
+
+    def until(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self)() if not matches else type(self)(self[:matches[0]+1])
+
+    def until_first(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)() if not matches else type(self)(self[:matches[0]+1])
+
+    def until_last(self, value: Any, raise_if_absent: bool = False) -> List_:
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self)() if not matches else type(self)(self[:matches[-1]+1])
+
+    def _slice_helper(self, value: Any, raise_if_absent: bool = False, multiple_matches_forbidden: bool = False) -> List[Match[str]]:
+        matches = [index for index, val in enumerate(self) if val == value]
+
+        if multiple_matches_forbidden:
+            if len(matches) > 1:
+                raise RuntimeError(f"Too many matches, return value would be ambigous (Expected 1, got {len(matches)}).")
+
+        if raise_if_absent and not matches:
+            raise RuntimeError(f"'{value}' could not be found in '{self}'.")
+
+        return matches
