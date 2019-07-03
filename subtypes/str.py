@@ -8,6 +8,7 @@ import warnings
 
 import regex as regexmod
 import inflect
+import clipboard
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -79,6 +80,9 @@ class Str(collections.UserString, str):  # type: ignore
         aslist = list(self.data)
         aslist[key] = str(item)
         self.data = "".join(aslist)
+
+    def to_clipboard(self) -> None:
+        clipboard.copy(self.data)
 
     # stripping
 
@@ -198,3 +202,7 @@ class Str(collections.UserString, str):  # type: ignore
     def best_n_fuzzy_matches(self, possible_matches: List[str], num: int = 3) -> List[Tuple[str, int]]:
         match_scores = {self.fuzzy_match(match): match for match in possible_matches}
         return [(match_scores[score], score) for index, score in itertools.takewhile(lambda tup: tup[0] < num, enumerate(sorted(match_scores, reverse=True)))]
+
+    @classmethod
+    def from_clipboard(cls) -> Str:
+        return cls(clipboard.paste())
