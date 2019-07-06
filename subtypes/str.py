@@ -10,6 +10,8 @@ import regex as regexmod
 import inflect
 import clipboard
 
+from maybe import Maybe
+
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from fuzzywuzzy import fuzz
@@ -137,10 +139,10 @@ class Str(collections.UserString, str):  # type: ignore
         return self
 
     def search(self, regex: str, **kwargs: Any) -> Match[str]:
-        return regexmod.search(regex, self.data, flags=self.re(), **kwargs)
+        return regexmod.search(regex, self.data, flags=Maybe(kwargs.pop("flags", None)).else_(self.re()), **kwargs)
 
     def sub(self, regex: str, sub: Union[str, Callable], raise_for_failure: bool = False, **kwargs: Any) -> Str:
-        subbed = regexmod.sub(regex, sub, self.data, flags=self.re(), **kwargs)
+        subbed = regexmod.sub(regex, sub, self.data, flags=Maybe(kwargs.pop("flags", None)).else_(self.re()), **kwargs)
 
         if raise_for_failure:
             if self.data == subbed:
@@ -149,10 +151,10 @@ class Str(collections.UserString, str):  # type: ignore
         return type(self)(subbed)
 
     def finditer(self, regex: str, **kwargs: Any) -> Iterator[Match[str]]:
-        return regexmod.finditer(regex, self.data, flags=self.re(), **kwargs)
+        return regexmod.finditer(regex, self.data, flags=Maybe(kwargs.pop("flags", None)).else_(self.re()), **kwargs)
 
     def splitre(self, regex: str, **kwargs: Any) -> List[Str]:
-        return [type(self)(item) for item in regexmod.split(regex, self.data, flags=self.re(), **kwargs)]
+        return [type(self)(item) for item in regexmod.split(regex, self.data, flags=Maybe(kwargs.pop("flags", None)).else_(self.re()), **kwargs)]
 
     # slicing methods (with regex)
 
