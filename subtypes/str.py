@@ -21,6 +21,9 @@ class RegexSettings:
     def __init__(self, dotall: bool = True, ignorecase: bool = True, multiline: bool = False):
         self.dotall, self.ignorecase, self.multiline = dotall, ignorecase, multiline
 
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self.__dict__.items() if not attr.startswith('_')])})"
+
     def __and__(self, other: Union[int, re.RegexFlag]) -> int:
         return self.get_flag() & other
 
@@ -114,12 +117,12 @@ class Str(collections.UserString, str):  # type: ignore
         final = regexmod.sub(r"(_+)", r"_", stage3)                             # replace multiple underscores with a single underscore
         return type(self)(final.lower().strip("_"))                             # lowercase whatever is left and strip away trailing underscores
 
+    def identifier(self) -> Str:
+        return type(self)(self.snake_case().sub(r"^(?=\d+)", "_"))
+
     def plural(self) -> Str:
         """Produce a 'pluralized' name, e.g. 'SomeTerm' -> 'SomeTerms'"""
         return type(self)(inflect.engine().plural(self.data))
-
-    def identifier(self) -> Str:
-        return type(self)(self.snake_case().sub(r"^(?=\d+)", "_"))
 
     # parsing
 
