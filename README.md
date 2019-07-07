@@ -5,7 +5,7 @@ Subtypes provides subclasses for certain python builtins (str, list, dict) and
 common complex types (datetime, Enum, DataFrame, BeautifulSoup) which add functionality
 and convenience methods/properties.
 
-The Str class (subclasses str)
+The `Str` class (subclasses `str`)
 --------------------
 * Can be sliced
 * Complex slicing methods
@@ -15,48 +15,49 @@ The Str class (subclasses str)
 * Casing
 * Stripping
 
-The List_ class (subclasses list)
+The `List_` class (subclasses `list`)
 --------------------
-* Method chaining on in-place mutation methods (list.append(), list.clear() etc.)
+* Method chaining on in-place mutation methods (`list.append()`, `list.clear()` etc.)
 * Complex slicing methods
 * Fuzzy matching
 
-The Dict_ class (subclasses dict)
+The `Dict_` class (subclasses `dict`)
 --------------------
-* Method chaining on in-place mutation methods (dict.update(), dict.clear() etc.)
+* Method chaining on in-place mutation methods (`dict.update()`, `dict.clear()` etc.)
 * filtering and getting values based on regular expressions, for keys that are strings.
 
-The DateTime class (subclasses datetime.datetime)
+The `DateTime` class (subclasses `datetime.datetime`)
 --------------------
-* DateTime.delta() method (timedelta addition and subtraction using keyword arguments)
+* `DateTime.delta()` method (timedelta addition and subtraction using keyword arguments)
 * Methods representing the DateTime in various useful formats
-* FormatCode Enum, that can be used with DateTime.strftime() and DateTime.strptime().
+* FormatCode Enum, that can be used with `DateTime.strftime()` and `DateTime.strptime()`.
 * Accessor objects that shadow the object's basic attributes as PascalCase
-  (Year for year, Day for day, MicroSecond for microsecond) which return that attribute
-  as a string in various formats, based on the available format codes of the datetime class.
+  (`DateTime.Year` for `DateTime.year`, `DateTime.MicroSecond` for `DateTime.microsecond`
+  etc.) which return that attribute as a string in various formats, based on the available
+  format codes of the datetime class.
 
-The Enum class (subclasses aenum.Enum)
+The `Enum` class (subclasses `aenum.Enum`)
 --------------------
-* Incorporates the aenum library's extend_enum function directly as a method of the Enum class
+* Incorporates the aenum library's `extend_enum` function directly as `Enum.extend_enum()`
 * returns the value of its members on attribute access, rather than the members themselves.
 
-The Markup class (subclasses bs4.BeautifulSoup)
+The `Markup` class (subclasses `bs4.BeautifulSoup`)
 --------------------
 * Ensures the 'html.parser' is selected , rather than the system's best available parser
 
-The Frame class (subclasses pandas.DataFrame)
+The `Frame` class (subclasses `pandas.DataFrame`)
 --------------------
-* Ensures the use of the new Int64 Series dtype when constructed with an iterable that only
-  contains ints and Nones (rather than using the default float64)
+* Ensures the use of the new Int64 `Series` dtype when constructed with an iterable that only
+  contains `int` and `None` (rather than using the default float64)
 * High-level methods for pivoting and unpivoting
 * Change the casing of the column names
-* Represent the Frame as ascii
-* Modified Frame.to_excel() formatting the output file to an excel table and returning a path object
-* Modified Frame.to_sql(), which has better SQL type selection and allows one of the columns
+* Represent the `Frame` as ascii
+* Modified `Frame.to_excel()` formats the output file to an excel table, returns a path object
+* Modified `Frame.to_sql()`, with better SQL type selection, allows one of the columns
   (or the index) to be used as a primary key for the resulting SQL table.
-* Modified Frame.from_excel(), capable of inferring table boundaries from imperfect excel spreadsheets
+* Modified `Frame.from_excel()`, capable of inferring table boundaries from imperfect spreadsheets
   using several rulesets, recasing the column names, and removing password protection
-* Create a dataframe an iterable of homogenous objects
+* Create a `Frame` an iterable of homogenous objects
 * Write out an iterable of Frames as a single excel document with multiple sheets.
 * Other misc utility functions (eg. replacing all NaN values with None, etc.)
 
