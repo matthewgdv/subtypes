@@ -142,9 +142,15 @@ class Frame(pd.DataFrame):
 
     @classmethod
     def many_to_excel(cls, frames: Collection[Frame], filepath: os.PathLike, index: bool = False, **kwargs: Any) -> PathLike:
+        try:
+            mappings = dict(frames)
+        except Exception:
+            mappings = {f"Sheet{idx + 1}": frame for idx, frame in enumerate(frames)}
+
         with ExcelWriter(filepath=filepath) as writer:
-            for idx, frame in enumerate(frames):
-                frame._write_to_excel(writer=writer, sheet_name=f"Sheet{idx + 1}", index=index, **kwargs)
+            for name, frame in mappings.items():
+                frame._write_to_excel(writer=writer, sheet_name=name, index=index, **kwargs)
+
         return cls._get_path_constructor()(filepath)
 
     @classmethod
