@@ -1,17 +1,25 @@
 import pytest
+from subtypes.enum import Enum
 
 
-def test_EnumMeta___getattribute__():
-    assert True
+class Animal(Enum):
+    PYTHON, DOG, CAT, GERBIL = "snek", 1, None, False
+
+
+@pytest.mark.parametrize(["value", "expected"], [(member.name, member.value) for member in Animal])
+def test_EnumMeta___getattribute__(value, expected):
+    assert getattr(Animal, value) == expected
 
 
 def test_EnumMeta___repr__():
     assert True
 
 
-def test_EnumMeta___str__():
-    assert True
+@pytest.mark.parametrize(["value", "expected"], [(member, member.value) for member in Animal])
+def test_EnumMeta___str__(value, expected):
+    assert str(value) == str(expected)
 
 
 def test_EnumMeta_extend_enum():
-    assert True
+    Animal.extend_enum(name="OTTER", value=1.5)
+    assert Animal.OTTER == 1.5

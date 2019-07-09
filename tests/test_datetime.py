@@ -1,11 +1,11 @@
-import pytest
+# import pytest
+import datetime
+from subtypes.datetime import DateTime
+
+example_datetime = DateTime(1994, 3, 24)
 
 
 def test_DateTimeAccessor___init__():
-    assert True
-
-
-def test_DateTime___call__():
     assert True
 
 
@@ -14,35 +14,37 @@ def test_DateTime___repr__():
 
 
 def test_DateTime_casual_date():
-    assert True
+    assert example_datetime.casual_date(full_month=True, day_first=True, day_suffix=True) == "24th March 1994"
+    assert example_datetime.casual_date(full_month=False, day_first=False, day_suffix=False) == "Mar 24 1994"
 
 
 def test_DateTime_delta():
-    assert True
+    assert example_datetime.delta(years=26, months=-2, days=-23) == DateTime(2020, 1, 1)
 
 
 def test_DateTime_filetag_date():
-    assert True
+    assert example_datetime.filetag_date() == "19940324"
 
 
 def test_DateTime_from_date():
-    assert True
+    assert example_datetime == DateTime.from_date(datetime.date(2019, 3, 24))
 
 
 def test_DateTime_from_datetime():
-    assert True
+    assert example_datetime == DateTime.from_datetime(datetime.datetime(2019, 3, 24))
 
 
 def test_DateTime_isoformat_date():
-    assert True
+    assert example_datetime.isoformat_date(dashes=True, reverse=False) == "1994-03-24"
+    assert example_datetime.isoformat_date(dashes=False, reverse=True) == "24031994"
 
 
 def test_DateTime_logformat():
-    assert True
+    assert example_datetime.logformat() == "[1994-03-24 00:00:00:000000]"
 
 
 def test_DateTime_today():
-    assert True
+    assert datetime.date.today() == DateTime.today()
 
 
 def test_Day___init__():
