@@ -1,9 +1,8 @@
 Overview
 ====================
 
-Subtypes provides subclasses for certain python builtins (str, list, dict) and
-common complex types (datetime, Enum, DataFrame, BeautifulSoup) which add functionality
-and convenience methods/properties.
+Subtypes provides subclasses for certain python builtins (str, list, dict) and common complex types (datetime, Enum, DataFrame, BeautifulSoup) which add functionality and
+convenience methods/properties.
 
 The `Str` class (subclasses `str`)
 --------------------
@@ -31,10 +30,8 @@ The `DateTime` class (subclasses `datetime.datetime`)
 * `DateTime.delta()` method (timedelta addition and subtraction using keyword arguments)
 * Methods representing the DateTime in various useful formats
 * FormatCode Enum, that can be used with `DateTime.strftime()` and `DateTime.strptime()`.
-* Accessor objects that shadow the object's basic attributes as PascalCase
-  (`DateTime.Year` for `DateTime.year`, `DateTime.MicroSecond` for `DateTime.microsecond`
-  etc.) which return that attribute as a string in various formats, based on the available
-  format codes of the datetime class.
+* Accessor objects that shadow the object's basic attributes as PascalCase (`DateTime.Year` for `DateTime.year`, `DateTime.MicroSecond` for `DateTime.microsecond` etc.) which
+  return that attribute as a string in various formats, based on the available format codes of the datetime class.
 
 The `Enum` class (subclasses `aenum.Enum`)
 --------------------
@@ -47,16 +44,13 @@ The `Markup` class (subclasses `bs4.BeautifulSoup`)
 
 The `Frame` class (subclasses `pandas.DataFrame`)
 --------------------
-* Ensures the use of the new Int64 `Series` dtype when constructed with an iterable that only
-  contains `int` and `None` (rather than using the default float64)
+* Ensures the use of the new Int64 `Series` dtype when constructed with an iterable that only contains `int` and `None` (rather than using the default float64)
 * High-level methods for pivoting and unpivoting
 * Change the casing of the column names
 * Represent the `Frame` as ascii
 * Modified `Frame.to_excel()` formats the output file to an excel table, returns a path object
-* Modified `Frame.to_sql()`, with better SQL type selection, allows one of the columns
-  (or the index) to be used as a primary key for the resulting SQL table.
-* Modified `Frame.from_excel()`, capable of inferring table boundaries from imperfect spreadsheets
-  using several rulesets, recasing the column names, and removing password protection
+* Modified `Frame.to_sql()`, with better SQL type selection, allows one of the columns (or the index) to be used as a primary key for the resulting SQL table.
+* Modified `Frame.from_excel()`, capable of inferring table boundaries from messy spreadsheets using several rulesets, recasing the column names, and removing password protection
 * Create a `Frame` an iterable of homogenous objects
 * Write out an iterable of Frames as a single excel document with multiple sheets.
 * Other misc utility functions (eg. replacing all NaN values with None, etc.)
@@ -84,8 +78,7 @@ Detailed usage examples coming soon.
 Contributing
 ====================
 
-Contributions are welcome, and they are greatly appreciated! Every
-little bit helps, and credit will always be given.
+Contributions are welcome, and they are greatly appreciated! Every little bit helps, and credit will always be given.
 
 You can contribute in many ways:
 
@@ -103,20 +96,17 @@ If you are reporting a bug, please include:
 Fix Bugs
 --------------------
 
-Look through the GitHub issues for bugs. Anything tagged with "bug"
-and "help wanted" is open to whoever wants to implement a fix for it.
+Look through the GitHub issues for bugs. Anything tagged with "bug" and "help wanted" is open to whoever wants to implement a fix for it.
 
 Implement Features
 --------------------
 
-Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it.
+Look through the GitHub issues for features. Anything tagged with "enhancement" and "help wanted" is open to whoever wants to implement it.
 
 Write Documentation
 --------------------
 
-The repository could always use more documentation, whether as part of the
-official docs, in docstrings, or even on the web in blog posts, articles, and such.
+The repository could always use more documentation, whether as part of the official docs, in docstrings, or even on the web in blog posts, articles, and such.
 
 Submit Feedback
 --------------------
@@ -134,25 +124,18 @@ Get Started!
 
 Before you submit a pull request, check that it meets these guidelines:
 
-1.  If the pull request adds functionality, it should include tests and the docs
-    should be updated. Write docstrings for any functions that are part of the external API,
-    and add the feature to the README.md.
+1.  If the pull request adds functionality, it should include tests and the docs should be updated. Write docstrings for any functions that are part of the external API, and add
+    the feature to the README.md.
 
-2.  If the pull request fixes a bug, tests should be added proving that the bug has been fixed.
-    However, no update to the docs is necessary for bugfixes.
+2.  If the pull request fixes a bug, tests should be added proving that the bug has been fixed. However, no update to the docs is necessary for bugfixes.
 
-3.  The pull request should work for the newest version of Python (currently 3.7). Older
-    versions may incidentally work, but are not officially supported.
+3.  The pull request should work for the newest version of Python (currently 3.7). Older versions may incidentally work, but are not officially supported.
 
-4.  Inline type hints should be used, with an emphasis on ensuring that introspection and
-    autocompletion tools such as Jedi are able to understand the code wherever possible.
+4.  Inline type hints should be used, with an emphasis on ensuring that introspection and autocompletion tools such as Jedi are able to understand the code wherever possible.
 
-5.  PEP8 guidelines should be followed where possible, but deviations from it where
-    it makes sense and improves legibility are encouraged. The following PEP8 error
-    codes can be safely ignored: E121, E123, E126, E226, E24, E704, W503
+5.  PEP8 guidelines should be followed where possible, but deviations from it where it makes sense and improves legibility are encouraged. The following PEP8 error codes can be
+    safely ignored: E121, E123, E126, E226, E24, E704, W503
 
-6.  This repository intentionally disallows the PEP8 79-character limit. Therefore,
-    any contributions adhering to this convention will be rejected. As a rule of
-    thumb you should endeavor to stay under 200 characters except where going over
-    preserves alignment, or where the line is mostly non-algorythmic code, such as
-    extremely long strings or function calls.
+6.  This repository intentionally disallows the PEP8 79-character limit. Therefore, any contributions adhering to this convention will be rejected. As a rule of thumb you should
+    endeavor to stay under 200 characters except where going over preserves alignment, or where the line is mostly non-algorythmic code, such as extremely long strings or function
+    calls.
