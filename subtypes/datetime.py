@@ -57,9 +57,6 @@ class DateTime(dt.datetime):
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([str(getattr(self, attr)) for attr in ['year', 'month', 'day', 'hour', 'minute', 'second'] if getattr(self, attr)])})"
 
-    def __call__(self) -> dt.datetime:
-        return dt.datetime.fromisoformat(self.isoformat())
-
     @staticmethod
     def today(**kwargs: Any) -> DateTime:
         return DateTime.from_date(dt.date.today())
@@ -75,6 +72,12 @@ class DateTime(dt.datetime):
     @staticmethod
     def from_datetime(datetime: dt.datetime) -> DateTime:
         return DateTime.fromisoformat(datetime.isoformat())  # type: ignore
+
+    def to_date(self) -> dt.date:
+        return dt.date.fromordinal(self.toordinal())
+
+    def to_datetime(self) -> dt.datetime:
+        return dt.datetime.fromisoformat(self.isoformat())
 
     def casual_date(self, full_month: bool = False, day_first: bool = True, day_suffix: bool = False) -> str:
         day, month, year = self.Day.with_suffix if day_suffix else self.day, self.Month.full if full_month else self.Month.short, self.Year.full

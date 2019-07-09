@@ -10,6 +10,8 @@ import regex as regexmod
 import inflect
 import clipboard
 
+from maybe import Maybe
+
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from fuzzywuzzy import fuzz
@@ -18,6 +20,9 @@ with warnings.catch_warnings():
 class RegexSettings:
     def __init__(self, dotall: bool = True, ignorecase: bool = True, multiline: bool = False):
         self.dotall, self.ignorecase, self.multiline = dotall, ignorecase, multiline
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self.__dict__.items() if not attr.startswith('_')])})"
 
     def __and__(self, other: Union[int, re.RegexFlag]) -> int:
         return self.get_flag() & other
@@ -112,12 +117,12 @@ class Str(collections.UserString, str):  # type: ignore
         final = regexmod.sub(r"(_+)", r"_", stage3)                             # replace multiple underscores with a single underscore
         return type(self)(final.lower().strip("_"))                             # lowercase whatever is left and strip away trailing underscores
 
+    def identifier(self) -> Str:
+        return type(self)(self.snake_case().sub(r"^(?=\d+)", "_"))
+
     def plural(self) -> Str:
         """Produce a 'pluralized' name, e.g. 'SomeTerm' -> 'SomeTerms'"""
         return type(self)(inflect.engine().plural(self.data))
-
-    def identifier(self) -> Str:
-        return type(self)(self.snake_case().sub(r"^(?=\d+)", "_"))
 
     # parsing
 
@@ -137,10 +142,10 @@ class Str(collections.UserString, str):  # type: ignore
         return self
 
     def search(self, regex: str, **kwargs: Any) -> Match[str]:
-        return regexmod.search(regex, self.data, flags=self.re(), **kwargs)
+        return regexmod.search(regex, self.data, flags=Maybe(kwargs.pop("flags", None)).else_(self.re()), **kwargs)
 
     def sub(self, regex: str, sub: Union[str, Callable], raise_for_failure: bool = False, **kwargs: Any) -> Str:
-        subbed = regexmod.sub(regex, sub, self.data, flags=self.re(), **kwargs)
+        subbed = regexmod.sub(regex, sub, self.data, flags=Maybe(kwargs.pop("flags", None)).else_(self.re()), **kwargs)
 
         if raise_for_failure:
             if self.data == subbed:
@@ -149,10 +154,10 @@ class Str(collections.UserString, str):  # type: ignore
         return type(self)(subbed)
 
     def finditer(self, regex: str, **kwargs: Any) -> Iterator[Match[str]]:
-        return regexmod.finditer(regex, self.data, flags=self.re(), **kwargs)
+        return regexmod.finditer(regex, self.data, flags=Maybe(kwargs.pop("flags", None)).else_(self.re()), **kwargs)
 
     def splitre(self, regex: str, **kwargs: Any) -> List[Str]:
-        return [type(self)(item) for item in regexmod.split(regex, self.data, flags=self.re(), **kwargs)]
+        return [type(self)(item) for item in regexmod.split(regex, self.data, flags=Maybe(kwargs.pop("flags", None)).else_(self.re()), **kwargs)]
 
     # slicing methods (with regex)
 

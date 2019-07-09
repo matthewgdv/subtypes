@@ -87,12 +87,12 @@ class Frame(pd.DataFrame):
 
         if case is not None:
             clean_case = case.strip().lower()
-            if clean_case == Frame.ColumnCase.Snake:
+            if clean_case == self.ColumnCase.Snake:
                 df.columns = [Str(str(colname)).snake_case() for colname in df.columns]
-            elif clean_case in [Frame.ColumnCase.Camel, Frame.ColumnCase.Pascal]:
-                df.columns = [Str(str(colname)).camel_case(pascal=clean_case == Frame.ColumnCase.Pascal) for colname in df.columns]
+            elif clean_case in [self.ColumnCase.Camel, self.ColumnCase.Pascal]:
+                df.columns = [Str(str(colname)).camel_case(pascal=clean_case == self.ColumnCase.Pascal) for colname in df.columns]
             else:
-                raise ValueError(f"Unrecognized case '{case}', must be 'snake', 'camel', or 'pascal'.")
+                raise ValueError(f"Unrecognized case '{case}', must be one of {self.ColumnCase}.")
 
         return df
 
@@ -159,11 +159,10 @@ class Frame(pd.DataFrame):
         if skipcols:
             frame = frame.iloc[:, skipcols:]
 
-        frame = frame.sanitize_colnames(case=case)
-
         if infer_headers:
             frame._infer_column_headers()
-            frame = frame.sanitize_colnames(case=case)
+
+        frame = frame.sanitize_colnames(case=case)
 
         if infer_range:
             frame._infer_range(mode=infer_range)
