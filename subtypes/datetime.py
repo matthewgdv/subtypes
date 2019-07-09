@@ -90,9 +90,12 @@ class DateTime(dt.datetime):
     def filetag_date(self) -> str:
         return self.isoformat_date(dashes=False)
 
-    def logformat(self) -> str:
+    def logformat(self, labels: bool = False) -> str:
         Code = FormatCode
-        return self.strftime(f"[{Code.YEAR.WITH_CENTURY}-{Code.MONTH.NUM}-{Code.DAY.NUM} {Code.HOUR.H24}:{Code.MINUTE.NUM}:{Code.SECOND.NUM}:{Code.MICROSECOND.NUM}]")
+        if labels:
+            return self.strftime(f"[{Code.YEAR.WITH_CENTURY}-{Code.MONTH.NUM}-{Code.DAY.NUM} {Code.HOUR.H24}h {Code.MINUTE.NUM}m {Code.SECOND.NUM}s {Code.MICROSECOND.NUM}ms]")
+        else:
+            return self.strftime(f"[{Code.YEAR.WITH_CENTURY}-{Code.MONTH.NUM}-{Code.DAY.NUM} {Code.HOUR.H24}:{Code.MINUTE.NUM}:{Code.SECOND.NUM}:{Code.MICROSECOND.NUM}]")
 
     def delta(self, *args: Any, **kwargs: Any) -> "DateTime":
         return self.fromisoformat((self + relativedelta(*args, **kwargs)).isoformat())  # type: ignore
