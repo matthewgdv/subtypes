@@ -52,9 +52,7 @@ class WeekDays(Enum):
 
 
 class DateTime(dt.datetime):
-    nanosecond = 0
-    FormatCode = FormatCode
-    WeekDays = WeekDays
+    nanosecond, FormatCode, WeekDays = 0, FormatCode, WeekDays
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([str(getattr(self, attr)) for attr in ['year', 'month', 'day', 'hour', 'minute', 'second'] if getattr(self, attr)])})"
