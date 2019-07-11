@@ -77,9 +77,9 @@ class Frame(pd.DataFrame):
         table.insert(None)
 
     @_check_import_is_available
-    def to_alchemy(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail", primary_key: str = "id", identity: bool = True) -> Any:
-        from sqlhandler import Alchemy
-        return Alchemy(database=database).frame_to_table(self, table=table, schema=schema, if_exists=if_exists, primary_key=primary_key, identity=identity)
+    def to_table(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail", primary_key: str = "id", identity: bool = True) -> Any:
+        from sqlhandler import Sql
+        return Sql(database=database).frame_to_table(self, table=table, schema=schema, if_exists=if_exists, primary_key=primary_key, identity=identity)
 
     def sanitize_colnames(self, case: str = DEFAULT_COLUMN_CASE) -> Frame:
         df = self.copy()
