@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, List
 import enum
 
 import aenum
@@ -21,6 +21,14 @@ class EnumMeta(aenum.EnumMeta):
 
         return value
 
+    @property
+    def names(cls) -> List[str]:
+        return [member.name for member in cls]
+
+    @property
+    def values(cls) -> List[Any]:
+        return [member.value for member in cls]
+
     def extend_enum(cls, name: str, value: Any) -> EnumMeta:
         aenum.extend_enum(cls, name, value)
 
@@ -30,8 +38,9 @@ class EnumMeta(aenum.EnumMeta):
         except TypeError:
             return False
 
-    def NotAMemberError(cls, value: Any) -> ValueError:
-        return ValueError(f"Invalid {cls.__name__} '{value}', must be one of {cls}.")
+    def raise_if_not_a_member(cls, value: Any) -> None:
+        if value not in cls.values:
+            raise ValueError(f"Invalid {cls.__name__} '{value}', must be one of {cls}.")
 
 
 class Enum(aenum.Enum, metaclass=EnumMeta):
