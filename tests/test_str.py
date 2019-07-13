@@ -1,4 +1,7 @@
-# import pytest
+import pytest
+from subtypes.str import Str
+
+hi = Str("Hello World!")
 
 
 def test_FuzzyMatcher___call__():
@@ -58,7 +61,7 @@ def test_Str___init__():
 
 
 def test_Str___setitem__():
-    assert True
+    assert hi[1:4] == "ell"
 
 
 def test_Str__slice_helper():
@@ -66,107 +69,118 @@ def test_Str__slice_helper():
 
 
 def test_Str_after():
-    assert True
+    assert hi.after(r"w") == "orld!"
+    with pytest.raises(ValueError):
+        hi.after(r"l")
 
 
 def test_Str_after_first():
-    assert True
+    assert hi.after(r"l") == "lo World!"
 
 
 def test_Str_after_last():
-    assert True
+    assert hi.after(r"l") == "d!"
 
 
 def test_Str_before():
-    assert True
+    assert hi.before(r"w") == "Hello "
+    with pytest.raises(ValueError):
+        hi.before(r"l")
 
 
 def test_Str_before_first():
-    assert True
+    assert hi.before(r"l") == "He"
 
 
 def test_Str_before_last():
-    assert True
+    assert hi.before(r"l") == "Hello Wor"
 
 
 def test_Str_best_n_fuzzy_matches():
-    assert True
+    assert [match for match, score in hi.best_n_fuzzy_matches(["Hello Worlds!", "Haii, I'm a world!", "Hiya World!", "Hi Friend!"], num=2)] == ["Hello Worlds!", "Hiya World!"]
 
 
 def test_Str_camel_case():
-    assert True
+    assert hi.camel_case() == "HelloWorld"
 
 
 def test_Str_configure_fuzzy():
-    assert True
+    val = Str("")
+    val.configure_fuzzy(tokenize=True, partial=True)
+    assert val.fuzzy.tokenize == True and val.fuzzy.partial == True
 
 
 def test_Str_configure_re():
-    assert True
+    val = Str("")
+    val.configure_re(dotall=False, ignorecase=False, multiline=True)
+    assert val.re.dotall == False and val.re.ignorecase == False and val.re.multiline == True
 
 
 def test_Str_extract_uk_postcode():
-    assert True
+    assert Str("Hi, I'm located at eh165pn.").extract_uk_postcode() == "EH16 5PN"
 
 
 def test_Str_find_all():
-    assert True
+    assert hi.find_all("l") == [2, 3, 9]
 
 
 def test_Str_finditer():
-    assert True
+    assert [match.group() for match in hi.finditer(r"\w[A-Za-z]+\w")] == ["Hello", "World"]
 
 
 def test_Str_from_():
-    assert True
+    assert hi.from_(r"w") == "World!"
+    with pytest.raises(ValueError):
+        hi.from_(r"l")
 
 
 def test_Str_from_first():
-    assert True
+    assert hi.from_(r"l") == "llo World!"
 
 
 def test_Str_from_last():
-    assert True
+    assert hi.from_(r"l") == "ld!"
 
 
 def test_Str_fuzzy_match():
-    assert True
+    assert hi.fuzzy_match("Hello Worlds!") > 95
 
 
 def test_Str_identifier():
-    assert True
+    assert Str("123Hello World!").identifier() == "_hello_world"
 
 
-def test_Str_plural():
-    assert True
+@pytest.mark.parametrize(["value", "expected"], [("Snake", "Snakes"), ("Hero", "Heroes"), ("Princess", "Princesses"), ("Leaf", "Leaves"), ("Man", "Men"), ("Woman", "Women"), ("Tooth", "Teeth"), ("Mouse", "Mice"), ("Deer", "Deer")])
+def test_Str_plural(value, expected):
+    assert Str(value).plural() == expected
 
 
 def test_Str_search():
-    assert True
+    assert hi.search(r"\wwor[A-Za-z]+\w").group() == "World"
 
 
 def test_Str_snake_case():
-    assert True
+    assert hi.snake_case() == "hello_world"
 
 
 def test_Str_splitre():
-    assert True
+    assert Str("Hi, how's it going?").splitre(r",?\s+") == ["Hi", "how's", "it", "going?"]
 
 
 def test_Str_strip_non_alphanumeric():
-    assert True
+    assert hi.strip_non_alphanumeric() == "Hello World"
 
 
 def test_Str_strip_non_ascii():
-    assert True
+    assert Str("★Hi!★").strip_non_ascii() == "Hi!"
 
 
 def test_Str_strip_whitespace():
-    assert True
+    assert Str("\nHello   World!\n\t").strip_non_ascii() == "Hello World!"
 
 
 def test_Str_sub():
-    assert True
+    assert hi.sub(r"world", "Friend") == "Hello Friend!"
 
 
 def test_Str_to_clipboard():
@@ -174,12 +188,14 @@ def test_Str_to_clipboard():
 
 
 def test_Str_until():
-    assert True
+    assert hi.until(r"w") == "Hello W"
+    with pytest.raises(ValueError):
+        hi.until(r"l")
 
 
 def test_Str_until_first():
-    assert True
+    assert hi.until(r"l") == "Hel"
 
 
 def test_Str_until_last():
-    assert True
+    assert hi.until(r"l") == "Hello Worl"
