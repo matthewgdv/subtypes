@@ -82,17 +82,17 @@ def test_List__fuzzy_match_lists(default_list):
 
 def test_List__insert(default_list):
     ret = default_list.insert(4, 2)
-    assert ret is default_list and default_list == [0, 1, 1, 1, 2, 2, 3, 4, 4, 5, 6]
+    assert ret is default_list and default_list == [0, 1, 1, 1, 2, 2, 3, 4, 4, 5]
 
 
 def test_List__remove(default_list):
     ret = default_list.remove(1)
-    assert ret is default_list and default_list == [0, 1, 1, 2, 3, 4, 4, 5, 6]
+    assert ret is default_list and default_list == [0, 1, 1, 2, 3, 4, 4, 5]
 
 
 def test_List__reverse(default_list):
     ret = default_list.reverse()
-    assert ret is default_list and default_list == [6, 5, 4, 4, 3, 2, 1, 1, 1, 0]
+    assert ret is default_list and default_list == [5, 4, 4, 3, 2, 1, 1, 1, 0]
 
 
 def test_List__sort():

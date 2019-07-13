@@ -27,11 +27,11 @@ def test_DateTime_filetag_date():
 
 
 def test_DateTime_from_date():
-    assert example_datetime == DateTime.from_date(datetime.date(2019, 3, 24))
+    assert example_datetime == DateTime.from_date(datetime.date(1994, 3, 24))
 
 
 def test_DateTime_from_datetime():
-    assert example_datetime == DateTime.from_datetime(datetime.datetime(2019, 3, 24))
+    assert example_datetime == DateTime.from_datetime(datetime.datetime(1994, 3, 24))
 
 
 def test_DateTime_isoformat_date():
@@ -44,7 +44,7 @@ def test_DateTime_logformat():
 
 
 def test_DateTime_today():
-    assert datetime.date.today() == DateTime.today()
+    assert datetime.date.today() == DateTime.today().to_date()
 
 
 def test_Day___init__():

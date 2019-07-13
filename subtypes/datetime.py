@@ -80,8 +80,8 @@ class DateTime(dt.datetime):
         return dt.datetime.fromisoformat(self.isoformat())
 
     def casual_date(self, full_month: bool = False, day_first: bool = True, day_suffix: bool = False) -> str:
-        day, month, year = self.Day.with_suffix if day_suffix else self.day, self.Month.full if full_month else self.Month.short, self.Year.full
-        return " ".join((day, month, year) if day_first else (month, day, year))
+        day, month, year = self.Day.with_suffix if day_suffix else self.day, self.Month.full if full_month else self.Month.short, self.Year.with_century
+        return " ".join([str(item) for item in ((day, month, year) if day_first else (month, day, year))])
 
     def isoformat_date(self, dashes: bool = True, reverse: bool = False) -> str:
         codes = (FormatCode.YEAR.WITH_CENTURY, FormatCode.MONTH.NUM, FormatCode.DAY.NUM)

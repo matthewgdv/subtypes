@@ -149,7 +149,7 @@ class Str(collections.UserString, str):  # type: ignore
 
         if raise_for_failure:
             if self.data == subbed:
-                raise RuntimeError(f"'{self.data}' was not changed!")
+                raise ValueError(f"'{self.data}' was not changed!")
 
         return type(self)(subbed)
 
@@ -214,10 +214,10 @@ class Str(collections.UserString, str):  # type: ignore
 
         if multiple_matches_forbidden:
             if len(matches) > 1:
-                raise RuntimeError(f"Too many matches, return value would be ambigous (Expected 1, got {len(matches)}).")
+                raise ValueError(f"Too many matches, return value would be ambigous (Expected 1, got {len(matches)}).")
 
         if raise_if_absent and not matches:
-            raise RuntimeError(f"'{regex}' could not be found in '{self}'.")
+            raise ValueError(f"'{regex}' could not be found in '{self}'.")
 
         return matches
 

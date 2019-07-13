@@ -75,11 +75,11 @@ def test_Str_after():
 
 
 def test_Str_after_first():
-    assert hi.after(r"l") == "lo World!"
+    assert hi.after_first(r"l") == "lo World!"
 
 
 def test_Str_after_last():
-    assert hi.after(r"l") == "d!"
+    assert hi.after_last(r"l") == "d!"
 
 
 def test_Str_before():
@@ -89,11 +89,11 @@ def test_Str_before():
 
 
 def test_Str_before_first():
-    assert hi.before(r"l") == "He"
+    assert hi.before_first(r"l") == "He"
 
 
 def test_Str_before_last():
-    assert hi.before(r"l") == "Hello Wor"
+    assert hi.before_last(r"l") == "Hello Wor"
 
 
 def test_Str_best_n_fuzzy_matches():
@@ -125,7 +125,7 @@ def test_Str_find_all():
 
 
 def test_Str_finditer():
-    assert [match.group() for match in hi.finditer(r"\w[A-Za-z]+\w")] == ["Hello", "World"]
+    assert [match.group() for match in hi.finditer(r"\b[A-Za-z]+\b")] == ["Hello", "World"]
 
 
 def test_Str_from_():
@@ -135,11 +135,11 @@ def test_Str_from_():
 
 
 def test_Str_from_first():
-    assert hi.from_(r"l") == "llo World!"
+    assert hi.from_first(r"l") == "llo World!"
 
 
 def test_Str_from_last():
-    assert hi.from_(r"l") == "ld!"
+    assert hi.from_last(r"l") == "ld!"
 
 
 def test_Str_fuzzy_match():
@@ -147,7 +147,7 @@ def test_Str_fuzzy_match():
 
 
 def test_Str_identifier():
-    assert Str("123Hello World!").identifier() == "_hello_world"
+    assert Str("123Hello World!").identifier() == "_123_hello_world"
 
 
 @pytest.mark.parametrize(["value", "expected"], [("Snake", "Snakes"), ("Hero", "Heroes"), ("Princess", "Princesses"), ("Leaf", "Leaves"), ("Man", "Men"), ("Woman", "Women"), ("Tooth", "Teeth"), ("Mouse", "Mice"), ("Deer", "Deer")])
@@ -156,7 +156,7 @@ def test_Str_plural(value, expected):
 
 
 def test_Str_search():
-    assert hi.search(r"\wwor[A-Za-z]+\w").group() == "World"
+    assert hi.search(r"\bwor[A-Za-z]+\b").group() == "World"
 
 
 def test_Str_snake_case():
@@ -168,7 +168,7 @@ def test_Str_splitre():
 
 
 def test_Str_strip_non_alphanumeric():
-    assert hi.strip_non_alphanumeric() == "Hello World"
+    assert hi.strip_non_alphanumeric() == "HelloWorld"
 
 
 def test_Str_strip_non_ascii():
@@ -176,7 +176,7 @@ def test_Str_strip_non_ascii():
 
 
 def test_Str_strip_whitespace():
-    assert Str("\nHello   World!\n\t").strip_non_ascii() == "Hello World!"
+    assert Str("\nHello   World!\n\t").strip_whitespace() == "Hello World!"
 
 
 def test_Str_sub():
@@ -194,8 +194,8 @@ def test_Str_until():
 
 
 def test_Str_until_first():
-    assert hi.until(r"l") == "Hel"
+    assert hi.until_first(r"l") == "Hel"
 
 
 def test_Str_until_last():
-    assert hi.until(r"l") == "Hello Worl"
+    assert hi.until_last(r"l") == "Hello Worl"
