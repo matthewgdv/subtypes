@@ -141,12 +141,14 @@ class Frame(pd.DataFrame):
 
         return df.where(df.notnull(), None)
 
+    @_check_import_is_available
     def profile_report(self, *args: Any, style: dict = None, **kwargs: Any) -> Any:
         import pandas_profiling
 
         style = Maybe(style).else_({'full_width': True})
         return pandas_profiling.ProfileReport(pd.DataFrame(self), *args, style=style, **kwargs)
 
+    @_check_import_is_available
     def profile_report_to(self, path: PathLike, *args: Any, style: dict = None, **kwargs: Any) -> Any:
         from pathmagic import File
 
