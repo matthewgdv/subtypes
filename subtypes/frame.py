@@ -149,7 +149,7 @@ class Frame(pd.DataFrame):
         return pandas_profiling.ProfileReport(pd.DataFrame(self), *args, style=style, **kwargs)
 
     @_check_import_is_available
-    def profile_report_to(self, path: PathLike, *args: Any, style: dict = None, **kwargs: Any) -> Any:
+    def profile_report_to(self, path: PathLike, *args: Any, style: dict = None, **kwargs: Any) -> PathLike:
         from pathmagic import File
 
         file = File(path)
