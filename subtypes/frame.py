@@ -10,6 +10,7 @@ import tabulate
 import pandas as pd
 from pandas.core.indexes.base import Index
 import numpy as np
+from maybe import Maybe
 
 from .str import Str
 from .enum import Enum
@@ -139,6 +140,20 @@ class Frame(pd.DataFrame):
                 df[name] = col.astype(object)
 
         return df.where(df.notnull(), None)
+
+    def profile_report(self, *args: Any, style: dict = None, **kwargs: Any) -> Any:
+        import pandas_profiling
+
+        style = Maybe(style).else_({'full_width': True})
+        return pandas_profiling.ProfileReport(pd.DataFrame(self), *args, style=style, **kwargs)
+
+    def profile_report_to(self, path: PathLike, *args: Any, style: dict = None, **kwargs: Any) -> Any:
+        from pathmagic import File
+
+        file = File(path)
+        self.profile_report(*args, **kwargs).to_file(output_file=str(file))
+
+        return file
 
     @classmethod
     def many_to_excel(cls, frames: Collection[Frame], filepath: os.PathLike, index: bool = False, **kwargs: Any) -> PathLike:
