@@ -152,7 +152,7 @@ class Frame(pd.DataFrame):
     def profile_report_to(self, path: PathLike, *args: Any, style: dict = None, **kwargs: Any) -> PathLike:
         from pathmagic import File
 
-        file = File(path)
+        file = File.from_pathlike(path)
         self.profile_report(*args, **kwargs).to_file(output_file=str(file))
 
         return file
