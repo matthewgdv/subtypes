@@ -6,20 +6,18 @@ class Animal(Enum):
     PYTHON, DOG, CAT, GERBIL = "snek", 1, None, False
 
 
-@pytest.mark.parametrize(["value", "expected"], [(member.name, member.value) for member in Animal])
-def test_EnumMeta___getattribute__(value, expected):
-    assert getattr(Animal, value) == expected
+class TestEnumMeta:
+    @pytest.mark.parametrize(["value", "expected"], [(member.name, member.value) for member in Animal])
+    def test___getattribute__(self, value, expected):
+        assert getattr(Animal, value) == expected
 
+    def test___repr__(self):
+        assert True
 
-def test_EnumMeta___repr__():
-    assert True
+    @pytest.mark.parametrize(["value", "expected"], [(member, member.value) for member in Animal])
+    def test___str__(self, value, expected):
+        assert str(value) == str(expected)
 
-
-@pytest.mark.parametrize(["value", "expected"], [(member, member.value) for member in Animal])
-def test_EnumMeta___str__(value, expected):
-    assert str(value) == str(expected)
-
-
-def test_EnumMeta_extend_enum():
-    Animal.extend_enum(name="OTTER", value=1.5)
-    assert Animal.OTTER == 1.5
+    def test_extend_enum(self):
+        Animal.extend_enum(name="OTTER", value=1.5)
+        assert Animal.OTTER == 1.5

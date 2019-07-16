@@ -1,5 +1,6 @@
 # import pytest
 
 
-def test_Markup___init__():
-    assert True
+class TestMarkup:
+    def test___init__(self):
+        assert True
