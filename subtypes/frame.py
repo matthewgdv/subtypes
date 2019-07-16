@@ -27,7 +27,7 @@ def _check_import_is_available(func: FuncSig) -> FuncSig:
         try:
             return func(*args, **kwargs)
         except ModuleNotFoundError as ex:
-            raise ModuleNotFoundError(f"Use of method '{func.__name__}' requires module '{ex.name}'. Please ensure it is available by installing it with pip.")
+            raise ModuleNotFoundError(f"Use of method '{func.__name__}' requires module '{ex.name}'. Please ensure it is available by installing it with pip.", name=ex.name, path=ex.path)
 
     return cast(FuncSig, wrapper)
 
