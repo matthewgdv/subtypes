@@ -144,7 +144,7 @@ class CasingAccessor:
         return type(self.parent)(case_conversion.backslashcase(self.parent, detect_acronyms=self.detect, acronyms=self.acronyms))
 
     def identifier(self) -> Str:
-        return self.snake().sub(r"^(?=\d+)", "_")
+        return self.snake().re.sub(r"^(?=\d+)", "_")
 
     def plural(self) -> Str:
         return type(self.parent)(inflect.engine().plural(self.parent))
