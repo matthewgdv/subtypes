@@ -1,19 +1,11 @@
 from __future__ import annotations
 
 import collections
-from typing import Any, Dict, Iterable, List, Tuple, Match, no_type_check
-
-from lazy_property import LazyProperty
-
-from .str import FuzzyMatcher
+from typing import Any, Dict, Iterable, List, Match, no_type_check
 
 
 class List_(collections.UserList, list):  # type: ignore
     data: list
-
-    @LazyProperty
-    def fuzzy(self) -> FuzzyMatcher:
-        return FuzzyMatcher()
 
     @no_type_check
     def append(self, item):
@@ -62,14 +54,6 @@ class List_(collections.UserList, list):  # type: ignore
         recurse(iterable=self.data, output=new_data, exclude_strings=exclude_strings)
         self.data = new_data
         return self
-
-    def fuzzy_match_lists(self, other: List[Any], match_cutoff: int = 100) -> List[Tuple[Any, Any]]:
-        fuzzy_matches = []
-        for str1 in self.data:
-            for str2 in other:
-                if self.fuzzy(str1, str2) >= match_cutoff:
-                    fuzzy_matches.append((str1, str2))
-        return fuzzy_matches
 
     def align_nested(self, fieldsep: str = ",", linesep: str = "\n", tabsize: int = 4, tabs: bool = False) -> str:
         def calculate_tabs_needed(this_len: int, max_len: int, tab_size: int = 4) -> int:

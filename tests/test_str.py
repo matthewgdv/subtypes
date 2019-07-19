@@ -3,6 +3,14 @@ from subtypes.str import Str
 
 hi = Str("Hello World!")
 
+# Str("| HiThis_is a CASINGTest-case &").case.snake() == "hi_this_is_a_casing_test_case"
+# Str("| HiThis_is a CASINGTest-case &").case.camel() == "hiThisIsACasingTestCase"
+# Str("| HiThis_is a CASINGTest-case &").case.pascal() == "HiThisIsACasingTestCase"
+# Str("| HiThis_is a CASINGTest-case &").case.constant() == "HI_THIS_IS_A_CASING_TEST_CASE"
+# Str("| HiThis_is a CASINGTest-case &").case.dash() == "hi-this-is-a-casing-test-case"
+# Str("| HiThis_is a CASINGTest-case &").case.dot() == "hi.this.is.a.casing.test.case"
+# Str("| HiThis_is a CASINGTest-case &").case.slash() == "Hi/This/is/a/CASING/Test/case"
+
 
 class TestFuzzyMatcher:
     def test___call__(self):

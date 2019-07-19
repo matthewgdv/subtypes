@@ -20,7 +20,7 @@ class Dict_(collections.UserDict, list):  # type: ignore
         return self
 
     def filter_re(self, regex: str) -> dict:
-        return type(self)({key: val for key, val in self.items() if isinstance(key, str) and Str(key).search(regex) is not None})
+        return type(self)({key: val for key, val in self.items() if isinstance(key, str) and Str(key).re.search(regex) is not None})
 
     def get_re(self, regex: str, limit: int = None) -> List[Any]:
         vals = self.filter_re(regex)

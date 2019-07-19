@@ -34,17 +34,17 @@ def _check_import_is_available(func: FuncSig) -> FuncSig:
 
 class Frame(pd.DataFrame):
     class InferRange(Enum):
-        TrimSurrounding, StripNulls, SmallestValid = "trim_surrounding", "strip_nulls", "smallest_valid"
+        TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID = "trim_surrounding", "strip_nulls", "smallest_valid"
 
     class ColumnCase(Enum):
-        Snake, Camel, Pascal = "snake", "camel", "pascal"
+        SNAKE, CAMEL, PASCAL = "snake", "camel", "pascal"
 
     class PathType(Enum):
-        PathMagic, PathLib, String = "pathmagic", "pathlib", "string"
+        PATHMAGIC, PATHLIB, STRING = "pathmagic", "pathlib", "string"
 
-    DEFAULT_COLUMN_CASE = ColumnCase.Snake
-    DEFAULT_INFER_RANGE = InferRange.SmallestValid
-    DEFAULT_PATH_TYPE = PathType.PathMagic
+    DEFAULT_COLUMN_CASE = ColumnCase.SNAKE
+    DEFAULT_INFER_RANGE = InferRange.SMALLEST_VALID
+    DEFAULT_PATH_TYPE = PathType.PATHMAGIC
     DEFAULT_SHEET_NAME = "Sheet1"
 
     columns: Index
@@ -84,16 +84,18 @@ class Frame(pd.DataFrame):
 
     def sanitize_colnames(self, case: str = DEFAULT_COLUMN_CASE) -> Frame:
         df = self.copy()
-        df.columns = [Str(str(colname)).strip().replace("\n", "") for colname in df.columns]
+        df.columns = [str(colname).strip().replace("\n", "") for colname in df.columns]
 
         if case is not None:
             clean_case = case.strip().lower()
             if clean_case == self.ColumnCase.Snake:
-                df.columns = [Str(str(colname)).snake_case() for colname in df.columns]
-            elif clean_case in [self.ColumnCase.Camel, self.ColumnCase.Pascal]:
-                df.columns = [Str(str(colname)).camel_case(pascal=clean_case == self.ColumnCase.Pascal) for colname in df.columns]
+                df.columns = [Str(colname).case.snake() for colname in df.columns]
+            elif clean_case == self.ColumnCase.Camel:
+                df.columns = [Str(colname).case.camel() for colname in df.columns]
+            elif clean_case == self.ColumnCase.Pascal:
+                df.columns = [Str(colname).case.pascal() for colname in df.columns]
             else:
-                raise ValueError(f"Unrecognized case '{case}', must be one of {self.ColumnCase}.")
+                self.ColumnCase.raise_if_not_a_member(case)
 
         return df
 
