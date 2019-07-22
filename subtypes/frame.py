@@ -37,7 +37,7 @@ class Frame(pd.DataFrame):
         TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID = "trim_surrounding", "strip_nulls", "smallest_valid"
 
     class ColumnCase(Enum):
-        SNAKE, CAMEL, PASCAL = "snake", "camel", "pascal"
+        IGNORE, SNAKE, CAMEL, PASCAL = "ignore", "snake", "camel", "pascal"
 
     class PathType(Enum):
         PATHMAGIC, PATHLIB, STRING = "pathmagic", "pathlib", "string"
@@ -61,7 +61,7 @@ class Frame(pd.DataFrame):
     def _constructor(self) -> Type[Frame]:
         return type(self) if self._using_own_constructor() else pd.DataFrame
 
-    def to_excel(self, filepath: PathLike, sheet_name: str = DEFAULT_SHEET_NAME, index: bool = False, **kwargs: Any) -> PathLike:
+    def to_excel(self, filepath: PathLike, sheet_name: str = None, index: bool = False, **kwargs: Any) -> PathLike:
         with ExcelWriter(filepath) as writer:
             self._write_to_excel(writer=writer, sheet_name=sheet_name, index=index, **kwargs)
         return self._get_path_constructor()(filepath)
@@ -78,21 +78,23 @@ class Frame(pd.DataFrame):
         table.insert(None)
 
     @_check_import_is_available
-    def to_table(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail", primary_key: str = "id", identity: bool = True) -> Any:
+    def to_table(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail", primary_key: str = "id", identity: bool = True, sql: Any = None) -> Any:
         from sqlhandler import Sql
-        return Sql(database=database).frame_to_table(self, table=table, schema=schema, if_exists=if_exists, primary_key=primary_key, identity=identity)
+        sql = sql if sql is not None else Sql(database=database)
+        return sql.frame_to_table(self, table=table, schema=schema, if_exists=if_exists, primary_key=primary_key, identity=identity)
 
-    def sanitize_colnames(self, case: str = DEFAULT_COLUMN_CASE) -> Frame:
+    def sanitize_colnames(self, case: str = None) -> Frame:
         df = self.copy()
         df.columns = [str(colname).strip().replace("\n", "") for colname in df.columns]
 
+        case = Maybe(case).else_(self.DEFAULT_COLUMN_CASE)
         if case is not None:
             clean_case = case.strip().lower()
-            if clean_case == self.ColumnCase.Snake:
+            if clean_case == self.ColumnCase.SNAKE:
                 df.columns = [Str(colname).case.snake() for colname in df.columns]
-            elif clean_case == self.ColumnCase.Camel:
+            elif clean_case == self.ColumnCase.CAMEL:
                 df.columns = [Str(colname).case.camel() for colname in df.columns]
-            elif clean_case == self.ColumnCase.Pascal:
+            elif clean_case == self.ColumnCase.PASCAL:
                 df.columns = [Str(colname).case.pascal() for colname in df.columns]
             else:
                 self.ColumnCase.raise_if_not_a_member(case)
@@ -150,11 +152,8 @@ class Frame(pd.DataFrame):
         style = Maybe(style).else_({'full_width': True})
         return pandas_profiling.ProfileReport(pd.DataFrame(self), *args, style=style, **kwargs)
 
-    @_check_import_is_available
     def profile_report_to(self, path: PathLike, *args: Any, style: dict = None, **kwargs: Any) -> PathLike:
-        from pathmagic import File
-
-        file = File.from_pathlike(path)
+        file = self._get_path_constructor(path)
         self.profile_report(*args, **kwargs).to_file(output_file=str(file))
 
         return file
@@ -173,7 +172,7 @@ class Frame(pd.DataFrame):
         return cls._get_path_constructor()(filepath)
 
     @classmethod
-    def from_excel(cls, filepath: os.PathLike, case: str = DEFAULT_COLUMN_CASE, skipcols: int = 0, infer_headers: bool = True, infer_range: str = DEFAULT_INFER_RANGE, password: str = None, **kwargs: Any) -> Frame:
+    def from_excel(cls, filepath: os.PathLike, case: str = None, skipcols: int = 0, infer_headers: bool = True, infer_range: str = None, password: str = None, **kwargs: Any) -> Frame:
         """Reads in the specified Excel spreadsheet into a pandas DataFrame. Passes on arguments to the pandas read_excel function. Optionally snake_cases column names and strips out non-ascii characters."""
 
         if password is not None:
@@ -187,12 +186,24 @@ class Frame(pd.DataFrame):
         if infer_headers:
             frame._infer_column_headers()
 
-        frame = frame.sanitize_colnames(case=case)
+        frame = frame.sanitize_colnames(case=Maybe(case).else_(cls.DEFAULT_COLUMN_CASE))
 
+        infer_range = Maybe(infer_range).else_(cls.DEFAULT_INFER_RANGE)
         if infer_range:
             frame._infer_range(mode=infer_range)
 
         return frame.infer_dtypes()
+
+    @classmethod
+    def from_csv(cls, filepath: os.PathLike, case: str = None, skipcols: int = 0, **kwargs: Any) -> Frame:
+        """Reads in the specified Excel spreadsheet into a pandas DataFrame. Passes on arguments to the pandas read_excel function. Optionally snake_cases column names and strips out non-ascii characters."""
+
+        frame = cls(pd.read_csv(os.fspath(filepath), **kwargs))
+
+        if skipcols:
+            frame = frame.iloc[:, skipcols:]
+
+        return frame.sanitize_colnames(case=case)
 
     @classmethod
     def from_object(cls, obj: Any, private: bool = False) -> Frame:
@@ -222,7 +233,7 @@ class Frame(pd.DataFrame):
     def _get_path_constructor(cls) -> Type[PathLike]:
         if cls.DEFAULT_PATH_TYPE == Frame.PathType.PathMagic:
             from pathmagic import File
-            return File
+            return File.from_pathlike
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.PathLib:
             import pathlib
             return pathlib.Path
@@ -246,14 +257,14 @@ class Frame(pd.DataFrame):
     def _infer_range(self, mode: str = None) -> None:
         if mode is None:
             pass
-        elif mode == Frame.InferRange.TrimSurrounding:
+        elif mode == Frame.InferRange.TRIM_SURROUNDING:
             self._trim_nulls_around_table()
-        elif mode == Frame.InferRange.StripNulls:
+        elif mode == Frame.InferRange.STRIP_NULLS:
             self._strip_fully_null()
-        elif mode == Frame.InferRange.SmallestValid:
+        elif mode == Frame.InferRange.SMALLEST_VALID:
             self._truncate_after_valid()
         else:
-            raise ValueError(f"Unrecognized mode for 'infer_range'. Valid values are: {', '.join([option.value for option in Frame.InferRange])}.")
+            Frame.InferRange.raise_if_not_a_member(mode)
 
     def _trim_nulls_around_table(self) -> None:
         self._drop_rows_around_table()
@@ -314,7 +325,7 @@ class Frame(pd.DataFrame):
         return self
 
     def _write_to_excel(self, writer: ExcelWriter, sheet_name: str, index: bool, **kwargs: Any) -> None:
-        df = self.infer_dtypes()
+        df, sheet_name = self.infer_dtypes(), Maybe(sheet_name).else_(self.DEFAULT_SHEET_NAME)
         super(type(df), df).to_excel(writer.writer, sheet_name=sheet_name, index=index, **kwargs)
         df._table_from_sheet(writer[sheet_name])
 
@@ -333,6 +344,8 @@ class Frame(pd.DataFrame):
     @staticmethod
     def _unprotect_xlsx_file(path: PathLike, password: str) -> None:
         import win32com.client as win
+
+        path = os.fspath(path)
 
         app = win.Dispatch("Excel.Application")
         workbook = app.Workbooks.Open(path, False, False, None, password)
