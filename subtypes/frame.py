@@ -240,7 +240,7 @@ class Frame(pd.DataFrame):
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.String:
             return os.fspath
         else:
-            raise ValueError(f"Default path type must be one of: {Frame.PathType}.")
+            cls.PathType.raise_if_not_a_member(cls.DEFAULT_PATH_TYPE)
 
     def _infer_column_headers(self) -> None:
         col_run = len(max("".join(["0" if self._value_is_null(col) else "1" for col in self.columns]).split("0")))
