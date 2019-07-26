@@ -231,13 +231,13 @@ class Frame(pd.DataFrame):
     @classmethod
     @_check_import_is_available
     def _get_path_constructor(cls) -> Type[PathLike]:
-        if cls.DEFAULT_PATH_TYPE == Frame.PathType.PathMagic:
+        if cls.DEFAULT_PATH_TYPE == Frame.PathType.PATHMAGIC:
             from pathmagic import File
             return File.from_pathlike
-        elif cls.DEFAULT_PATH_TYPE == Frame.PathType.PathLib:
+        elif cls.DEFAULT_PATH_TYPE == Frame.PathType.PATHLIB:
             import pathlib
             return pathlib.Path
-        elif cls.DEFAULT_PATH_TYPE == Frame.PathType.String:
+        elif cls.DEFAULT_PATH_TYPE == Frame.PathType.STRING:
             return os.fspath
         else:
             cls.PathType.raise_if_not_a_member(cls.DEFAULT_PATH_TYPE)
