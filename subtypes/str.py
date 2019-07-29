@@ -99,7 +99,7 @@ class FuzzyAccessor:
 
     def best_n_matches(self, possible_matches: List[str], num: int = 3) -> List[Tuple[str, int]]:
         match_scores = {self.match(match): match for match in possible_matches}
-        return {(match_scores[score], score) for index, score in itertools.takewhile(lambda tup: tup[0] < num, enumerate(sorted(match_scores, reverse=True)))}
+        return {match_scores[score]: score for index, score in itertools.takewhile(lambda tup: tup[0] < num, enumerate(sorted(match_scores, reverse=True)))}
 
     def _match(self, first: str, second: str) -> int:
         return self._matcher(first, second)
