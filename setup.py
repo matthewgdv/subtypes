@@ -9,7 +9,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name="subtypes",
+    name="pysubtypes",
     version=__version__,
     description="Provides subclasses for common python types with additional functionality and convenience methods.",
     long_description=long_description,

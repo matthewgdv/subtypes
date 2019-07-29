@@ -51,7 +51,7 @@ The `Frame` class (subclasses `pandas.DataFrame`)
 * Modified `Frame.to_excel()` formats the output file to an excel table, returns a path object
 * Modified `Frame.to_sql()`, with better SQL type selection, allows one of the columns (or the index) to be used as a primary key for the resulting SQL table.
 * Modified `Frame.from_excel()`, capable of inferring table boundaries from messy spreadsheets using several rulesets, recasing the column names, and removing password protection
-* Create a `Frame` an iterable of homogenous objects
+* Create a `Frame` from an iterable of homogenous objects
 * Write out an iterable of Frames as a single excel document with multiple sheets.
 * Other misc utility functions (eg. replacing all NaN values with None, etc.)
 
@@ -61,7 +61,7 @@ Installation
 
 To install use pip:
 
-    $ pip install subtypes
+    $ pip install pysubtypes
 
 
 Or clone the repo:
