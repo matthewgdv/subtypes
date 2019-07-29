@@ -11,10 +11,10 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 setup(
     name="subtypes",
     version=__version__,
-    description="Provides subclasses of common python types (str, list, datetime.datetime, aenum.enum, bs4.BeautifulSoup, pandas.DataFrame) with expanded functionality.",
+    description="Provides subclasses for common python types with additional functionality and convenience methods.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/matthewgdv/maybe",
+    url="https://github.com/matthewgdv/subtypes",
     license="MIT",
     classifiers=[
       "Development Status :: 3 - Alpha",
@@ -25,12 +25,15 @@ setup(
     install_requires=[
         "aenum",
         "bs4",
-        "regex",
-        "inflect",
-        "fuzzywuzzy",
+        "case_conversion",
+        "clipboard",
         "dateutil",
-        "pandas",
+        "inflect",
+        "lazy_property",
+        "maybe",
         "numpy",
+        "pandas",
+        "regex",
         "tabulate"
     ],
     author="Matt GdV",

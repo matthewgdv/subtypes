@@ -1,7 +1,7 @@
 Overview
 ====================
 
-Subtypes provides subclasses for certain python builtins (str, list, dict) and common complex types (datetime, Enum, DataFrame, BeautifulSoup) which add functionality and
+Provides subclasses for certain python builtins (str, list, dict) and common complex types (datetime, Enum, DataFrame, BeautifulSoup) which add functionality and
 convenience methods/properties.
 
 The `Str` class (subclasses `str`)
