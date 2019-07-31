@@ -227,7 +227,7 @@ class StripAccessor:
         self.parent = Maybe(parent).else_(self.parent)
         return self
 
-    def all_whitespace(self, leave_single_spaces: bool = True) -> Str:
+    def all_whitespace(self) -> Str:
         return self.parent.re.sub(r"\s+", "").strip()
 
     def whitespace_runs(self) -> Str:
