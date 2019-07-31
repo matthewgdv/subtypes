@@ -85,6 +85,9 @@ class Frame(pd.DataFrame):
         sql = sql if sql is not None else Sql(database=database)
         return sql.frame_to_table(self, table=table, schema=schema, if_exists=if_exists, primary_key=primary_key, identity=identity)
 
+    def to_dataframe(self) -> pd.DataFrame:
+        return pd.DataFrame(self)
+
     def sanitize_colnames(self, case: str = None) -> Frame:
         df = self.copy()
         df.columns = [str(colname).strip().replace("\n", "") for colname in df.columns]
@@ -194,7 +197,8 @@ class Frame(pd.DataFrame):
         if infer_range:
             frame._infer_range(mode=infer_range)
 
-        return frame.infer_dtypes()
+        frame._infer_boolean_columns()
+        return frame
 
     @classmethod
     def from_csv(cls, filepath: os.PathLike, case: str = None, skipcols: int = 0, **kwargs: Any) -> Frame:
@@ -205,6 +209,7 @@ class Frame(pd.DataFrame):
         if skipcols:
             frame = frame.iloc[:, skipcols:]
 
+        frame._infer_boolean_columns()
         return frame.sanitize_colnames(case=case)
 
     @classmethod
@@ -312,19 +317,23 @@ class Frame(pd.DataFrame):
         self.drop([name for name, col in self.iteritems() if self._value_is_null(name) and col.isnull().all()], axis=1, inplace=True)
 
     def _clean_dtypes(self) -> Frame:
+        self._clean_nullable_ints()
+        return self
+
+    def _clean_nullable_ints(self) -> None:
         for name, col in self.iteritems():
             if col.dtype.name == "float64":
                 if col.apply(lambda val: val is None or np.isnan(val) or val.is_integer()).all():
                     self[name] = col.astype("Int64")
 
+    def _infer_boolean_columns(self) -> None:
+        for name, col in self.iteritems():
             try:
                 if col.isin([True, False, None]).all():
                     unfinished = col.replace(1, True).replace(0, False)
                     self[name] = unfinished.where(unfinished.notnull(), None)
             except (TypeError, SystemError):
                 pass
-
-        return self
 
     def _write_to_excel(self, writer: ExcelWriter, sheet_name: str, index: bool, **kwargs: Any) -> None:
         df, sheet_name = self.infer_dtypes(), Maybe(sheet_name).else_(self.DEFAULT_SHEET_NAME)
