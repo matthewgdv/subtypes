@@ -17,6 +17,8 @@ from .enum import Enum
 from .datetime import DateTime
 
 
+pd.set_option("max_columns", None)
+
 PathLike = Union[str, os.PathLike]
 FuncSig = TypeVar("FuncSig", bound=Callable)
 
