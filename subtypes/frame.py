@@ -88,13 +88,13 @@ class Frame(pd.DataFrame):
     def to_dataframe(self) -> pd.DataFrame:
         return pd.DataFrame(self)
 
-    def sanitize_colnames(self, case: str = None) -> Frame:
+    def sanitize_colnames(self, casing: str = None) -> Frame:
         df = self.copy()
         df.columns = [str(colname).strip().replace("\n", "") for colname in df.columns]
 
-        case = Maybe(case).else_(self.DEFAULT_COLUMN_CASE)
-        if case is not None:
-            clean_case = case.strip().lower()
+        casing = Maybe(casing).else_(self.DEFAULT_COLUMN_CASE)
+        if casing is not None:
+            clean_case = casing.strip().lower()
             if clean_case == self.ColumnCase.SNAKE:
                 df.columns = [Str(colname).case.snake() for colname in df.columns]
             elif clean_case == self.ColumnCase.CAMEL:
@@ -102,7 +102,7 @@ class Frame(pd.DataFrame):
             elif clean_case == self.ColumnCase.PASCAL:
                 df.columns = [Str(colname).case.pascal() for colname in df.columns]
             else:
-                self.ColumnCase.raise_if_not_a_member(case)
+                self.ColumnCase.raise_if_not_a_member(casing)
 
         return df
 
@@ -177,7 +177,7 @@ class Frame(pd.DataFrame):
         return cls._get_path_constructor()(filepath)
 
     @classmethod
-    def from_excel(cls, filepath: os.PathLike, case: str = None, skipcols: int = 0, infer_headers: bool = True, infer_range: str = None, password: str = None, **kwargs: Any) -> Frame:
+    def from_excel(cls, filepath: os.PathLike, casing: str = None, skipcols: int = 0, infer_headers: bool = True, infer_range: str = None, password: str = None, **kwargs: Any) -> Frame:
         """Reads in the specified Excel spreadsheet into a pandas DataFrame. Passes on arguments to the pandas read_excel function. Optionally snake_cases column names and strips out non-ascii characters."""
 
         if password is not None:
@@ -191,7 +191,7 @@ class Frame(pd.DataFrame):
         if infer_headers:
             frame._infer_column_headers()
 
-        frame = frame.sanitize_colnames(case=Maybe(case).else_(cls.DEFAULT_COLUMN_CASE))
+        frame = frame.sanitize_colnames(casing=Maybe(casing).else_(cls.DEFAULT_COLUMN_CASE))
 
         infer_range = Maybe(infer_range).else_(cls.DEFAULT_INFER_RANGE)
         if infer_range:
@@ -201,7 +201,7 @@ class Frame(pd.DataFrame):
         return frame
 
     @classmethod
-    def from_csv(cls, filepath: os.PathLike, case: str = None, skipcols: int = 0, **kwargs: Any) -> Frame:
+    def from_csv(cls, filepath: os.PathLike, casing: str = None, skipcols: int = 0, **kwargs: Any) -> Frame:
         """Reads in the specified Excel spreadsheet into a pandas DataFrame. Passes on arguments to the pandas read_excel function. Optionally snake_cases column names and strips out non-ascii characters."""
 
         frame = cls(pd.read_csv(os.fspath(filepath), **kwargs))
@@ -210,7 +210,7 @@ class Frame(pd.DataFrame):
             frame = frame.iloc[:, skipcols:]
 
         frame._infer_boolean_columns()
-        return frame.sanitize_colnames(case=case)
+        return frame.sanitize_colnames(casing=casing)
 
     @classmethod
     def from_object(cls, obj: Any, private: bool = False) -> Frame:
