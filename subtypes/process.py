@@ -3,6 +3,11 @@ from __future__ import annotations
 import subprocess
 
 
+class CompletedProcess(subprocess.CompletedProcess):
+    def __bool__(self) -> bool:
+        return self.returncode == 0
+
+
 class Process(subprocess.Popen):
     def __init__(self, *args, cwd=None, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8", errors="replace", text=True, **kwargs) -> None:
         if cwd is not None and not shell:
@@ -12,7 +17,7 @@ class Process(subprocess.Popen):
 
     def wait(self) -> Process:
         if self.stdout is None:
-            return subprocess.CompletedProcess(self.args, returncode=super().wait(), stdout=None)
+            return CompletedProcess(self.args, returncode=super().wait(), stdout=None)
         else:
             stdout = []
             while self.poll() is None:
@@ -20,4 +25,4 @@ class Process(subprocess.Popen):
                 print(line, end="")
                 stdout.append(line)
 
-            return subprocess.CompletedProcess(self.args, returncode=self.poll(), stdout="".join(stdout))
+            return CompletedProcess(self.args, returncode=self.poll(), stdout="".join(stdout))
