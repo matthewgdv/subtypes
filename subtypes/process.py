@@ -9,11 +9,11 @@ class CompletedProcess(subprocess.CompletedProcess):
 
 
 class Process(subprocess.Popen):
-    def __init__(self, *args, cwd=None, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8", errors="replace", text=True, **kwargs) -> None:
+    def __init__(self, *args, cwd=None, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8", errors="replace", text=True, **kwargs) -> None:
         if cwd is not None and not shell:
             raise RuntimeError("'cwd' argument not supported without 'shell=True'")
 
-        super().__init__(*args, stdin=stdin, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)
+        super().__init__(*args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)
 
     def wait(self) -> Process:
         if self.stdout is None:
