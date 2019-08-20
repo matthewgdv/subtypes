@@ -12,6 +12,12 @@ from pandas.core.indexes.base import Index
 import numpy as np
 from maybe import Maybe
 
+# Delete the numpy imports once PyInstaller has been updated to 1.17.1
+
+import numpy.random.common
+import numpy.random.bounded_integers
+import numpy.random.entropy
+
 from .str import Str
 from .enum import Enum
 from .datetime import DateTime
