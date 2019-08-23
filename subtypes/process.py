@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import os
 import subprocess
+from typing import Any, Union, List
+
+PathLike = Union[str, os.PathLike]
 
 
 class CompletedProcess(subprocess.CompletedProcess):
@@ -9,11 +13,14 @@ class CompletedProcess(subprocess.CompletedProcess):
 
 
 class Process(subprocess.Popen):
-    def __init__(self, *args, cwd=None, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8", errors="replace", text=True, **kwargs) -> None:
+    def __init__(self, args: List[str], cwd: PathLike = None, shell: bool = False, print_call: bool = True, stdout: Any = subprocess.PIPE, stderr: Any = subprocess.STDOUT, encoding: str = "utf-8", errors: str = "replace", text: bool = True, **kwargs) -> None:
         if cwd is not None and not shell:
             raise RuntimeError("'cwd' argument not supported without 'shell=True'")
 
-        super().__init__(*args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)
+        if print_call:
+            print(" ".join(args))
+
+        super().__init__(args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)
 
     def wait(self) -> Process:
         if self.stdout is None:
