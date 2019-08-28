@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import itertools
+import io
 import functools
 import os
 from typing import Any, Collection, List, Dict, Union, Type, Iterable, TypeVar, Callable, cast
@@ -180,10 +181,13 @@ class Frame(pd.DataFrame):
     def from_excel(cls, filepath: os.PathLike, casing: str = None, skipcols: int = 0, infer_headers: bool = True, infer_range: str = None, password: str = None, **kwargs: Any) -> Frame:
         """Reads in the specified Excel spreadsheet into a pandas DataFrame. Passes on arguments to the pandas read_excel function. Optionally snake_cases column names and strips out non-ascii characters."""
 
-        if password is not None:
-            cls._unprotect_xlsx_file(path=filepath, password=password)
+        filepath = os.fspath(filepath)
 
-        frame = cls(pd.read_excel(os.fspath(filepath), **kwargs))
+        if password is None:
+            frame = cls(pd.read_excel(filepath, **kwargs))
+        else:
+            with cls._decrypted_stream_from_xlsx(path=filepath, password=password) as stream:
+                frame = cls(pd.read_excel(stream, **kwargs))
 
         if skipcols:
             frame = frame.iloc[:, skipcols:]
@@ -353,16 +357,16 @@ class Frame(pd.DataFrame):
         return any([str(value).lower().startswith("unnamed"), *[str(value).lower() == nullproxy for nullproxy in ("none", "nan", "null", "")]])
 
     @staticmethod
-    def _unprotect_xlsx_file(path: PathLike, password: str) -> None:
-        import win32com.client as win
+    def _decrypted_stream_from_xlsx(path: PathLike, password: str) -> None:
+        import msoffcrypto
 
-        path = os.fspath(path)
+        with open(path, "rb") as source_stream:
+            file = msoffcrypto.OfficeFile(source_stream)
+            file.load_key(password=password)
+            destination_stream = io.BytesIO()
+            file.decrypt(destination_stream)
 
-        app = win.Dispatch("Excel.Application")
-        workbook = app.Workbooks.Open(path, False, False, None, password)
-        app.DisplayAlerts = False
-        workbook.SaveAs(path, None, "", "")
-        app.Quit()
+        return destination_stream
 
 
 class ExcelWriter:
