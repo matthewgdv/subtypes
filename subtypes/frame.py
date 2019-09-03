@@ -81,10 +81,10 @@ class Frame(pd.DataFrame):
         table.insert(None)
 
     @_check_import_is_available
-    def to_table(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail", primary_key: str = "id", identity: bool = True, sql: Any = None) -> Any:
+    def to_table(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail", primary_key: str = "id", sql: Any = None) -> Any:
         from sqlhandler import Sql
         sql = sql if sql is not None else Sql(database=database)
-        return sql.frame_to_table(self, table=table, schema=schema, if_exists=if_exists, primary_key=primary_key, identity=identity)
+        return sql.frame_to_table(self, table=table, schema=schema, if_exists=if_exists, primary_key=primary_key)
 
     def to_dataframe(self) -> pd.DataFrame:
         return pd.DataFrame(self)
