@@ -17,6 +17,7 @@ class Process(subprocess.Popen):
         if cwd is not None and not shell:
             raise RuntimeError("'cwd' argument not supported without 'shell=True'")
 
+        args = [str(arg) for arg in args]
         if print_call:
             print(" ".join(args))
 
