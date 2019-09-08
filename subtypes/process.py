@@ -13,7 +13,7 @@ class CompletedProcess(subprocess.CompletedProcess):
 
 
 class Process(subprocess.Popen):
-    def __init__(self, args: List[str], cwd: PathLike = None, shell: bool = False, print_call: bool = True, stdout: Any = subprocess.PIPE, stderr: Any = subprocess.STDOUT, encoding: str = "utf-8", errors: str = "replace", text: bool = True, **kwargs) -> None:
+    def __init__(self, args: List[str], cwd: PathLike = None, shell: bool = False, print_call: bool = True, stdout: Any = subprocess.PIPE, stderr: Any = subprocess.STDOUT, encoding: str = "utf-8", errors: str = "replace", text: bool = True, **kwargs: Any) -> None:
         if cwd is not None and not shell:
             raise RuntimeError("'cwd' argument not supported without 'shell=True'")
 
@@ -21,9 +21,9 @@ class Process(subprocess.Popen):
         if print_call:
             print(" ".join(args))
 
-        super().__init__(args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)
+        super().__init__(args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)  # type: ignore
 
-    def wait(self) -> Process:
+    def wait(self) -> CompletedProcess:  # type: ignore
         if self.stdout is None:
             return CompletedProcess(self.args, returncode=super().wait(), stdout=None)
         else:

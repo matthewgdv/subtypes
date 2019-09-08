@@ -5,7 +5,7 @@ import itertools
 import io
 import functools
 import os
-from typing import Any, Collection, List, Dict, Union, Type, Iterable, TypeVar, Callable, cast
+from typing import Any, Collection, List, Dict, Union, Type, Iterable, TypeVar, Callable, Iterator, cast
 
 import tabulate
 import pandas as pd
@@ -61,7 +61,7 @@ class Frame(pd.DataFrame):
         return f"{type(self).__name__}(rows={len(self.index)}, columns={list(self.columns)})"
 
     @property
-    def _constructor(self) -> Type[Frame]:
+    def _constructor(self) -> Type[pd.DataFrame]:
         return type(self) if self._using_own_constructor() else pd.DataFrame
 
     def to_excel(self, filepath: PathLike, sheet_name: str = None, index: bool = False, **kwargs: Any) -> PathLike:
@@ -90,7 +90,7 @@ class Frame(pd.DataFrame):
         return pd.DataFrame(self)
 
     def sanitize_colnames(self, casing: str = None) -> Frame:
-        df = self.copy()
+        df: Frame = self.copy()
         df.columns = [str(colname).strip().replace("\n", "") for colname in df.columns]
 
         casing = Maybe(casing).else_(self.DEFAULT_COLUMN_CASE)
@@ -123,7 +123,7 @@ class Frame(pd.DataFrame):
         field_name = field_col.name if isinstance(field_col, pd.Series) else field_col
         value_name = value_col.name if isinstance(value_col, pd.Series) else value_col
 
-        pivoted = self.set_index([*[colname for colname in self.columns if colname not in {field_name, value_name}], field_name]).unstack(level=field_name).reset_index()
+        pivoted: Frame = self.set_index([*[colname for colname in self.columns if colname not in {field_name, value_name}], field_name]).unstack(level=field_name).reset_index()
         pivoted.columns = [list(itertools.takewhile(lambda val: val, item))[-1] for item in pivoted.columns.to_flat_index()]
         return pivoted
 
@@ -134,7 +134,7 @@ class Frame(pd.DataFrame):
             indexed.drop([colname for colname in indexed.columns if colname not in cols_to_unpivot], axis=1, inplace=True)
 
         unpivoted = type(self)(indexed.stack().reset_index())
-        final = unpivoted.rename(columns={unpivoted.columns[-2]: unpivot_field_name, unpivoted.columns[-1]: unpivot_value_name})
+        final: Frame = unpivoted.rename(columns={unpivoted.columns[-2]: unpivot_field_name, unpivoted.columns[-1]: unpivot_value_name})
         final[unpivot_field_name] = final[unpivot_field_name].replace(True, 1).replace(False, 0)
         final.dropna(how="all", subset=list(final.columns[:-2]), inplace=True)
 
@@ -149,7 +149,7 @@ class Frame(pd.DataFrame):
             if col.isnull().any():
                 df[name] = col.astype(object)
 
-        return df.where(df.notnull(), None)
+        return cast(Frame, df.where(df.notnull(), None))
 
     @_check_import_is_available
     def profile_report(self, *args: Any, style: dict = None, **kwargs: Any) -> Any:
@@ -159,7 +159,7 @@ class Frame(pd.DataFrame):
         return pandas_profiling.ProfileReport(pd.DataFrame(self), *args, style=style, **kwargs)
 
     def profile_report_to(self, path: PathLike, *args: Any, style: dict = None, **kwargs: Any) -> PathLike:
-        file = self._get_path_constructor(path)
+        file = self._get_path_constructor()(path)
         self.profile_report(*args, **kwargs).to_file(output_file=str(file))
 
         return file
@@ -167,7 +167,7 @@ class Frame(pd.DataFrame):
     @classmethod
     def many_to_excel(cls, frames: Collection[Frame], filepath: os.PathLike, index: bool = False, **kwargs: Any) -> PathLike:
         try:
-            mappings = dict(frames)
+            mappings: Dict[str, Frame] = dict(frames)
         except Exception:
             mappings = {f"Sheet{idx + 1}": frame for idx, frame in enumerate(frames)}
 
@@ -227,31 +227,31 @@ class Frame(pd.DataFrame):
         valid_attrs = attrs if private else [name for name in attrs if not name.startswith("_")]
         return cls([tuple(vars(obj).get(attr) for attr in valid_attrs) for obj in objects], columns=valid_attrs)
 
-    def _using_own_constructor(self) -> None:
-        return object.__getattribute__(self, "_own_constructor_")
+    def _using_own_constructor(self) -> bool:
+        return bool(object.__getattribute__(self, "_own_constructor_"))
 
     def _use_own_constructor(self, own: bool) -> None:
         object.__setattr__(self, "_own_constructor_", own)
 
     @contextlib.contextmanager
-    def _using_parent_constructor(self) -> None:
+    def _using_parent_constructor(self) -> Iterator[None]:
         self._use_own_constructor(False)
         yield
         self._use_own_constructor(True)
 
     @classmethod
     @_check_import_is_available
-    def _get_path_constructor(cls) -> Type[PathLike]:
+    def _get_path_constructor(cls) -> Callable[..., PathLike]:
         if cls.DEFAULT_PATH_TYPE == Frame.PathType.PATHMAGIC:
             from pathmagic import File
-            return File.from_pathlike
+            return cast(Callable[..., File], File.from_pathlike)
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.PATHLIB:
             import pathlib
             return pathlib.Path
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.STRING:
             return os.fspath
         else:
-            cls.PathType.raise_if_not_a_member(cls.DEFAULT_PATH_TYPE)
+            raise cls.PathType.raise_if_not_a_member(cls.DEFAULT_PATH_TYPE)
 
     def _infer_column_headers(self) -> None:
         col_run = len(max("".join(["0" if self._value_is_null(col) else "1" for col in self.columns]).split("0")))
@@ -294,13 +294,13 @@ class Frame(pd.DataFrame):
 
     def _drop_rows_around_table(self) -> None:
         nulls = [(index, row.isnull().all()) for index, row in self.iterrows()]
-        invalid_rows = sum([list(itertools.takewhile(lambda row: row[1], iterable)) for iterable in (nulls, reversed(nulls))], [])
+        invalid_rows: list = sum([list(itertools.takewhile(lambda row: row[1], iterable)) for iterable in (nulls, reversed(nulls))], [])
         if invalid_rows:
             self.drop([index for index, isnull in invalid_rows], axis=0, inplace=True)
 
     def _drop_columns_around_table(self) -> None:
         nulls = [(name, col.isnull().all()) for name, col in self.iteritems()]
-        invalid_cols = sum([list(itertools.takewhile(lambda col: self._value_is_null(col[0]) and col[1], iterable)) for iterable in (nulls, reversed(nulls))], [])
+        invalid_cols: list = sum([list(itertools.takewhile(lambda col: self._value_is_null(col[0]) and col[1], iterable)) for iterable in (nulls, reversed(nulls))], [])
         if invalid_cols:
             self.drop([name for name, isnull in invalid_cols], axis=1, inplace=True)
 
@@ -357,7 +357,7 @@ class Frame(pd.DataFrame):
         return any([str(value).lower().startswith("unnamed"), *[str(value).lower() == nullproxy for nullproxy in ("none", "nan", "null", "")]])
 
     @staticmethod
-    def _decrypted_stream_from_xlsx(path: PathLike, password: str) -> None:
+    def _decrypted_stream_from_xlsx(path: PathLike, password: str) -> io.BytesIO:
         import msoffcrypto
 
         with open(path, "rb") as source_stream:

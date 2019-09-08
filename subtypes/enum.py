@@ -29,7 +29,7 @@ class EnumMeta(aenum.EnumMeta):
     def values(cls) -> List[Any]:
         return [member.value for member in cls]
 
-    def extend_enum(cls, name: str, value: Any) -> EnumMeta:
+    def extend_enum(cls, name: str, value: Any) -> None:
         aenum.extend_enum(cls, name, value)
 
     def is_enum(cls, candidate: Any) -> bool:

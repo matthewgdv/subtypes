@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import collections
-from typing import Any, Dict, Iterable, List, Match, no_type_check
+from typing import Any, Dict, Iterable, List, no_type_check
 
 
 class List_(collections.UserList, list):  # type: ignore
@@ -129,7 +129,7 @@ class List_(collections.UserList, list):  # type: ignore
         matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
         return type(self)() if not matches else type(self)(self[:matches[-1]+1])
 
-    def _slice_helper(self, value: Any, raise_if_absent: bool = False, multiple_matches_forbidden: bool = False) -> List[Match[str]]:
+    def _slice_helper(self, value: Any, raise_if_absent: bool = False, multiple_matches_forbidden: bool = False) -> List[int]:
         matches = [index for index, val in enumerate(self) if val == value]
 
         if multiple_matches_forbidden:

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import Any, cast
+from typing import Any, Dict, cast
 
 from lazy_property import LazyProperty
 from dateutil.relativedelta import relativedelta
 
+import subtypes
 from .enum import Enum
 
 
@@ -85,7 +86,7 @@ class DateTime(dt.datetime):
 
     def isoformat_date(self, dashes: bool = True, reverse: bool = False) -> str:
         codes = (FormatCode.YEAR.WITH_CENTURY, FormatCode.MONTH.NUM, FormatCode.DAY.NUM)
-        return self.strftime(f"{'-' if dashes else ''}".join(codes if not reverse else reversed(codes)))
+        return self.strftime(f"{'-' if dashes else ''}".join(str(codes) if not reverse else reversed(codes)))
 
     def filetag_date(self) -> str:
         return self.isoformat_date(dashes=False)
@@ -101,43 +102,43 @@ class DateTime(dt.datetime):
         return self.fromisoformat((self + relativedelta(*args, **kwargs)).isoformat())  # type: ignore
 
     @LazyProperty
-    def TimeZone(self) -> TimeZone:
+    def TimeZone(self) -> subtypes.datetime.TimeZone:
         return TimeZone(self)
 
     @LazyProperty
-    def WeekDay(self) -> WeekDay:
+    def WeekDay(self) -> subtypes.datetime.WeekDay:
         return WeekDay(self)
 
     @LazyProperty
-    def Week(self) -> Week:
+    def Week(self) -> subtypes.datetime.Week:
         return Week(self)
 
     @LazyProperty
-    def Year(self) -> Year:
+    def Year(self) -> subtypes.datetime.Year:
         return Year(self)
 
     @LazyProperty
-    def Month(self) -> Month:
+    def Month(self) -> subtypes.datetime.Month:
         return Month(self)
 
     @LazyProperty
-    def Day(self) -> Day:
+    def Day(self) -> subtypes.datetime.Day:
         return Day(self)
 
     @LazyProperty
-    def Hour(self) -> Hour:
+    def Hour(self) -> subtypes.datetime.Hour:
         return Hour(self)
 
     @LazyProperty
-    def Minute(self) -> Minute:
+    def Minute(self) -> subtypes.datetime.Minute:
         return Minute(self)
 
     @LazyProperty
-    def Second(self) -> Second:
+    def Second(self) -> subtypes.datetime.Second:
         return Second(self)
 
     @LazyProperty
-    def MicroSecond(self) -> MicroSecond:
+    def MicroSecond(self) -> subtypes.datetime.MicroSecond:
         return MicroSecond(self)
 
 
@@ -218,7 +219,7 @@ class Day(DateTimeAccessor):
         return f"{self._datetime.day}{self.suffix}"
 
     @LazyProperty
-    def _suffixes(self) -> dict:
+    def _suffixes(self) -> Dict[int, str]:
         return {day: suffix for days, suffix in [([1, 21, 31], "st"), ([2, 22], "nd"), ([3, 23], "rd")] for day in days}
 
 

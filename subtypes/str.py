@@ -4,7 +4,7 @@ import collections
 import copy
 import itertools
 import re
-from typing import Any, Callable, Iterator, List, Tuple, Match, Union, no_type_check
+from typing import Any, Callable, Iterator, List, Tuple, Dict, Match, Union, no_type_check
 import warnings
 
 import regex as regexmod
@@ -41,8 +41,9 @@ class RegexSettings:
     def __ror__(self, other: Union[int, re.RegexFlag]) -> int:
         return self.to_flag() | other
 
-    def __call__(self, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> re.RegexFlag:
+    def __call__(self, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexSettings:
         self.dotall, self.ignorecase, self.multiline = Maybe(dotall).else_(self.dotall), Maybe(ignorecase).else_(self.ignorecase), Maybe(multiline).else_(self.multiline)
+        return self
 
     def to_flag(self) -> re.RegexFlag:
         ret = re.RegexFlag(0)
@@ -63,7 +64,8 @@ class RegexAccessor:
         return self
 
     def search(self, regex: str, **kwargs: Any) -> Match[str]:
-        return regexmod.search(regex, self.parent, flags=Maybe(kwargs.pop("flags", None)).else_(self.settings.to_flag()), **kwargs)
+        ret: Match[str] = regexmod.search(regex, self.parent, flags=Maybe(kwargs.pop("flags", None)).else_(self.settings.to_flag()), **kwargs)
+        return ret
 
     def sub(self, regex: str, sub: Union[str, Callable], raise_for_failure: bool = False, **kwargs: Any) -> Str:
         subbed = regexmod.sub(regex, sub, self.parent, flags=Maybe(kwargs.pop("flags", None)).else_(self.settings.to_flag()), **kwargs)
@@ -75,7 +77,8 @@ class RegexAccessor:
         return type(self.parent)(subbed)
 
     def finditer(self, regex: str, **kwargs: Any) -> Iterator[Match[str]]:
-        return regexmod.finditer(regex, self.parent, flags=Maybe(kwargs.pop("flags", None)).else_(self.settings.to_flag()), **kwargs)
+        ret: Iterator[Match[str]] = regexmod.finditer(regex, self.parent, flags=Maybe(kwargs.pop("flags", None)).else_(self.settings.to_flag()), **kwargs)
+        return ret
 
     def split(self, regex: str, **kwargs: Any) -> List[Str]:
         return [type(self.parent)(item) for item in regexmod.split(regex, self.parent, flags=Maybe(kwargs.pop("flags", None)).else_(self.settings.to_flag()), **kwargs)]
@@ -97,7 +100,7 @@ class FuzzyAccessor:
     def match(self, other: str) -> int:
         return self._match(self.parent, other)
 
-    def best_n_matches(self, possible_matches: List[str], num: int = 3) -> List[Tuple[str, int]]:
+    def best_n_matches(self, possible_matches: List[str], num: int = 3) -> Dict[str, int]:
         match_scores = {self.match(match): match for match in possible_matches}
         return {match_scores[score]: score for index, score in itertools.takewhile(lambda tup: tup[0] < num, enumerate(sorted(match_scores, reverse=True)))}
 
@@ -247,11 +250,11 @@ class Str(collections.UserString, str):  # type: ignore
         super().__init__(*args, **kwargs)
 
         self.data: str
-        self.re: RegexAccessor = copy.copy(type(self).re)(parent=self)
-        self.case: CasingAccessor = copy.copy(type(self).case)(parent=self)
-        self.slice: SliceAccessor = copy.copy(type(self).slice)(parent=self)
-        self.strip_: StripAccessor = copy.copy(type(self).strip_)(parent=self)
-        self.fuzzy: FuzzyAccessor = copy.copy(type(self).fuzzy)(parent=self)
+        self.re: RegexAccessor = copy.copy(type(self).re)(parent=self)  # type:ignore
+        self.case: CasingAccessor = copy.copy(type(self).case)(parent=self)  # type:ignore
+        self.slice: SliceAccessor = copy.copy(type(self).slice)(parent=self)  # type:ignore
+        self.strip_: StripAccessor = copy.copy(type(self).strip_)(parent=self)  # type:ignore
+        self.fuzzy: FuzzyAccessor = copy.copy(type(self).fuzzy)(parent=self)  # type:ignore
 
     @no_type_check
     def __setitem__(self, key, item):
@@ -270,7 +273,7 @@ class Str(collections.UserString, str):  # type: ignore
         return [match.start() for match in regexmod.finditer(fr"{prefix}({pattern})", self.data, overlapped=overlapping if not_within is None else False, flags=self.re.settings.to_flag() if regex else 0) if match.group(1)]
 
     def extract_uk_postcode(self) -> Str:
-        match = self.search(r"([A-Za-z]{1,2}[0-9]{1,2}[A-Za-z]?)( )?([0-9][A-Za-z]{2})")
+        match = self.re.search(r"([A-Za-z]{1,2}[0-9]{1,2}[A-Za-z]?)( )?([0-9][A-Za-z]{2})")
         return type(self)(f"{match.group(1).upper()} {match.group(3).upper()}")
 
     @classmethod
