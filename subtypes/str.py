@@ -83,11 +83,14 @@ class RegexAccessor:
     def split(self, regex: str, **kwargs: Any) -> List[Str]:
         return [type(self.parent)(item) for item in regexmod.split(regex, self.parent, flags=Maybe(kwargs.pop("flags", None)).else_(self.settings.to_flag()), **kwargs)]
 
+    def escape(self) -> str:
+        return type(self.parent)(re.escape(self.parent))
+
 
 class FuzzyAccessor:
     def __init__(self, parent: Str = None, tokenize: bool = False, partial: bool = False) -> None:
         self.parent, self.tokenize, self.partial = parent, tokenize, partial
-        self(tokenize=tokenize, partial=partial)
+        self._determine_matcher()
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self.__dict__.items() if not attr.startswith('_')])})"
