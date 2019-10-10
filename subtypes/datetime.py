@@ -5,6 +5,7 @@ from typing import Any, Dict, cast
 
 from lazy_property import LazyProperty
 from dateutil.relativedelta import relativedelta
+import parsedatetime
 
 import subtypes
 from .enum import Enum
@@ -53,7 +54,7 @@ class WeekDays(Enum):
 
 
 class DateTime(dt.datetime):
-    nanosecond, FormatCode, WeekDays = 0, FormatCode, WeekDays
+    nanosecond, FormatCode, WeekDays, calendar = 0, FormatCode, WeekDays, parsedatetime.Calendar()
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([str(getattr(self, attr)) for attr in ['year', 'month', 'day', 'hour', 'minute', 'second'] if getattr(self, attr)])})"
@@ -98,8 +99,13 @@ class DateTime(dt.datetime):
         else:
             return self.strftime(f"[{Code.YEAR.WITH_CENTURY}-{Code.MONTH.NUM}-{Code.DAY.NUM} {Code.HOUR.H24}:{Code.MINUTE.NUM}:{Code.SECOND.NUM}:{Code.MICROSECOND.NUM}]")
 
-    def delta(self, *args: Any, **kwargs: Any) -> "DateTime":
+    def delta(self, *args: Any, **kwargs: Any) -> DateTime:
         return self.fromisoformat((self + relativedelta(*args, **kwargs)).isoformat())  # type: ignore
+
+    @classmethod
+    def from_string(cls, text: str) -> DateTime:
+        val, code = cls.calendar.parse(text)
+        return cls(*val[:6 if code == 3 else 3]) if code in (1, 3) else None
 
     @LazyProperty
     def TimeZone(self) -> subtypes.datetime.TimeZone:
