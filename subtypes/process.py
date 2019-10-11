@@ -19,7 +19,7 @@ class Process(subprocess.Popen):
 
         args = [str(arg) for arg in args]
         if print_call:
-            print(" ".join(args))
+            subprocess.list2cmdline(args)
 
         super().__init__(args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)  # type: ignore
 
