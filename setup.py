@@ -33,6 +33,7 @@ setup(
         "maybe-else",
         "numpy",
         "pandas",
+        "parsedatetime",
         "regex",
         "tabulate"
     ],
