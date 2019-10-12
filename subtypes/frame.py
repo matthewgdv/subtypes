@@ -65,11 +65,13 @@ class Frame(pd.DataFrame):
         return type(self) if self._using_own_constructor() else pd.DataFrame
 
     def to_excel(self, filepath: PathLike, sheet_name: str = None, index: bool = False, **kwargs: Any) -> PathLike:
+        """Write this Frame to an xlsx file. Returns that File."""
         with ExcelWriter(filepath) as writer:
             self._write_to_excel(writer=writer, sheet_name=sheet_name, index=index, **kwargs)
         return self._get_path_constructor()(filepath)
 
     def to_sql(self, engine: Any, name: str, if_exists: str = "fail", index: bool = True, index_label: str = "id", primary_key: str = "id", schema: str = None, dtype: dict = None, **kwargs: Any) -> None:
+        """Override of the pandas.DataFrame.to_sql() method allowing a primary key identity field to be supplied when creating the sql table."""
         if dtype is not None:
             from sqlalchemy.types import to_instance, TypeEngine
             for col, my_type in dtype.items():
@@ -82,14 +84,17 @@ class Frame(pd.DataFrame):
 
     @_check_import_is_available
     def to_table(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail", primary_key: str = "id", sql: Any = None) -> Any:
+        """Load this Frame into a SQL database table using the config defaults of the sqlhandler library. An sqlhandler.Sql object can be provided to override the connection defaults."""
         from sqlhandler import Sql
         sql = sql if sql is not None else Sql(database=database)
         return sql.frame_to_table(self, table=table, schema=schema, if_exists=if_exists, primary_key=primary_key)
 
     def to_dataframe(self) -> pd.DataFrame:
+        """Convert this Frame to a pandas.DataFrame."""
         return pd.DataFrame(self)
 
     def sanitize_colnames(self, casing: str = None) -> Frame:
+        """Strip newlines from the column names and apply arbitrary casing."""
         df: Frame = self.copy()
         df.columns = [str(colname).strip().replace("\n", "") for colname in df.columns]
 
@@ -108,10 +113,12 @@ class Frame(pd.DataFrame):
         return df
 
     def to_ascii(self, index: bool = False, fancy: bool = True) -> str:
+        """Convert this Frame to an ascii representation."""
         return str(tabulate.tabulate(self, headers=self.columns, tablefmt="fancy_grid" if fancy else "grid", showindex="never" if not index else "default"))
 
     @_check_import_is_available
     def to_desktop_as_excel(self, name: str, with_timestamp: bool = True, index: bool = False, **kwargs: Any) -> PathLike:
+        """Save this Frame to the current user's desktop as an xlsx file. Returns that File."""
         from pathmagic import Dir
 
         desktop = Dir.from_desktop()
@@ -120,6 +127,7 @@ class Frame(pd.DataFrame):
         return file
 
     def pivot(self, field_col: Union[pd.Series, str], value_col: Union[pd.Series, str]) -> Frame:
+        """Pivot the contents of this Frame."""
         field_name = field_col.name if isinstance(field_col, pd.Series) else field_col
         value_name = value_col.name if isinstance(value_col, pd.Series) else value_col
 
@@ -128,6 +136,7 @@ class Frame(pd.DataFrame):
         return pivoted
 
     def unpivot(self, index_cols: List[Union[pd.Series, str]] = None, cols_to_unpivot: List[Union[pd.Series, str]] = None, unpivot_field_name: str = "field", unpivot_value_name: str = "value") -> Frame:
+        """Unpivot the contents of this Frame."""
         indexed = self.set_index(index_cols) if index_cols is not None else self.copy()
 
         if cols_to_unpivot is not None:
@@ -141,9 +150,11 @@ class Frame(pd.DataFrame):
         return final
 
     def infer_dtypes(self) -> Frame:
+        """Return a new Frame with newly inferred dtypes."""
         return type(self)(self.to_dict())
 
     def fillna_as_none(self) -> Frame:
+        """Fill any nan values with None. Returns self."""
         df = self.copy()
         for name, col in df.iteritems():
             if col.isnull().any():
@@ -153,12 +164,14 @@ class Frame(pd.DataFrame):
 
     @_check_import_is_available
     def profile_report(self, *args: Any, style: dict = None, **kwargs: Any) -> Any:
+        """Produce and return a pandas profile report"""
         import pandas_profiling
 
         style = Maybe(style).else_({'full_width': True})
         return pandas_profiling.ProfileReport(pd.DataFrame(self), *args, style=style, **kwargs)
 
     def profile_report_to(self, path: PathLike, *args: Any, style: dict = None, **kwargs: Any) -> PathLike:
+        """Produce a pandas profile report and return it as an html file"""
         file = self._get_path_constructor()(path)
         self.profile_report(*args, **kwargs).to_file(output_file=str(file))
 
@@ -166,6 +179,7 @@ class Frame(pd.DataFrame):
 
     @classmethod
     def many_to_excel(cls, frames: Collection[Frame], filepath: os.PathLike, index: bool = False, **kwargs: Any) -> PathLike:
+        """Write an iterable of Frames or a mapping of string-keys and Frame-values into an xlsx file with several sheets."""
         try:
             mappings: Dict[str, Frame] = dict(frames)
         except Exception:
@@ -179,7 +193,7 @@ class Frame(pd.DataFrame):
 
     @classmethod
     def from_excel(cls, filepath: os.PathLike, casing: str = None, skipcols: int = 0, infer_headers: bool = True, infer_range: str = None, password: str = None, **kwargs: Any) -> Frame:
-        """Reads in the specified Excel spreadsheet into a pandas DataFrame. Passes on arguments to the pandas read_excel function. Optionally snake_cases column names and strips out non-ascii characters."""
+        """Reads in the specified Excel spreadsheet into a Frame. Passes on arguments to the pandas read_excel function. Optionally changes casing on column names and strips out non-ascii characters."""
 
         filepath = os.fspath(filepath)
 
@@ -206,7 +220,7 @@ class Frame(pd.DataFrame):
 
     @classmethod
     def from_csv(cls, filepath: os.PathLike, casing: str = None, skipcols: int = 0, **kwargs: Any) -> Frame:
-        """Reads in the specified Excel spreadsheet into a pandas DataFrame. Passes on arguments to the pandas read_excel function. Optionally snake_cases column names and strips out non-ascii characters."""
+        """Reads in the specified csv file into a Frame. Passes on arguments to the pandas read_csv function. Optionally changes casing on column names and strips out non-ascii characters."""
 
         frame = cls(pd.read_csv(os.fspath(filepath), **kwargs))
 
@@ -218,11 +232,13 @@ class Frame(pd.DataFrame):
 
     @classmethod
     def from_object(cls, obj: Any, private: bool = False) -> Frame:
+        """Create a Frame from a single python object"""
         mappings = vars(obj) if private else {name: attr for name, attr in vars(obj).items() if not name.startswith("_")}
         return cls({name: [val] for name, val in mappings.items()})
 
     @classmethod
     def from_objects(cls, objects: Iterable[Any], private: bool = False) -> Frame:
+        """Create a Frame from a homogenous list of python objects"""
         attrs = list(dict.fromkeys([name for obj in objects for name in vars(obj)]))
         valid_attrs = attrs if private else [name for name in attrs if not name.startswith("_")]
         return cls([tuple(vars(obj).get(attr) for attr in valid_attrs) for obj in objects], columns=valid_attrs)
