@@ -7,7 +7,7 @@ from .str import Str
 
 
 class Dict_(collections.UserDict, list):  # type: ignore
-    """Subclass of the builtin 'dict' class with additional useful methods."""
+    """Subclass of the builtin 'dict' class with additional useful methods. All the 'dict' class inplace methods return self and therefore allow chaining when called from this class."""
     data: dict
 
     @no_type_check
