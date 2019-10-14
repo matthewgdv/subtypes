@@ -122,7 +122,7 @@ class Frame(pd.DataFrame):
         from pathmagic import Dir
 
         desktop = Dir.from_desktop()
-        file = desktop.newfile(f"{name}_{DateTime.today().filetag_date() if with_timestamp else ''}", "xlsx")
+        file = desktop.new_file(f"{name}_{DateTime.today().filetag_date() if with_timestamp else ''}", "xlsx")
         self.to_excel(file.path, index=index, **kwargs)
         return file
 
