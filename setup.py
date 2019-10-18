@@ -28,6 +28,7 @@ setup(
         "case_conversion",
         "clipboard",
         "dateutil",
+        "django",
         "inflect",
         "lazy_property",
         "maybe-else",

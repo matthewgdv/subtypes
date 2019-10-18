@@ -3,11 +3,10 @@ from __future__ import annotations
 import datetime as dt
 from typing import Any, Dict, cast
 
-from lazy_property import LazyProperty
+from django.utils.functional import cached_property as lazy_property
 from dateutil.relativedelta import relativedelta
 import parsedatetime
 
-import subtypes
 from .enum import Enum
 
 
@@ -126,44 +125,44 @@ class DateTime(dt.datetime):
         val, code = cls.calendar.parse(text)
         return cls(*val[:6 if code == 3 else 3]) if code in (1, 3) else None
 
-    @LazyProperty
-    def TimeZone(self) -> subtypes.datetime.TimeZone:
+    @lazy_property
+    def TimeZone(self) -> TimeZone:
         return TimeZone(self)
 
-    @LazyProperty
-    def WeekDay(self) -> subtypes.datetime.WeekDay:
+    @lazy_property
+    def WeekDay(self) -> WeekDay:
         return WeekDay(self)
 
-    @LazyProperty
-    def Week(self) -> subtypes.datetime.Week:
+    @lazy_property
+    def Week(self) -> Week:
         return Week(self)
 
-    @LazyProperty
-    def Year(self) -> subtypes.datetime.Year:
+    @lazy_property
+    def Year(self) -> Year:
         return Year(self)
 
-    @LazyProperty
-    def Month(self) -> subtypes.datetime.Month:
+    @lazy_property
+    def Month(self) -> Month:
         return Month(self)
 
-    @LazyProperty
-    def Day(self) -> subtypes.datetime.Day:
+    @lazy_property
+    def Day(self) -> Day:
         return Day(self)
 
-    @LazyProperty
-    def Hour(self) -> subtypes.datetime.Hour:
+    @lazy_property
+    def Hour(self) -> Hour:
         return Hour(self)
 
-    @LazyProperty
-    def Minute(self) -> subtypes.datetime.Minute:
+    @lazy_property
+    def Minute(self) -> Minute:
         return Minute(self)
 
-    @LazyProperty
-    def Second(self) -> subtypes.datetime.Second:
+    @lazy_property
+    def Second(self) -> Second:
         return Second(self)
 
-    @LazyProperty
-    def MicroSecond(self) -> subtypes.datetime.MicroSecond:
+    @lazy_property
+    def MicroSecond(self) -> MicroSecond:
         return MicroSecond(self)
 
 
@@ -243,7 +242,7 @@ class Day(DateTimeAccessor):
     def with_suffix(self) -> str:
         return f"{self._datetime.day}{self.suffix}"
 
-    @LazyProperty
+    @lazy_property
     def _suffixes(self) -> Dict[int, str]:
         return {day: suffix for days, suffix in [([1, 21, 31], "st"), ([2, 22], "nd"), ([3, 23], "rd")] for day in days}
 
