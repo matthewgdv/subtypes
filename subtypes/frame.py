@@ -14,7 +14,7 @@ import numpy as np
 from maybe import Maybe
 
 from .str import Str
-from .enum import Enum
+from .enum import AutoEnum
 from .datetime import DateTime
 
 
@@ -36,14 +36,14 @@ def _check_import_is_available(func: FuncSig) -> FuncSig:
 
 
 class Frame(pd.DataFrame):
-    class InferRange(Enum):
-        TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID = "trim_surrounding", "strip_nulls", "smallest_valid"
+    class InferRange(AutoEnum):
+        TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID  # noqa
 
-    class ColumnCase(Enum):
-        IGNORE, SNAKE, CAMEL, PASCAL = "ignore", "snake", "camel", "pascal"
+    class ColumnCase(AutoEnum):
+        IGNORE, SNAKE, CAMEL, PASCAL  # noqa
 
-    class PathType(Enum):
-        PATHMAGIC, PATHLIB, STRING = "pathmagic", "pathlib", "string"
+    class PathType(AutoEnum):
+        PATHMAGIC, PATHLIB, STRING  # noqa
 
     DEFAULT_COLUMN_CASE = ColumnCase.SNAKE
     DEFAULT_INFER_RANGE = InferRange.SMALLEST_VALID

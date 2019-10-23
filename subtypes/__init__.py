@@ -1,6 +1,6 @@
-__all__ = ["Enum", "Markup", "Str", "NestedParser", "List_", "Dict_", "DateTime", "Frame", "Process"]
+__all__ = ["Enum", "AutoEnum", "Markup", "Str", "NestedParser", "List_", "Dict_", "DateTime", "Frame", "Process"]
 
-from .enum import Enum
+from .enum import Enum, AutoEnum
 from .markup import Markup
 from .str import Str
 from .list import List_

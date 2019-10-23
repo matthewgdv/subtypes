@@ -7,7 +7,7 @@ from django.utils.functional import cached_property as lazy_property
 from dateutil.relativedelta import relativedelta
 import parsedatetime
 
-from .enum import Enum
+from .enum import Enum, AutoEnum
 
 
 class FormatCode(Enum):
@@ -43,15 +43,9 @@ class FormatCode(Enum):
         NUM = "%f"
 
 
-class WeekDays(Enum):
+class WeekDays(AutoEnum):
     """An Enum holding the days of the week."""
-    MONDAY = "monday"
-    TUESDAY = "tuesday"
-    WEDNESDAY = "wednesday"
-    THURSDAY = "thursday"
-    FRIDAY = "friday"
-    SATURDAY = "saturday"
-    SUNDAY = "sunday"
+    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY  # noqa
 
 
 class DateTime(dt.datetime):

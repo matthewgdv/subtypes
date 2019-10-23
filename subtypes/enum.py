@@ -56,3 +56,11 @@ class Enum(aenum.Enum, metaclass=EnumMeta):
 
     def __str__(self) -> str:
         return str(self.value)
+
+
+class AutoEnum(Enum):
+    """Automatically use _generate_next_value_ when values are missing"""
+    _settings_ = aenum.AutoValue
+
+    def _generate_next_value_(name: str, start: str, count: str, last_values: List[str]) -> str:
+        return name.lower()
