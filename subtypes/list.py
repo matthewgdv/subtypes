@@ -3,10 +3,100 @@ from __future__ import annotations
 import collections
 from typing import Any, Dict, Iterable, List, no_type_check
 
+from maybe import Maybe
+
+
+class SliceAccessor:
+    """An accessor class for all slicing-related Str methods"""
+
+    def __init__(self, parent: List_ = None, raise_if_absent: bool = False) -> None:
+        self.parent, self.raise_if_absent = parent, raise_if_absent
+
+    def __call__(self, parent: List_ = None, raise_if_absent: bool = None) -> SliceAccessor:
+        self.parent, self.raise_if_absent = Maybe(parent).else_(self.parent), Maybe(raise_if_absent).else_(self.raise_if_absent)
+        return self
+
+    def before(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ before the given value. Raises ValueError if multiple matches are found."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[0]])
+
+    def before_first(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ before the first instance of the given value."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[0]])
+
+    def before_last(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ before the last instance of the given value."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[-1]])
+
+    def after(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ after the given value. Raises ValueError if multiple matches are found."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[0]+1:])
+
+    def after_first(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ after the first instance of the given value."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[0]+1:])
+
+    def after_last(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ after the last instance of the given value."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[-1]+1:])
+
+    def from_(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ from the given value onwards, including itself. Raises ValueError if multiple matches are found."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[0]:])
+
+    def from_first(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ from the first instance of the given value onwards (including itself)."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[0]:])
+
+    def from_last(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ from the last instance of the given value onwards (including itself)."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[-1]:])
+
+    def until(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ until the given value, including itself. Raises ValueError if multiple matches are found."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[0]+1])
+
+    def until_first(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ until the first instance of the given value (including itself)."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[0]+1])
+
+    def until_last(self, value: Any, raise_if_absent: bool = False) -> List_:
+        """Return all elements (if any) in the List_ until the last instance of the given value (including itself)."""
+        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
+        return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[-1]+1])
+
+    def _slice_helper(self, value: Any, raise_if_absent: bool = False, multiple_matches_forbidden: bool = False) -> List[int]:
+        matches = [index for index, val in enumerate(self) if val == value]
+
+        if multiple_matches_forbidden:
+            if len(matches) > 1:
+                raise ValueError(f"Too many matches, return value would be ambigous (Expected 1, got {len(matches)}).")
+
+        if raise_if_absent and not matches:
+            raise ValueError(f"'{value}' could not be found in '{self}'.")
+
+        return matches
+
 
 class List_(collections.UserList, list):  # type: ignore
     """Subclass of the builtin 'list' class with additional useful methods. All the 'list' class inplace methods return self and therefore allow chaining when called from this class."""
     data: list
+    slice = SliceAccessor()
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.slice = SliceAccessor(parent=self, raise_if_absent=type(self).slice.raise_if_absent)
 
     @no_type_check
     def append(self, item):
@@ -63,7 +153,7 @@ class List_(collections.UserList, list):  # type: ignore
         recurse(iterable=self.data, output=new_data, exclude_strings=exclude_strings)
         return type(self)(new_data)
 
-    def align_nested(self, fieldsep: str = ",", linesep: str = "\n", tabsize: int = 4, tabs: bool = False) -> str:
+    def align_nested_strings(self, fieldsep: str = ",", linesep: str = "\n", tabsize: int = 4, tabs: bool = False) -> str:
         """Align nested iterables of strings to return a string such that the strings at each index position align with each other."""
         def calculate_tabs_needed(this_len: int, max_len: int, tab_size: int = 4) -> int:
             return ((max_len // tab_size) + 1) - (this_len // tab_size)
@@ -89,75 +179,3 @@ class List_(collections.UserList, list):  # type: ignore
         adjusted = [[f"{with_seps[num][index]}{tab_sizes[index][num] * delimiter}" for index in indices] for num in range(len(with_seps))]
 
         return f"{linesep}".join(["".join(sublist).rstrip() for sublist in adjusted])
-
-    def before(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ before the given value. Raises ValueError if multiple matches are found."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
-        return type(self)() if not matches else type(self)(self[:matches[0]])
-
-    def before_first(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ before the first instance of the given value."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
-        return type(self)() if not matches else type(self)(self[:matches[0]])
-
-    def before_last(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ before the last instance of the given value."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
-        return type(self)() if not matches else type(self)(self[:matches[-1]])
-
-    def after(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ after the given value. Raises ValueError if multiple matches are found."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
-        return type(self)() if not matches else type(self)(self[matches[0]+1:])
-
-    def after_first(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ after the first instance of the given value."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
-        return type(self)() if not matches else type(self)(self[matches[0]+1:])
-
-    def after_last(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ after the last instance of the given value."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
-        return type(self)() if not matches else type(self)(self[matches[-1]+1:])
-
-    def from_(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ from the given value onwards, including itself. Raises ValueError if multiple matches are found."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
-        return type(self)() if not matches else type(self)(self[matches[0]:])
-
-    def from_first(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ from the first instance of the given value onwards (including itself)."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
-        return type(self)() if not matches else type(self)(self[matches[0]:])
-
-    def from_last(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ from the last instance of the given value onwards (including itself)."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
-        return type(self)() if not matches else type(self)(self[matches[-1]:])
-
-    def until(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ until the given value, including itself. Raises ValueError if multiple matches are found."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=True)
-        return type(self)() if not matches else type(self)(self[:matches[0]+1])
-
-    def until_first(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ until the first instance of the given value (including itself)."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
-        return type(self)() if not matches else type(self)(self[:matches[0]+1])
-
-    def until_last(self, value: Any, raise_if_absent: bool = False) -> List_:
-        """Return all elements (if any) in the List_ until the last instance of the given value (including itself)."""
-        matches = self._slice_helper(value, raise_if_absent=raise_if_absent, multiple_matches_forbidden=False)
-        return type(self)() if not matches else type(self)(self[:matches[-1]+1])
-
-    def _slice_helper(self, value: Any, raise_if_absent: bool = False, multiple_matches_forbidden: bool = False) -> List[int]:
-        matches = [index for index, val in enumerate(self) if val == value]
-
-        if multiple_matches_forbidden:
-            if len(matches) > 1:
-                raise ValueError(f"Too many matches, return value would be ambigous (Expected 1, got {len(matches)}).")
-
-        if raise_if_absent and not matches:
-            raise ValueError(f"'{value}' could not be found in '{self}'.")
-
-        return matches

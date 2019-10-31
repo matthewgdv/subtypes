@@ -57,8 +57,9 @@ class RegexAccessor:
     """An accessor class for all regex-related Str methods"""
     settings = RegexSettings()
 
-    def __init__(self, parent: Str = None) -> None:
-        self.parent, self.settings = parent, copy.copy(type(self).settings)
+    def __init__(self, parent: Str = None, settings: RegexSettings = None) -> None:
+        default = type(self).settings
+        self.parent, self.settings = parent, RegexSettings(dotall=default.dotall, ignorecase=default.ignorecase, multiline=default.multiline) if settings is None else settings
 
     def __call__(self, parent: Str = None, settings: RegexSettings = None) -> RegexAccessor:
         self.parent, self.settings = Maybe(parent).else_(self.parent), Maybe(settings).else_(self.settings)
@@ -294,13 +295,14 @@ class Str(collections.UserString, str):  # type: ignore
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-
         self.data: str
-        self.re: RegexAccessor = copy.copy(type(self).re)(parent=self)  # type:ignore
-        self.case: CasingAccessor = copy.copy(type(self).case)(parent=self)  # type:ignore
-        self.slice: SliceAccessor = copy.copy(type(self).slice)(parent=self)  # type:ignore
-        self.strip_: StripAccessor = copy.copy(type(self).strip_)(parent=self)  # type:ignore
-        self.fuzzy: FuzzyAccessor = copy.copy(type(self).fuzzy)(parent=self)  # type:ignore
+        cls = type(self)
+
+        self.re = RegexAccessor(parent=self)
+        self.case = CasingAccessor(parent=self, detect_acronyms=cls.case.detect_acronyms, acronyms=cls.case.acronyms)
+        self.slice = SliceAccessor(parent=self, raise_if_absent=cls.slice.raise_if_absent)
+        self.strip_ = StripAccessor(parent=self)
+        self.fuzzy = FuzzyAccessor(parent=self, tokenize=cls.fuzzy.tokenize, partial=cls.fuzzy.partial)
 
     @no_type_check
     def __setitem__(self, key, item):

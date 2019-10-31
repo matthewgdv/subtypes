@@ -24,6 +24,8 @@ The `Dict_` class (subclasses `dict`)
 --------------------
 * Method chaining on in-place mutation methods (`dict.update()`, `dict.clear()` etc.)
 * filtering and getting values based on regular expressions, for keys that are strings.
+* Allows its attributes to be accessed and modified using item access
+* Recursively replaces dicts with `Dict_` instances when constructed and when settings an attribute or item
 
 The `DateTime` class (subclasses `datetime.datetime`)
 --------------------
@@ -54,6 +56,17 @@ The `Frame` class (subclasses `pandas.DataFrame`)
 * Create a `Frame` from an iterable of homogenous objects
 * Write out an iterable of Frames as a single excel document with multiple sheets.
 * Other misc utility functions (eg. replacing all NaN values with None, etc.)
+
+The `NameSpace` class
+--------------------
+* Allows its attributes to be accessed and modified using item access
+* Recursively replaces dicts with `NameSpace` instances when constructed
+* Implements iteration and membership test magic methods
+* `NameSpaceObject` class excludes underscore-prepended names from item access magic methods, useful for subclassing
+
+The `Singleton` class
+--------------------
+* Inherit from it to implement singletons (subclasses of `Singleton` will return the same instance whenever constucted)
 
 
 Installation
