@@ -6,11 +6,13 @@ from django.utils.functional import cached_property as lazy_property
 
 from maybe import Maybe
 
+from .str import Accessor, Settings
 
-class SliceAccessor:
+
+class SliceAccessor(Accessor):
     """An accessor class for all slicing-related Str methods"""
 
-    class Settings:
+    class Settings(Settings):
         def __init__(self, raise_if_absent: bool = False) -> None:
             self.raise_if_absent = raise_if_absent
 

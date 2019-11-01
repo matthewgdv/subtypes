@@ -19,10 +19,20 @@ with warnings.catch_warnings():
     from fuzzywuzzy import fuzz
 
 
-class RegexAccessor:
+class Accessor:
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self.__dict__.items() if not attr.startswith('_')])})"
+
+
+class Settings:
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self.__dict__.items() if not attr.startswith('_')])})"
+
+
+class RegexAccessor(Accessor):
     """An accessor class for all regex-related Str methods"""
 
-    class Settings:
+    class Settings(Settings):
         def __init__(self, dotall: bool = True, ignorecase: bool = True, multiline: bool = False):
             self.dotall, self.ignorecase, self.multiline = dotall, ignorecase, multiline
 
@@ -93,10 +103,10 @@ class RegexAccessor:
         return type(self.parent)(re.escape(self.parent))
 
 
-class FuzzyAccessor:
+class FuzzyAccessor(Accessor):
     """An accessor class for all fuzzy-matching-related Str methods"""
 
-    class Settings:
+    class Settings(Settings):
         def __init__(self, tokenize: bool = False, partial: bool = False) -> None:
             self.tokenize, self.partial = tokenize, partial
 
@@ -132,10 +142,10 @@ class FuzzyAccessor:
                 return
 
 
-class CasingAccessor:
+class CasingAccessor(Accessor):
     """An accessor class for all casing-related Str methods"""
 
-    class Settings:
+    class Settings(Settings):
         def __init__(self, detect_acronyms: bool = True, acronyms: list = None) -> None:
             self.detect_acronyms, self.acronyms = detect_acronyms, acronyms
 
@@ -191,10 +201,10 @@ class CasingAccessor:
         return type(self.parent)(inflect.engine().plural(self.parent))
 
 
-class SliceAccessor:
+class SliceAccessor(Accessor):
     """An accessor class for all slicing-related Str methods"""
 
-    class Settings:
+    class Settings(Settings):
         def __init__(self, raise_if_absent: bool = False) -> None:
             self.raise_if_absent = raise_if_absent
 
@@ -280,7 +290,7 @@ class SliceAccessor:
         return matches
 
 
-class TrimAccessor:
+class TrimAccessor(Accessor):
     """An accessor class for all stripping-related Str methods"""
 
     def __init__(self, parent: Str = None) -> None:

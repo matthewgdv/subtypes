@@ -4,13 +4,13 @@ from typing import List, Any
 from collections.abc import Mapping, MutableSequence, Sequence
 from django.utils.functional import cached_property as lazy_property
 
-from .str import Str
+from .str import Str, Accessor
 from .str import RegexAccessor as StrRegexAccessor
 
 from maybe import Maybe
 
 
-class RegexAccessor:
+class RegexAccessor(Accessor):
     """An accessor class for all regex-related Dict_ methods"""
     settings = StrRegexAccessor.Settings()
 
