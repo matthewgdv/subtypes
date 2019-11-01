@@ -1,37 +1,41 @@
 from __future__ import annotations
 
-import collections
-from typing import List, Any, no_type_check
+from typing import List, Any
 from collections.abc import Mapping, MutableSequence, Sequence
+from django.utils.functional import cached_property as lazy_property
 
-from .str import Str, RegexSettings
+from .str import Str
+from .str import RegexAccessor as StrRegexAccessor
 
 from maybe import Maybe
 
 
 class RegexAccessor:
     """An accessor class for all regex-related Dict_ methods"""
-    settings = RegexSettings()
+    settings = StrRegexAccessor.Settings()
 
     def __init__(self, parent: Dict_ = None) -> None:
         default = type(self).settings
-        self.parent, self.settings = parent, RegexSettings(dotall=default.dotall, ignorecase=default.ignorecase, multiline=default.multiline)
+        self.parent, self.settings = parent, StrRegexAccessor.Settings(dotall=default.dotall, ignorecase=default.ignorecase, multiline=default.multiline)
         self.str = Str()
 
-    def __call__(self, parent: Dict_ = None, settings: RegexSettings = None) -> RegexAccessor:
-        self.parent, self.settings = Maybe(parent).else_(self.parent), Maybe(settings).else_(self.settings)
+    def __call__(self, parent: Dict_ = None, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
+        self.parent = Maybe(parent).else_(self.parent)
+        self.settings.dotall = Maybe(dotall).else_(self.settings.dotall)
+        self.settings.ignorecase = Maybe(ignorecase).else_(self.settings.ignorecase)
+        self.settings.multiline = Maybe(multiline).else_(self.settings.multiline)
         return self
 
     def filter(self, regex: str) -> Dict_:
         """Remove any key-value pairs where the key is not a string, or where it is a string but doesn't match the given regex."""
-        return type(self)({key: val for key, val in self.items() if isinstance(key, str) and self._str(key).re.search(regex) is not None})
+        return type(self.parent)({key: val for key, val in self.parent.items() if isinstance(key, str) and Str(key).re(settings=self.settings).search(regex) is not None})
 
     def get_all(self, regex: str, limit: int = None) -> List[Any]:
         """Return a list of all the values whose keys match the given regex."""
         vals = self.filter(regex)
 
         if limit is not None and len(vals) > limit:
-            raise KeyError(f"Got {len(vals)} matches ({', '.join([repr(val) for val in vals])}). Expected at most {limit} matches.")
+            raise KeyError(f"Got {len(vals)} matches: {', '.join([repr(val) for val in vals])}. Expected at most {limit} match(es).")
         else:
             return list(vals.values())
 
@@ -39,38 +43,24 @@ class RegexAccessor:
         """Return the value whose key matches the given regex. KeyError will be raised if multiple matches are found."""
         return self.get_all(regex=regex, limit=1)[0]
 
-    @classmethod
-    def _str(cls, text: str) -> Str:
-        return Str(text).re(settings=cls.settings).parent
+
+class AccessorSettings:
+    def __init__(self) -> None:
+        self.re = RegexAccessor.settings
 
 
-class Dict_(collections.UserDict, dict):  # type: ignore
+class Dict_(dict):
     """
     Subclass of the builtin 'dict' class with where inplace methods like dict.update() return self and therefore allow chaining.
     Also allows item access dynamically through attribute access. It recursively converts any mappings within itself into its own type.
     """
-    data: dict
-    re = RegexAccessor()
+    settings = AccessorSettings()
     dict_fields = {attr for attr in dir(dict()) if not attr.startswith("_")}
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.re = RegexAccessor(parent=self)
-
         for key, val in self.items():
             self[key] = val
-
-    @no_type_check
-    def update(self, item):
-        """Same as dict.update(), but returns self and thus allows chaining."""
-        self.data.update(item)
-        return self
-
-    @no_type_check
-    def clear(self):
-        """Same as dict.clear(), but returns self and thus allows chaining."""
-        self.data.clear()
-        return self
 
     def __setitem__(self, name: str, val: Any) -> None:
         clean_val = self._recursively_convert_mappings_to_own_type(val)
@@ -85,6 +75,23 @@ class Dict_(collections.UserDict, dict):  # type: ignore
 
     def __setattr__(self, name, val) -> None:
         self[name] = val
+
+    @lazy_property
+    def re(self) -> RegexAccessor:
+        return RegexAccessor(parent=self)
+
+    def update(self, item: Mapping) -> Dict_:
+        """Same as dict.update(), but returns self and thus allows chaining."""
+        self.update(item)
+        return self
+
+    def clear(self) -> Dict_:
+        """Same as dict.clear(), but returns self and thus allows chaining."""
+        self.clear()
+        return self
+
+    def copy(self) -> Dict_:
+        return type(self)(self.copy())
 
     def _recursively_convert_mappings_to_own_type(self, item) -> Any:
         if isinstance(item, Mapping) and not isinstance(item, type(self)):

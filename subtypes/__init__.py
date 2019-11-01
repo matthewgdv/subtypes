@@ -14,7 +14,7 @@ __all__ = [
 from .enum import Enum, AutoEnum
 from .markup import Markup
 from .singleton import Singleton
-from .namespace import NameSpace, NameSpaceDict
+from .namespace import NameSpace
 from .str import Str
 from .list import List_
 from .dict import Dict_
