@@ -86,14 +86,14 @@ class SliceAccessor(Accessor):
         return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[-1]+1])
 
     def _slice_helper(self, value: Any, multiple_matches_forbidden: bool) -> List[int]:
-        matches = [index for index, val in enumerate(self) if val == value]
+        matches = [index for index, val in enumerate(self.parent) if val == value]
 
         if multiple_matches_forbidden:
             if len(matches) > 1:
                 raise ValueError(f"Too many matches, return value would be ambigous (Expected 1, got {len(matches)}).")
 
         if self.settings.raise_if_absent and not matches:
-            raise ValueError(f"'{value}' could not be found in '{self}'.")
+            raise ValueError(f"'{value}' could not be found in '{self.parent}'.")
 
         return matches
 
