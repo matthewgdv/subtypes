@@ -324,16 +324,18 @@ class AccessorSettings:
 
 class Str(collections.UserString, str):  # type: ignore
     """A subclass of the builin 'str' class which supports inplace mutation using item access. Has additional methods and accessor objects with additional methods for casing, regex, fuzzy-matching, stripping, and slicing."""
-    data: str
     settings = AccessorSettings()
 
     def __init__(self, seq: str = None) -> None:
-        super().__init__(Maybe(seq).else_(""))
+        self.data = f"{Maybe(seq).else_('')}"
 
     def __setitem__(self, key: slice, item: str) -> None:
         aslist = list(self.data)
         aslist[key] = str(item)
         self.data = "".join(aslist)
+
+    def __rmod__(self, template: Any) -> Any:  # remove me in python 3.8, superclass has a bug in this method
+        return self.__class__(str(template) % self.data)
 
     @lazy_property
     def re(self) -> RegexAccessor:
