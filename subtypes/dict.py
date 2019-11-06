@@ -113,8 +113,8 @@ class Dict_(dict):
             return item
 
     @classmethod
-    def from_json(cls, json_string: str) -> Dict_:
-        item = json.loads(json_string)
+    def from_json(cls, json_string: str, **kwargs: Any) -> Dict_:
+        item = json.loads(json_string, **kwargs)
         if isinstance(item, dict):
             return cls(item)
         else:

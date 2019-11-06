@@ -190,8 +190,8 @@ class List_(collections.UserList, list):  # type: ignore
         return f"{linesep}".join(["".join(sublist).rstrip() for sublist in adjusted])
 
     @classmethod
-    def from_json(cls, json_string: str) -> List_:
-        item = json.loads(json_string)
+    def from_json(cls, json_string: str, **kwargs: Any) -> List_:
+        item = json.loads(json_string, **kwargs)
         if isinstance(item, list):
             return cls(item)
         else:
