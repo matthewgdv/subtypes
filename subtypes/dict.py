@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import List, Any
 from collections.abc import Mapping, MutableSequence, Sequence
+import json
+
 from django.utils.functional import cached_property as lazy_property
 
 from .str import Str, Accessor
@@ -109,3 +111,11 @@ class Dict_(dict):
                 return tuple(self._recursively_convert_mappings_to_own_type(val) for val in item)
         else:
             return item
+
+    @classmethod
+    def from_json(cls, json_string: str) -> Dict_:
+        item = json.loads(json_string)
+        if isinstance(item, dict):
+            return cls(item)
+        else:
+            raise TypeError(f"The following json string resolves to type '{type(item).__name__}', not type '{dict.__name__}':\n\n{json_string}")

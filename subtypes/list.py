@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import collections
 from typing import Any, Dict, Iterable, List
+import json
+
 from django.utils.functional import cached_property as lazy_property
 
 from maybe import Maybe
@@ -186,3 +188,11 @@ class List_(collections.UserList, list):  # type: ignore
         adjusted = [[f"{with_seps[num][index]}{tab_sizes[index][num] * delimiter}" for index in indices] for num in range(len(with_seps))]
 
         return f"{linesep}".join(["".join(sublist).rstrip() for sublist in adjusted])
+
+    @classmethod
+    def from_json(cls, json_string: str) -> List_:
+        item = json.loads(json_string)
+        if isinstance(item, list):
+            return cls(item)
+        else:
+            raise TypeError(f"The following json string resolves to type '{type(item).__name__}', not type '{list.__name__}':\n\n{json_string}")
