@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from os import path
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 here = path.abspath(path.dirname(__file__))
 
@@ -27,7 +27,6 @@ setup(
         "bs4",
         "case_conversion",
         "clipboard",
-        "dateutil",
         "django",
         "inflect",
         "lazy_property",
