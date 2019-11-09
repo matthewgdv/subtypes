@@ -304,9 +304,9 @@ class TrimAccessor(Accessor):
         """Strip away all whitespace"""
         return self.parent.re.sub(r"\s+", "").strip()
 
-    def whitespace_runs(self) -> Str:
-        """Replace all whitespace runs with a single space"""
-        return self.parent.re.sub(r"\s*\n\s*", "\n").re.sub(r"[ \t]*\t[ \t]*", "\t").re.sub(r"( )+", " ").strip()
+    def whitespace_runs(self, newlines: int = 1, tabs: int = 1, spaces: int = 1) -> Str:
+        """Replace all whitespace runs with a single instance of the appropriate whitespace character space"""
+        return self.parent.re.sub(r"\s*\n\s*", "\n"*newlines).re.sub(r"[ \t]*\t[ \t]*", "\t"*tabs).re.sub(r" +", " "*spaces).strip()
 
     def non_alphanumeric(self) -> Str:
         """Strip away all non-alphanumeric characters"""
