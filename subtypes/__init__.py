@@ -8,7 +8,8 @@ __all__ = [
     "Dict_",
     "DateTime",
     "Frame",
-    "Process"
+    "Process",
+    "Color"
 ]
 
 from .enum import Enum, AutoEnum
@@ -21,3 +22,4 @@ from .dict import Dict_
 from .datetime import DateTime
 from .frame import Frame
 from .process import Process
+from .color import Color
