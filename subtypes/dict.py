@@ -30,7 +30,10 @@ class RegexAccessor(Accessor):
 
     def filter(self, regex: str) -> Dict_:
         """Remove any key-value pairs where the key is not a string, or where it is a string but doesn't match the given regex."""
-        return type(self.parent)({key: val for key, val in self.parent.items() if isinstance(key, str) and Str(key).re(settings=self.settings).search(regex) is not None})
+        return type(self.parent)(
+            {key: val for key, val in self.parent.items()
+             if isinstance(key, str) and Str(key).re(dotall=self.settings.dotall, ignorecase=self.settings.ignorecase, multiline=self.settings.multiline).search(regex) is not None}
+        )
 
     def get_all(self, regex: str, limit: int = None) -> List[Any]:
         """Return a list of all the values whose keys match the given regex."""
