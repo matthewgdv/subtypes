@@ -26,6 +26,7 @@ setup(
         "aenum",
         "bs4",
         "case_conversion",
+        "colour",
         "clipboard",
         "django",
         "inflect",
