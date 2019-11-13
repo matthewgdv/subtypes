@@ -1,5 +1,5 @@
 __all__ = [
-    "Enum", "AutoEnum",
+    "Enum", "ValueEnum", "AutoEnum", "ValueAutoEnum",
     "Markup",
     "Singleton",
     "NameSpace", "NameSpaceDict",
@@ -12,7 +12,7 @@ __all__ = [
     "Color"
 ]
 
-from .enum import Enum, AutoEnum
+from .enum import Enum, ValueEnum, AutoEnum, ValueAutoEnum
 from .markup import Markup
 from .singleton import Singleton
 from .namespace import NameSpace
