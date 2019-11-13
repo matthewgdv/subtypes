@@ -56,6 +56,9 @@ class Enum(aenum.Enum, metaclass=EnumMeta):
     def __repr__(self) -> str:
         return f"{type(self).__name__}(name={self.name}, value={repr(self.value)})"
 
+    def __hash__(self) -> int:
+        return id(self)
+
     def __eq__(self, other: Any) -> bool:
         return super().__eq__(other) or other in self.values
 
