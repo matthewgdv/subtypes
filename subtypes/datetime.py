@@ -7,45 +7,45 @@ from django.utils.functional import cached_property as lazy_property
 from dateutil.relativedelta import relativedelta
 import parsedatetime
 
-from .enum import Enum, AutoEnum
+from .enum import Enum, ValueEnum
 
 
-class FormatCode(Enum):
+class FormatCode(ValueEnum):
     """An Enum containing all the formatcodes used by DateTime.strptime() and DateTime.strftime(), subdivided into further Enums."""
-    class TIMEZONE(Enum):
+    class TIMEZONE(ValueEnum):
         NAME = "%Z"
 
-    class WEEKDAY(Enum):
+    class WEEKDAY(ValueEnum):
         SHORT, FULL, NUM = "%a", "%A", "%w"
 
-    class WEEK(Enum):
+    class WEEK(ValueEnum):
         OF_YEAR_STARTING_MONDAY, OF_YEAR_STARTING_SUNDAY = "%W", "%U"
 
-    class YEAR(Enum):
+    class YEAR(ValueEnum):
         WITHOUT_CENTURY, WITH_CENTURY = "%y", "%Y"
 
-    class MONTH(Enum):
+    class MONTH(ValueEnum):
         SHORT, FULL, NUM = "%b", "%B", "%m"
 
-    class DAY(Enum):
+    class DAY(ValueEnum):
         NUM, OF_YEAR = "%d", "%j"
 
-    class HOUR(Enum):
+    class HOUR(ValueEnum):
         H24, H12, AM_PM = "%H", "%I", "%p"
 
-    class MINUTE(Enum):
+    class MINUTE(ValueEnum):
         NUM = "%M"
 
-    class SECOND(Enum):
+    class SECOND(ValueEnum):
         NUM = "%S"
 
-    class MICROSECOND(Enum):
+    class MICROSECOND(ValueEnum):
         NUM = "%f"
 
 
-class WeekDays(AutoEnum):
+class WeekDays(Enum):
     """An Enum holding the days of the week."""
-    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY  # noqa
+    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"
 
 
 class DateTime(dt.datetime):
