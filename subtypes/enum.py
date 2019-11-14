@@ -60,10 +60,10 @@ class Enum(aenum.Enum, metaclass=EnumMeta):
         return id(self)
 
     def __eq__(self, other: Any) -> bool:
-        return super().__eq__(other) or other in self.values
+        return other is self or other == self.value
 
     def __ne__(self, other: Any) -> bool:
-        return super().__ne__(other) and other not in self.values
+        return other is not self and other != self.value
 
     def __str__(self) -> str:
         return str(self.value)
