@@ -38,7 +38,9 @@ The `DateTime` class (subclasses `datetime.datetime`)
 The `Enum` class (subclasses `aenum.Enum`)
 --------------------
 * Incorporates the aenum library's `extend_enum` function directly as `Enum.extend_enum()`
-* returns the value of its members on attribute access, rather than the members themselves.
+* Provides `Enum.names` and `Enum.values` attributes that return lists
+* A `ValueEnum` subclass which returns the value of its members on attribute access, rather than the members themselves.
+* An `AutoEnum` class which does not require values to be explicitly set, and sets the values to be snake_cased versions of the name
 
 The `Markup` class (subclasses `bs4.BeautifulSoup`)
 --------------------
