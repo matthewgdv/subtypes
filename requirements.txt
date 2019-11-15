@@ -1,0 +1,13 @@
+aenum
+bs4
+case_conversion
+colour
+clipboard
+django
+inflect
+maybe-else
+numpy
+pandas
+parsedatetime
+regex
+tabulate

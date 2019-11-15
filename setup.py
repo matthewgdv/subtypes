@@ -8,6 +8,9 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
+with open(path.join(here, "requirements.txt"), encoding="utf-8") as f:
+    dependencies = [line for line in f if line]
+
 setup(
     name="pysubtypes",
     version=__version__,
@@ -22,22 +25,7 @@ setup(
       "Programming Language :: Python :: 3.7",
     ],
     packages=find_packages(exclude=["tests*"]),
-    install_requires=[
-        "aenum",
-        "bs4",
-        "case_conversion",
-        "colour",
-        "clipboard",
-        "django",
-        "inflect",
-        "lazy_property",
-        "maybe-else",
-        "numpy",
-        "pandas",
-        "parsedatetime",
-        "regex",
-        "tabulate"
-    ],
+    install_requires=dependencies,
     author="Matt GdV",
     author_email="matthewgdv@gmail.com"
 )
