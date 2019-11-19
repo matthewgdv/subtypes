@@ -282,7 +282,7 @@ class SliceAccessor(Accessor):
 
         if multiple_matches_forbidden:
             if len(matches) > 1:
-                raise ValueError(f"Too many matches, return value would be ambigous (Expected 1, got {len(matches)}).")
+                raise ValueError(f"Too many matches for regex pattern '{regex}' in '{self.parent}', return value would be ambigous (Expected 1, got {len(matches)}).")
 
         if self.settings.raise_if_absent and not matches:
             raise ValueError(f"'{regex}' could not be found in '{self.parent}'.")
