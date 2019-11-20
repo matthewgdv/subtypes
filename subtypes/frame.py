@@ -14,7 +14,7 @@ import numpy as np
 from maybe import Maybe
 
 from .str import Str
-from .enum import AutoEnum
+from .enum import Enum
 from .datetime import DateTime
 
 
@@ -36,14 +36,14 @@ def _check_import_is_available(func: FuncSig) -> FuncSig:
 
 
 class Frame(pd.DataFrame):
-    class InferRange(AutoEnum):
-        TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID  # noqa
+    class InferRange(Enum):
+        TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID = "trim_surrounding", "strip_nulls", "smallest_valid"
 
-    class ColumnCase(AutoEnum):
-        IGNORE, SNAKE, CAMEL, PASCAL  # noqa
+    class ColumnCase(Enum):
+        IGNORE, SNAKE, CAMEL, PASCAL = "ignore", "snake", "camel", "pascal"
 
-    class PathType(AutoEnum):
-        PATHMAGIC, PATHLIB, STRING  # noqa
+    class PathType(Enum):
+        PATHMAGIC, PATHLIB, STRING = "pathmagic", "pathlib", "string"
 
     DEFAULT_COLUMN_CASE = ColumnCase.SNAKE
     DEFAULT_INFER_RANGE = InferRange.SMALLEST_VALID
@@ -100,12 +100,11 @@ class Frame(pd.DataFrame):
 
         casing = Maybe(casing).else_(self.DEFAULT_COLUMN_CASE)
         if casing is not None:
-            clean_case = casing.strip().lower()
-            if clean_case == self.ColumnCase.SNAKE:
+            if casing == self.ColumnCase.SNAKE:
                 df.columns = [Str(colname).case.snake() for colname in df.columns]
-            elif clean_case == self.ColumnCase.CAMEL:
+            elif casing == self.ColumnCase.CAMEL:
                 df.columns = [Str(colname).case.camel() for colname in df.columns]
-            elif clean_case == self.ColumnCase.PASCAL:
+            elif casing == self.ColumnCase.PASCAL:
                 df.columns = [Str(colname).case.pascal() for colname in df.columns]
             else:
                 self.ColumnCase.raise_if_not_a_member(casing)
