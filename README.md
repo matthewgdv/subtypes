@@ -2,7 +2,7 @@ Overview
 ====================
 
 Provides subclasses for certain python builtins (str, list, dict) and common complex types (datetime, Enum, DataFrame, BeautifulSoup) which add functionality and
-convenience methods/properties.
+convenience methods/properties. Most of these have better `__repr__()` implementations than their superclass.
 
 The `Str` class (subclasses `str`)
 --------------------
@@ -40,7 +40,7 @@ The `Enum` class (subclasses `aenum.Enum`)
 * Incorporates the aenum library's `extend_enum` function directly as `Enum.extend_enum()`
 * Provides `Enum.names` and `Enum.values` attributes that return lists
 * A `ValueEnum` subclass which returns the value of its members on attribute access, rather than the members themselves.
-* An `AutoEnum` class which does not require values to be explicitly set, and sets the values to be snake_cased versions of the name
+* An `AutoEnum` class which does not require values to be explicitly set, and sets the values to be lowercased versions of the name
 
 The `Markup` class (subclasses `bs4.BeautifulSoup`)
 --------------------
@@ -59,16 +59,27 @@ The `Frame` class (subclasses `pandas.DataFrame`)
 * Write out an iterable of Frames as a single excel document with multiple sheets.
 * Other misc utility functions (eg. replacing all NaN values with None, etc.)
 
+The `Process` class (subclasses subprocess.Popen)
+--------------------
+* Can print out the actual command-line call when instanciated.
+* Modified `Process.wait()` method which prints any stdout to the console and returns a `CompletedProcess` rather than just a return code.
+
+The `Color` class (subclasses colour.Color)
+--------------------
+* Has a `Color.Name` `Enum` which contains all the possible color names that can be passed to the `Color()` constructor.
+
+The `Http` class (subclasses requests.Session)
+--------------------
+* Constructor takes a `Http(base_url=)` argument which allows subsequent request to use shortened urls.
+
 The `NameSpace` class
 --------------------
-* Allows its attributes to be accessed and modified using item access
-* Recursively replaces dicts with `NameSpace` instances when constructed
-* Implements iteration and membership test magic methods
-* `NameSpaceObject` class excludes underscore-prepended names from item access magic methods, useful for subclassing
+* Allows its attributes to be accessed and modified using item access/setting as well as attribute access/setting.
+* Implements iteration and membership test magic methods for public members (not starting with `_`).
 
 The `Singleton` class
 --------------------
-* Inherit from it to implement singletons (subclasses of `Singleton` will return the same instance whenever constucted)
+* Inherit from it to implement singletons (subclasses of `Singleton` will return the same instance whenever constucted).
 
 
 Installation

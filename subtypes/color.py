@@ -158,4 +158,5 @@ class ColorName(Enum):
 
 
 class Color(colour.Color):
+    """Subclass of colour.Color with access to a Color.Name emum of color names that are valid to be passed into the Color constructor."""
     Name = ColorName

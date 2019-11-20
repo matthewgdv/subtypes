@@ -6,7 +6,9 @@ import requests
 
 
 class Http(requests.Session):
-    def __init__(self, base_url: str) -> None:
+    """Subclass of requests.Session which takes a 'base_url' constructor argument and prepends it to all future requests."""
+
+    def __init__(self, base_url: str = "") -> None:
         super().__init__()
         self.base_url = base_url
 

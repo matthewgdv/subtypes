@@ -21,11 +21,17 @@ class Process(subprocess.Popen):
         if cwd is not None and not shell:
             raise RuntimeError("'cwd' argument not supported without 'shell=True'")
 
-        args = [str(arg) for arg in args]
+        self.args = [str(arg) for arg in args]
         if print_call:
-            print(subprocess.list2cmdline(args))
+            print(self)
 
-        super().__init__(args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)  # type: ignore
+        super().__init__(self.args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)  # type: ignore
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({repr(str(self))})"
+
+    def __str__(self) -> str:
+        return subprocess.list2cmdline(self.args)
 
     def wait(self) -> CompletedProcess:  # type: ignore
         """Wait for the process to complete. Returns CompletedProcess rather than a returncode, and prints the stdout to the console in realtime"""
