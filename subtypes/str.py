@@ -14,6 +14,8 @@ from django.utils.functional import cached_property as lazy_property
 
 from maybe import Maybe
 
+from .translator import Translator
+
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from fuzzywuzzy import fuzz
@@ -317,14 +319,14 @@ class TrimAccessor(Accessor):
         return type(self.parent)(self.parent.encode("ascii", errors="ignore").decode("UTF-8"))
 
 
-class AccessorSettings:
+class StrSettings:
     def __init__(self) -> None:
         self.re, self.case, self.slice, self.fuzzy = RegexAccessor.settings, CasingAccessor.settings, SliceAccessor.settings, FuzzyAccessor.settings
 
 
 class Str(collections.UserString, str):  # type: ignore
-    """A subclass of the builin 'str' class which supports inplace mutation using item access. Has additional methods and accessor objects with additional methods for casing, regex, fuzzy-matching, stripping, and slicing."""
-    settings = AccessorSettings()
+    """A subclass of the builin 'str' class which supports inplace mutation using item access. Has additional methods and accessor objects with additional methods for casing, regex, fuzzy-matching, trimming, and slicing."""
+    settings = StrSettings()
 
     def __init__(self, seq: str = None) -> None:
         self.data = f"{Maybe(seq).else_('')}"
@@ -378,3 +380,6 @@ class Str(collections.UserString, str):  # type: ignore
     def from_clipboard(cls) -> Str:
         """Create a Str from the contents of the clipboard"""
         return cls(clipboard.paste())
+
+
+Translator.translations[str] = Str

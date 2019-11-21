@@ -10,7 +10,8 @@ __all__ = [
     "DateTime",
     "Frame",
     "Process",
-    "Color"
+    "Color",
+    "Translator"
 ]
 
 from .enum import Enum, ValueEnum, AutoEnum, ValueAutoEnum
@@ -18,6 +19,7 @@ from .markup import Markup
 from .http import Http
 from .singleton import Singleton
 from .namespace import NameSpace
+from .translator import Translator
 from .str import Str
 from .list import List_
 from .dict import Dict_

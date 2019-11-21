@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from typing import List, Any
-from collections.abc import Mapping, MutableSequence, Sequence
+from collections.abc import Mapping
 import json
 
 from django.utils.functional import cached_property as lazy_property
 
 from .str import Str, Accessor
 from .str import RegexAccessor as StrRegexAccessor
+from .translator import Translator
 
 from maybe import Maybe
 
@@ -49,29 +50,30 @@ class RegexAccessor(Accessor):
         return self.get_all(regex=regex, limit=1)[0]
 
 
-class AccessorSettings:
+class DictSettings:
     def __init__(self) -> None:
-        self.re = RegexAccessor.settings
+        self.re, self.dict_fields, self.translator, self.recursive = RegexAccessor.settings, {attr for attr in dir(dict()) if not attr.startswith("_")}, Translator.default, True
 
 
 class Dict_(dict):
     """
     Subclass of the builtin 'dict' class with where inplace methods like dict.update() return self and therefore allow chaining.
-    Also allows item access dynamically through attribute access. It recursively converts any mappings within itself into its own type.
+    Also allows item access dynamically through attribute access. It recursively converts any dicts within itself into its own type.
     """
-    settings = AccessorSettings()
-    dict_fields = {attr for attr in dir(dict()) if not attr.startswith("_")}
+    settings = DictSettings()
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        for key, val in self.items():
-            self[key] = val
+
+        if self.settings.recursive:
+            for key, val in self.items():
+                self[key] = val
 
     def __setitem__(self, name: str, val: Any) -> None:
-        clean_val = self._recursively_convert_mappings_to_own_type(val)
+        clean_val = self.settings.translator.translate(val)
 
         super().__setitem__(name, clean_val)
-        if isinstance(name, str) and name not in self.dict_fields and name.isidentifier():
+        if isinstance(name, str) and name not in self.settings.dict_fields and name.isidentifier():
             super().__setattr__(name, clean_val)
 
     def __delitem__(self, name: str) -> None:
@@ -98,23 +100,6 @@ class Dict_(dict):
     def copy(self) -> Dict_:
         return type(self)(self.copy())
 
-    def _recursively_convert_mappings_to_own_type(self, item) -> Any:
-        if isinstance(item, Mapping) and not isinstance(item, type(self)):
-            return type(self)(item)
-        elif isinstance(item, (str, bytes)):
-            return item
-        elif isinstance(item, MutableSequence):
-            for index, val in enumerate(item):
-                item[index] = self._recursively_convert_mappings_to_own_type(val)
-            return item
-        elif isinstance(item, Sequence):
-            try:
-                return type(item)([self._recursively_convert_mappings_to_own_type(val) for val in item])
-            except Exception:
-                return tuple(self._recursively_convert_mappings_to_own_type(val) for val in item)
-        else:
-            return item
-
     @classmethod
     def from_json(cls, json_string: str, **kwargs: Any) -> Dict_:
         item = json.loads(json_string, **kwargs)
@@ -122,3 +107,6 @@ class Dict_(dict):
             return cls(item)
         else:
             raise TypeError(f"The following json string resolves to type '{type(item).__name__}', not type '{dict.__name__}':\n\n{json_string}")
+
+
+Translator.translations[dict] = Dict_

@@ -1,19 +1,52 @@
 from __future__ import annotations
 
 from typing import Any
+import json
 
 import requests
+import requests.models
+from requests.compat import quote, quote_plus
+
+from .enum import Enum
+from .translator import Translator
+
+
+class Response(requests.models.Response):
+    def __init__(self, namespace: dict) -> None:
+        self.__dict__ = namespace
+
+    def json(self) -> Any:
+        try:
+            return Translator.default.translate(super().json())
+        except json.JSONDecodeError:
+            return None
 
 
 class Http(requests.Session):
-    """Subclass of requests.Session which takes a 'base_url' constructor argument and prepends it to all future requests."""
+    """
+    Subclass of requests.Session which takes a 'base_url' constructor argument and prepends it to all future requests.
+    It returns Str, List_, and Dict_ instances when deserializing json from responses and can automatically quote all urls passed to its http methods.
+    """
 
-    def __init__(self, base_url: str = "") -> None:
+    class QuoteLevel(Enum):
+        NONE, NORMAL, PLUS = "none", "normal", "plus"
+
+    def __init__(self, base_url: str = "", quote_level: Http.QuoteLevel = QuoteLevel.NONE) -> None:
         super().__init__()
-        self.base_url = base_url
+        self.base_url, self.quote_level = base_url.strip('/'), quote_level
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(base_url={repr(self.base_url)}, auth={repr(self.auth)}, headers={repr(self.headers)})"
 
     def request(self, method: str, url: str, *args: Any, **kwargs: Any) -> Any:
-        return super().request(method=method, url=f"{self.base_url.strip('/')}/{url.strip('/')}", *args, **kwargs)
+        return Response(super().request(method=method, url=self._quote_encode(f"{self.base_url}/{url.strip('/')}"), *args, **kwargs).__dict__)
+
+    def _quote_encode(self, url: str) -> str:
+        if self.quote_level == Http.QuoteLevel.NONE:
+            return url
+        elif self.quote_level == Http.QuoteLevel.NORMAL:
+            return quote(url)
+        elif self.quote_level == Http.QuoteLevel.PLUS:
+            return quote_plus(url)
+        else:
+            Http.QuoteLevel.raise_if_not_a_member(self.quote_level)

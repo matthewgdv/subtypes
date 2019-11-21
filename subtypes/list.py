@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import collections
 from typing import Any, Dict, Iterable, List
 import json
 
@@ -9,6 +8,7 @@ from django.utils.functional import cached_property as lazy_property
 from maybe import Maybe
 
 from .str import Accessor, Settings
+from .translator import Translator
 
 
 class SliceAccessor(Accessor):
@@ -100,15 +100,21 @@ class SliceAccessor(Accessor):
         return matches
 
 
-class AccessorSettings:
+class ListSettings:
     def __init__(self) -> None:
-        self.slice = SliceAccessor()
+        self.slice, self.translator, self.recursive = SliceAccessor(), Translator.default, True
 
 
-class List_(collections.UserList, list):  # type: ignore
+class List_(list):  # type: ignore
     """Subclass of the builtin 'list' class with additional useful methods. All the 'list' class inplace methods return self and therefore allow chaining when called from this class."""
-    data: list
-    settings = AccessorSettings()
+    settings = ListSettings()
+
+    def __init__(self, iterable: Iterable = None) -> None:
+        super().__init__(iterable)
+
+        if self.settings.recursive:
+            for index, val in enumerate(self):
+                self[index] = self.settings.translator.translate(val)
 
     @lazy_property
     def slice(self) -> SliceAccessor:
@@ -116,38 +122,41 @@ class List_(collections.UserList, list):  # type: ignore
 
     def append(self, item: Any) -> List_:
         """Same as list.append(), but returns self and thus allows chaining."""
-        self.data.append(item)
+        self.append(item)
         return self
 
     def extend(self, item: Any) -> List_:
         """Same as list.extend(), but returns self and thus allows chaining."""
-        self.data.extend(item)
+        self.extend(item)
         return self
 
     def insert(self, index: int, item: Any) -> List_:
         """Same as list.insert(), but returns self and thus allows chaining."""
-        self.data.insert(index, item)
+        self.insert(index, item)
         return self
 
     def remove(self, item: Any) -> List_:
         """Same as list.remove(), but returns self and thus allows chaining."""
-        self.data.remove(item)
+        self.remove(item)
         return self
 
     def reverse(self) -> List_:
         """Same as list.reverse(), but returns self and thus allows chaining."""
-        self.data.reverse()
+        self.reverse()
         return self
 
     def sort(self) -> List_:
         """Same as list.sort(), but returns self and thus allows chaining."""
-        self.data.sort()
+        self.sort()
         return self
 
     def clear(self) -> List_:
         """Same as list.clear(), but returns self and thus allows chaining."""
-        self.data.clear()
+        self.clear()
         return self
+
+    def copy(self):
+        return type(self)(self)
 
     def flatten(self, exclude_strings: bool = True) -> List_:
         """Recursively traverses any iterables within this List_ and unpacks them in order into a new flat List_."""
@@ -159,7 +168,7 @@ class List_(collections.UserList, list):  # type: ignore
                     output.append(item)
 
         new_data: list = []
-        recurse(iterable=self.data, output=new_data, exclude_strings=exclude_strings)
+        recurse(iterable=self, output=new_data, exclude_strings=exclude_strings)
         return type(self)(new_data)
 
     def align_nested_strings(self, fieldsep: str = ",", linesep: str = "\n", tabsize: int = 4, tabs: bool = False) -> str:
@@ -177,13 +186,13 @@ class List_(collections.UserList, list):  # type: ignore
         if not self:
             return ""
 
-        if not all([len(sublist) == len(self.data[0]) for sublist in self.data[1:]]):
+        if not all([len(sublist) == len(self[0]) for sublist in self[1:]]):
             raise ValueError(f"All sublists must be the same length. The current breakdown is:\n\n{[len(sub) for sub in self]}\n\nThe sublists are:\n\n{self}")
 
         delimiter = "\t" if tabs else " "
-        indices = range(len(self.data[0]))
+        indices = range(len(self[0]))
 
-        with_seps = [[text if index == (len(sublist) - 1) else f"{text}{fieldsep}" for index, text in enumerate(sublist)] for sublist in self.data]
+        with_seps = [[text if index == (len(sublist) - 1) else f"{text}{fieldsep}" for index, text in enumerate(sublist)] for sublist in self]
         tab_sizes = {index: calculate_tabs_or_spaces_needed([sublist[index] for sublist in with_seps], with_tabs=tabs, tab_size=tabsize) for index in indices}
         adjusted = [[f"{with_seps[num][index]}{tab_sizes[index][num] * delimiter}" for index in indices] for num in range(len(with_seps))]
 
@@ -196,3 +205,6 @@ class List_(collections.UserList, list):  # type: ignore
             return cls(item)
         else:
             raise TypeError(f"The following json string resolves to type '{type(item).__name__}', not type '{list.__name__}':\n\n{json_string}")
+
+
+Translator.translations[list] = List_
