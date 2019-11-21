@@ -360,7 +360,7 @@ class Str(collections.UserString, str):  # type: ignore
         return FuzzyAccessor(parent=self)
 
     def to_clipboard(self) -> None:
-        """Save the contents of this string to the clipboard"""
+        """Save the content of this string to the clipboard"""
         clipboard.copy(self.data)
 
     # parsing
@@ -378,7 +378,7 @@ class Str(collections.UserString, str):  # type: ignore
 
     @classmethod
     def from_clipboard(cls) -> Str:
-        """Create a Str from the contents of the clipboard"""
+        """Create a Str from the content of the clipboard"""
         return cls(clipboard.paste())
 
 

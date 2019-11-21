@@ -126,7 +126,7 @@ class Frame(pd.DataFrame):
         return file
 
     def pivot(self, field_col: Union[pd.Series, str], value_col: Union[pd.Series, str]) -> Frame:
-        """Pivot the contents of this Frame."""
+        """Pivot the content of this Frame."""
         field_name = field_col.name if isinstance(field_col, pd.Series) else field_col
         value_name = value_col.name if isinstance(value_col, pd.Series) else value_col
 
@@ -135,7 +135,7 @@ class Frame(pd.DataFrame):
         return pivoted
 
     def unpivot(self, index_cols: List[Union[pd.Series, str]] = None, cols_to_unpivot: List[Union[pd.Series, str]] = None, unpivot_field_name: str = "field", unpivot_value_name: str = "value") -> Frame:
-        """Unpivot the contents of this Frame."""
+        """Unpivot the content of this Frame."""
         indexed = self.set_index(index_cols) if index_cols is not None else self.copy()
 
         if cols_to_unpivot is not None:
