@@ -221,6 +221,9 @@ class List_(list):  # type: ignore
 
         return f"{linesep}".join(["".join(sublist).rstrip() for sublist in adjusted])
 
+    def to_json(self, indent: int = 4, **kwargs: Any) -> str:
+        return json.dumps(self, indent=indent, **kwargs)
+
     @classmethod
     def from_json(cls, json_string: str, **kwargs: Any) -> List_:
         item = json.loads(json_string, **kwargs)

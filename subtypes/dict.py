@@ -69,6 +69,14 @@ class Dict_(dict):
             for key, val in self.items():
                 self[key] = val
 
+    def __getitem__(self, name: str) -> Any:
+        try:
+            return super().__getitem__(name)
+        except KeyError:
+            default = type(self)()
+            self[name] = default
+            return default
+
     def __setitem__(self, name: str, val: Any) -> None:
         clean_val = self.settings.translator.translate(val)
 
@@ -80,8 +88,17 @@ class Dict_(dict):
         self.__delattr__(name)
         super().__delitem__(name)
 
+    def __getattr__(self, name: str) -> Dict_:
+        if (name.startswith("_") and name.endswith("_")):
+            raise AttributeError(name)
+
+        return self[name]
+
     def __setattr__(self, name, val) -> None:
         self[name] = val
+
+    def __delattr__(self, name: str) -> None:
+        del self[name]
 
     def __copy__(self) -> Dict_:
         return type(self)(super().__copy__())
@@ -102,6 +119,9 @@ class Dict_(dict):
 
     def copy(self) -> Dict_:
         return type(self)(self.copy())
+
+    def to_json(self, indent: int = 4, **kwargs: Any) -> str:
+        return json.dumps(self, indent=indent, **kwargs)
 
     @classmethod
     def from_json(cls, json_string: str, **kwargs: Any) -> Dict_:
