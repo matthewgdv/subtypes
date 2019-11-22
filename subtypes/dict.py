@@ -83,6 +83,9 @@ class Dict_(dict):
     def __setattr__(self, name, val) -> None:
         self[name] = val
 
+    def __copy__(self) -> Dict_:
+        return type(self)(super().__copy__())
+
     @lazy_property
     def re(self) -> RegexAccessor:
         return RegexAccessor(parent=self)

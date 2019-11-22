@@ -116,6 +116,29 @@ class List_(list):  # type: ignore
             for index, val in enumerate(self):
                 self[index] = self.settings.translator.translate(val)
 
+    def __add__(self, other: list) -> List_:
+        return type(self)(super().__add__(other))
+
+    def __radd__(self, other: list) -> List_:
+        return type(self)(super().__radd__(other))
+
+    def __iadd__(self, other):
+        super().__iadd__(other)
+        return self
+
+    def __mul__(self, n: int) -> List_:
+        return type(self)(super().__mul__(n))
+
+    def __rmul__(self, n: int) -> List_:
+        return type(self)(super().__rmul__(n))
+
+    def __imul__(self, n: int) -> List_:
+        super().__imul__(n)
+        return self
+
+    def __copy__(self):
+        return type(self)(super().__copy__())
+
     @lazy_property
     def slice(self) -> SliceAccessor:
         return SliceAccessor(parent=self)
