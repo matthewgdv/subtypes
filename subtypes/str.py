@@ -70,7 +70,6 @@ class RegexAccessor(Accessor):
     settings = Settings()
 
     def __init__(self, parent: Str = None) -> None:
-        default = type(self).settings
         self.parent, self.settings = parent, self.settings.deepcopy()
 
     def __call__(self, parent: Str = None, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
