@@ -51,7 +51,7 @@ class ValueEnumMeta(EnumMeta):
 
 
 class Enum(aenum.Enum, metaclass=EnumMeta):
-    """A subclass of aenum.Enum with additional methods. Attribute access on descendants of this class returns the value corresponding to that name, rather than returning the member."""
+    """A subclass of aenum.Enum with additional methods."""
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(name={self.name}, value={repr(self.value)})"
@@ -69,17 +69,19 @@ class Enum(aenum.Enum, metaclass=EnumMeta):
         return str(self.value)
 
 
-class ValueEnum(aenum.Enum, metaclass=ValueEnumMeta):
-    pass
-
-
 class AutoEnum(Enum):
-    """Automatically use _generate_next_value_ when values are missing"""
+    """A subclass of subtypes.Enum. Automatically uses _generate_next_value_ when values are missing"""
     _settings_ = aenum.AutoValue
 
     def _generate_next_value_(name: str, start: str, count: str, last_values: List[str]) -> str:
         return name.lower()
 
 
+class ValueEnum(aenum.Enum, metaclass=ValueEnumMeta):
+    """A subclass of subtypes.Enum. Attribute access on descendants of this class returns the value corresponding to that name, rather than returning the member."""
+    pass
+
+
 class ValueAutoEnum(AutoEnum, metaclass=ValueEnumMeta):
+    """A subclass of subtypes.ValueEnum. Missing values are automatically supplied by _generate_next_value_."""
     pass

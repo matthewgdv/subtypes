@@ -58,7 +58,7 @@ class DictSettings(Settings):
 class Dict_(dict):
     """
     Subclass of the builtin 'dict' class with where inplace methods like dict.update() return self and therefore allow chaining.
-    Also allows item access dynamically through attribute access. It recursively converts any dicts within itself into its own type.
+    Also allows item access dynamically through attribute access. It recursively converts any str, list, and dict instances into Str, List_, and Dict_.
     """
     settings = DictSettings()
 

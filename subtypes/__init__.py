@@ -14,7 +14,7 @@ __all__ = [
     "Translator"
 ]
 
-from .enum import Enum, ValueEnum, AutoEnum, ValueAutoEnum
+from .enums import Enum, ValueEnum, AutoEnum, ValueAutoEnum
 from .markup import Markup
 from .http import Http
 from .singleton import Singleton

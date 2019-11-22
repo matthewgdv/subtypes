@@ -14,7 +14,7 @@ import numpy as np
 from maybe import Maybe
 
 from .str import Str
-from .enum import Enum
+from .enums import Enum
 from .datetime import DateTime
 
 

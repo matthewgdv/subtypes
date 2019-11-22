@@ -106,7 +106,10 @@ class ListSettings(Settings):
 
 
 class List_(list):  # type: ignore
-    """Subclass of the builtin 'list' class with additional useful methods. All the 'list' class inplace methods return self and therefore allow chaining when called from this class."""
+    """
+    Subclass of the builtin 'list' class with additional useful methods. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
+    Recursively traverses its members and converts any str, list and dict instances into Str, List_, and Dict_.
+    """
     settings = ListSettings()
 
     def __init__(self, iterable: Iterable = None) -> None:

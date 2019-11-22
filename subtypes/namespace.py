@@ -17,6 +17,10 @@ class NameSpace:
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self])})"
 
+    def __call__(self) -> NameSpace:
+        for name, item in self:
+            del self[name]
+
     def __len__(self) -> int:
         return len([item for item in self])
 
@@ -34,7 +38,3 @@ class NameSpace:
 
     def __contains__(self, other: Any) -> bool:
         return other in set(vars(self).keys())
-
-    def _clear(self) -> None:
-        for name, item in self:
-            del self[name]

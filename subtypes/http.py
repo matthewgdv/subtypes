@@ -7,15 +7,18 @@ import requests
 import requests.models
 from requests.compat import quote, quote_plus
 
-from .enum import Enum
+from .enums import Enum
 from .translator import Translator
 
 
 class Response(requests.models.Response):
+    """Subclass of requests.Response with a modified Response.json() method."""
+
     def __init__(self, namespace: dict) -> None:
         self.__dict__ = namespace
 
     def json(self) -> Any:
+        """Returns Str, List_, and Dict_ items rather than their builtin superclasses. If there is no data will return None rather than raising JSONDecodeError."""
         try:
             return Translator.default.translate(super().json())
         except json.JSONDecodeError:

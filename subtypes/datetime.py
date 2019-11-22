@@ -7,7 +7,7 @@ from django.utils.functional import cached_property as lazy_property
 from dateutil.relativedelta import relativedelta
 import parsedatetime
 
-from .enum import Enum, ValueEnum
+from .enums import Enum, ValueEnum
 
 
 class FormatCode(ValueEnum):
