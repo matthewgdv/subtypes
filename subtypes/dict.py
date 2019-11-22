@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import List, Any
+from typing import List, Any, Type
 from collections.abc import Mapping
 import json
 
 from django.utils.functional import cached_property as lazy_property
 
 from .str import Str, Accessor
-from .str import RegexAccessor as StrRegexAccessor
+from .str import RegexAccessor as StrRegexAccessor, Settings
 from .translator import Translator
 
 from maybe import Maybe
@@ -50,9 +50,9 @@ class RegexAccessor(Accessor):
         return self.get_all(regex=regex, limit=1)[0]
 
 
-class DictSettings:
+class DictSettings(Settings):
     def __init__(self) -> None:
-        self.re, self.dict_fields, self.translator, self.recursive = RegexAccessor.settings, {attr for attr in dir(dict()) if not attr.startswith("_")}, Translator.default, True
+        self.re, self.dict_fields, self.translator, self.recursive = RegexAccessor.settings, {attr for attr in [*dir(dict()), "settings"] if not attr.startswith("_")}, Translator.default, True
 
 
 class Dict_(dict):
@@ -73,35 +73,46 @@ class Dict_(dict):
         try:
             return super().__getitem__(name)
         except KeyError:
-            default = type(self)()
+            default = self._factory_()
             self[name] = default
             return default
 
     def __setitem__(self, name: str, val: Any) -> None:
-        clean_val = self.settings.translator.translate(val)
+        clean_val = self.settings.translator.translate(val) if self.settings.recursive else val
 
         super().__setitem__(name, clean_val)
-        if isinstance(name, str) and name not in self.settings.dict_fields and name.isidentifier():
+        if is_valid_for_attribute_actions(name, type(self)):
             super().__setattr__(name, clean_val)
 
     def __delitem__(self, name: str) -> None:
-        self.__delattr__(name)
         super().__delitem__(name)
 
+        if is_valid_for_attribute_actions(name, type(self)):
+            super().__delattr__(name)
+
     def __getattr__(self, name: str) -> Dict_:
-        if (name.startswith("_") and name.endswith("_")):
+        if is_special_private(name):
             raise AttributeError(name)
+        else:
+            return self[name]
 
-        return self[name]
-
-    def __setattr__(self, name, val) -> None:
-        self[name] = val
+    def __setattr__(self, name: str, val: Any) -> None:
+        if is_special_private(name):
+            super().__setattr__(name, val)
+        else:
+            self[name] = val
 
     def __delattr__(self, name: str) -> None:
-        del self[name]
+        super().__delattr__(name)
+
+        if not is_special_private(name):
+            super().__delitem__(name)
 
     def __copy__(self) -> Dict_:
         return type(self)(super().__copy__())
+
+    def _factory_(self) -> Dict_:
+        return type(self)()
 
     @lazy_property
     def re(self) -> RegexAccessor:
@@ -133,3 +144,11 @@ class Dict_(dict):
 
 
 Translator.translations[dict] = Dict_
+
+
+def is_special_private(name: str) -> bool:
+    return name.startswith("_") and name.endswith("_")
+
+
+def is_valid_for_attribute_actions(name: Any, dict_class: Type[Dict_]) -> bool:
+    return isinstance(name, str) and name not in dict_class.settings.dict_fields and not is_special_private(name) and name.isidentifier()

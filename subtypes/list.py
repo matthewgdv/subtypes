@@ -100,7 +100,7 @@ class SliceAccessor(Accessor):
         return matches
 
 
-class ListSettings:
+class ListSettings(Settings):
     def __init__(self) -> None:
         self.slice, self.translator, self.recursive = SliceAccessor(), Translator.default, True
 

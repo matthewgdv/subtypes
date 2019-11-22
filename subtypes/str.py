@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import collections
 import itertools
 import re
@@ -29,6 +30,9 @@ class Accessor:
 class Settings:
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self.__dict__.items() if not attr.startswith('_')])})"
+
+    def deepcopy(self) -> Settings:
+        return copy.deepcopy(self)
 
 
 class RegexAccessor(Accessor):
@@ -67,7 +71,7 @@ class RegexAccessor(Accessor):
 
     def __init__(self, parent: Str = None) -> None:
         default = type(self).settings
-        self.parent, self.settings = parent, self.Settings(dotall=default.dotall, ignorecase=default.ignorecase, multiline=default.multiline)
+        self.parent, self.settings = parent, self.settings.deepcopy()
 
     def __call__(self, parent: Str = None, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
         self.parent = Maybe(parent).else_(self.parent)
@@ -115,7 +119,7 @@ class FuzzyAccessor(Accessor):
     settings = Settings()
 
     def __init__(self, parent: Str = None) -> None:
-        self.parent, self.settings = parent, self.Settings(tokenize=type(self).settings.tokenize, partial=type(self).settings.partial)
+        self.parent, self.settings = parent, self.settings.deepcopy()
         self._determine_matcher()
 
     def __repr__(self) -> str:
@@ -154,7 +158,7 @@ class CasingAccessor(Accessor):
     settings = Settings()
 
     def __init__(self, parent: Str = None) -> None:
-        self.parent, self.settings = parent, self.Settings(detect_acronyms=type(self).settings.detect_acronyms, acronyms=type(self).settings.acronyms)
+        self.parent, self.settings = parent, self.settings.deepcopy()
 
     def __call__(self, parent: Str = None, detect_acronyms: bool = None, acronyms: list = None) -> CasingAccessor:
         self.parent = Maybe(parent).else_(self.parent)
@@ -213,7 +217,7 @@ class SliceAccessor(Accessor):
     settings = Settings()
 
     def __init__(self, parent: Str = None) -> None:
-        self.parent, self.settings = parent, self.Settings(raise_if_absent=type(self).settings.raise_if_absent)
+        self.parent, self.settings = parent, self.settings.deepcopy()
 
     def __call__(self, parent: Str = None, raise_if_absent: bool = None) -> SliceAccessor:
         self.parent, self.settings.raise_if_absent = Maybe(parent).else_(self.parent), Maybe(raise_if_absent).else_(self.settings.raise_if_absent)
@@ -319,7 +323,7 @@ class TrimAccessor(Accessor):
         return type(self.parent)(self.parent.encode("ascii", errors="ignore").decode("UTF-8"))
 
 
-class StrSettings:
+class StrSettings(Settings):
     def __init__(self) -> None:
         self.re, self.case, self.slice, self.fuzzy = RegexAccessor.settings, CasingAccessor.settings, SliceAccessor.settings, FuzzyAccessor.settings
 
