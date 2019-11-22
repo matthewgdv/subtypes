@@ -89,12 +89,12 @@ class Dict_(dict):
 
     def update(self, item: Mapping) -> Dict_:
         """Same as dict.update(), but returns self and thus allows chaining."""
-        self.update(item)
+        super().update(item)
         return self
 
     def clear(self) -> Dict_:
         """Same as dict.clear(), but returns self and thus allows chaining."""
-        self.clear()
+        super().clear()
         return self
 
     def copy(self) -> Dict_:

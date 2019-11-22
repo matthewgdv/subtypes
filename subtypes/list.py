@@ -122,37 +122,37 @@ class List_(list):  # type: ignore
 
     def append(self, item: Any) -> List_:
         """Same as list.append(), but returns self and thus allows chaining."""
-        self.append(item)
+        super().append(item)
         return self
 
     def extend(self, item: Any) -> List_:
         """Same as list.extend(), but returns self and thus allows chaining."""
-        self.extend(item)
+        super().extend(item)
         return self
 
     def insert(self, index: int, item: Any) -> List_:
         """Same as list.insert(), but returns self and thus allows chaining."""
-        self.insert(index, item)
+        super().insert(index, item)
         return self
 
     def remove(self, item: Any) -> List_:
         """Same as list.remove(), but returns self and thus allows chaining."""
-        self.remove(item)
+        super().remove(item)
         return self
 
     def reverse(self) -> List_:
         """Same as list.reverse(), but returns self and thus allows chaining."""
-        self.reverse()
+        super().reverse()
         return self
 
     def sort(self) -> List_:
         """Same as list.sort(), but returns self and thus allows chaining."""
-        self.sort()
+        super().sort()
         return self
 
     def clear(self) -> List_:
         """Same as list.clear(), but returns self and thus allows chaining."""
-        self.clear()
+        super().clear()
         return self
 
     def copy(self):
