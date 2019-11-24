@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import colour
-from .enum import Enum
+from .enums import Enum
 
 
 class ColorName(Enum):

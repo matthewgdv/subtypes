@@ -18,7 +18,7 @@ class Translator:
         constructor = self.translations.get(type(item))
         return item if constructor is None else constructor(item)
 
-    def translate_recursively(self, item: Any):
+    def translate_recursively(self, item: Any) -> Any:
         translated = self.translate(item)
 
         if isinstance(translated, list):

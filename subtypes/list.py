@@ -123,7 +123,7 @@ class List_(list):  # type: ignore
         return type(self)(super().__add__(other))
 
     def __radd__(self, other: list) -> List_:
-        return type(self)(super().__radd__(other))
+        return type(self)(other.__add__(self))
 
     def __iadd__(self, other):
         super().__iadd__(other)
@@ -138,9 +138,6 @@ class List_(list):  # type: ignore
     def __imul__(self, n: int) -> List_:
         super().__imul__(n)
         return self
-
-    def __copy__(self):
-        return type(self)(super().__copy__())
 
     @lazy_property
     def slice(self) -> SliceAccessor:
@@ -171,9 +168,9 @@ class List_(list):  # type: ignore
         super().reverse()
         return self
 
-    def sort(self) -> List_:
+    def sort(self, *args: Any, **kwargs: Any) -> List_:
         """Same as list.sort(), but returns self and thus allows chaining."""
-        super().sort()
+        super().sort(*args, **kwargs)
         return self
 
     def clear(self) -> List_:
@@ -184,17 +181,17 @@ class List_(list):  # type: ignore
     def copy(self):
         return type(self)(self)
 
-    def flatten(self, exclude_strings: bool = True) -> List_:
+    def flatten(self) -> List_:
         """Recursively traverses any iterables within this List_ and unpacks them in order into a new flat List_."""
-        def recurse(iterable: Iterable, output: list, exclude_strings: bool) -> None:
+        def recurse(iterable: Iterable, output: list) -> None:
             for item in iterable:
-                if hasattr(item, "__iter__") and (not isinstance(item, str) or not exclude_strings):
-                    recurse(iterable=item, output=output, exclude_strings=exclude_strings)
+                if hasattr(item, "__iter__") and not isinstance(item, str):
+                    recurse(iterable=item, output=output)
                 else:
                     output.append(item)
 
         new_data: list = []
-        recurse(iterable=self, output=new_data, exclude_strings=exclude_strings)
+        recurse(iterable=self, output=new_data)
         return type(self)(new_data)
 
     def align_nested_strings(self, fieldsep: str = ",", linesep: str = "\n", tabsize: int = 4, tabs: bool = False) -> str:

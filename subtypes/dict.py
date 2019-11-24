@@ -108,9 +108,6 @@ class Dict_(dict):
         if not is_special_private(name):
             super().__delitem__(name)
 
-    def __copy__(self) -> Dict_:
-        return type(self)(super().__copy__())
-
     def _factory_(self) -> Dict_:
         return type(self)()
 

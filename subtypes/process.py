@@ -15,9 +15,12 @@ class CompletedProcess(subprocess.CompletedProcess):
 
 
 class Process(subprocess.Popen):
-    """A subclass of subprocess.Popen which can print the args passed to it when starting, and has a modified Process.wait() method."""
+    """
+    A subclass of subprocess.Popen which automatically sets up stdout and stderr pipes, and returns utf-8 decoded str rather than bytes from its streams.
+    Can print the args passed to it when starting, and has a modified Process.wait() method that prints stdout in real time.
+    """
 
-    def __init__(self, args: List[str], cwd: PathLike = None, shell: bool = False, print_call: bool = True, stdout: Any = subprocess.PIPE, stderr: Any = subprocess.STDOUT, encoding: str = "utf-8", errors: str = "replace", text: bool = True, **kwargs: Any) -> None:
+    def __init__(self, args: List[str], cwd: PathLike = None, shell: bool = False, print_call: bool = True, stdout: Any = subprocess.PIPE, stderr: Any = subprocess.STDOUT, encoding: str = "utf-8", errors: str = "replace", **kwargs: Any) -> None:
         if cwd is not None and not shell:
             raise RuntimeError("'cwd' argument not supported without 'shell=True'")
 
@@ -25,7 +28,7 @@ class Process(subprocess.Popen):
         if print_call:
             print(self)
 
-        super().__init__(self.args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, text=text, **kwargs)  # type: ignore
+        super().__init__(args=self.args, stdout=stdout, stderr=stderr, shell=shell, cwd=cwd, encoding=encoding, errors=errors, **kwargs)  # type: ignore
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({repr(str(self))})"
@@ -33,10 +36,10 @@ class Process(subprocess.Popen):
     def __str__(self) -> str:
         return subprocess.list2cmdline(self.args)
 
-    def wait(self) -> CompletedProcess:  # type: ignore
+    def wait(self, timeout: float = None) -> CompletedProcess:  # type: ignore
         """Wait for the process to complete. Returns CompletedProcess rather than a returncode, and prints the stdout to the console in realtime"""
         if self.stdout is None:
-            return CompletedProcess(self.args, returncode=super().wait(), stdout=None)
+            return CompletedProcess(self.args, returncode=super().wait(timeout=timeout), stdout=None)
         else:
             stdout = []
             while self.poll() is None:

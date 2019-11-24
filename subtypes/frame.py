@@ -6,9 +6,11 @@ import io
 import functools
 import os
 from typing import Any, Collection, List, Dict, Union, Type, Iterable, TypeVar, Callable, Iterator, cast
+import pathlib
 
 import tabulate
 import pandas as pd
+from pandas.io.sql import SQLTable, pandasSQL_builder
 from pandas.core.indexes.base import Index
 import numpy as np
 from maybe import Maybe
@@ -20,7 +22,7 @@ from .datetime import DateTime
 
 pd.set_option("max_columns", None)
 
-PathLike = Union[str, os.PathLike]
+PathLike = Union[str, os.PathLike, pathlib.Path]
 FuncSig = TypeVar("FuncSig", bound=Callable)
 
 
@@ -30,7 +32,9 @@ def _check_import_is_available(func: FuncSig) -> FuncSig:
         try:
             return func(*args, **kwargs)
         except ModuleNotFoundError as ex:
-            raise ModuleNotFoundError(f"Use of method '{func.__name__}' requires module '{ex.name}'. Please ensure it is available by installing it with pip.", name=ex.name, path=ex.path)
+            exception = ModuleNotFoundError(f"Use of method '{func.__name__}' requires module '{ex.name}'. Please ensure it is available by installing it with pip.")
+            exception.name, exception.path = ex.name, ex.path
+            raise exception
 
     return cast(FuncSig, wrapper)
 
@@ -72,13 +76,7 @@ class Frame(pd.DataFrame):
 
     def to_sql(self, engine: Any, name: str, if_exists: str = "fail", index: bool = True, index_label: str = "id", primary_key: str = "id", schema: str = None, dtype: dict = None, **kwargs: Any) -> None:
         """Override of the pandas.DataFrame.to_sql() method allowing a primary key identity field to be supplied when creating the sql table."""
-        if dtype is not None:
-            from sqlalchemy.types import to_instance, TypeEngine
-            for col, my_type in dtype.items():
-                if not isinstance(to_instance(my_type), TypeEngine):
-                    raise ValueError(f"The type of {col} is not a SQLAlchemy type ")
-
-        table = pd.io.sql.SQLTable(name, pd.io.sql.pandasSQL_builder(engine), frame=self, index=index, if_exists=if_exists, index_label=index_label, keys=primary_key, schema=schema, dtype=dtype, **kwargs)
+        table = SQLTable(name, pandasSQL_builder(engine), frame=self, index=index, if_exists=if_exists, index_label=index_label, keys=primary_key, schema=schema, dtype=dtype, **kwargs)
         table.create()
         table.insert(None)
 
@@ -120,11 +118,11 @@ class Frame(pd.DataFrame):
         """Save this Frame to the current user's desktop as an xlsx file. Returns that File."""
         from pathmagic import Dir
 
-        desktop = Dir.from_desktop()
-        file = desktop.new_file(f"{name}_{DateTime.today().filetag_date() if with_timestamp else ''}", "xlsx")
+        file = Dir.from_desktop().new_file(f"{name}_{DateTime.today().filetag_date() if with_timestamp else ''}", "xlsx")
         self.to_excel(file.path, index=index, **kwargs)
         return file
 
+    # noinspection PyMethodOverriding
     def pivot(self, field_col: Union[pd.Series, str], value_col: Union[pd.Series, str]) -> Frame:
         """Pivot the content of this Frame."""
         field_name = field_col.name if isinstance(field_col, pd.Series) else field_col
@@ -177,15 +175,13 @@ class Frame(pd.DataFrame):
         return file
 
     @classmethod
-    def many_to_excel(cls, frames: Collection[Frame], filepath: os.PathLike, index: bool = False, **kwargs: Any) -> PathLike:
+    def many_to_excel(cls, frames: Union[Collection[Frame], Dict[str, Collection[Frame]]], filepath: os.PathLike, index: bool = False, **kwargs: Any) -> PathLike:
         """Write an iterable of Frames or a mapping of string-keys and Frame-values into an xlsx file with several sheets."""
-        try:
-            mappings: Dict[str, Frame] = dict(frames)
-        except Exception:
-            mappings = {f"Sheet{idx + 1}": frame for idx, frame in enumerate(frames)}
+
+        named_frames = frames if isinstance(frames, dict) else {f"Sheet{idx + 1}": frame for idx, frame in enumerate(frames)}
 
         with ExcelWriter(filepath=filepath) as writer:
-            for name, frame in mappings.items():
+            for name, frame in named_frames.items():
                 frame._write_to_excel(writer=writer, sheet_name=name, index=index, **kwargs)
 
         return cls._get_path_constructor()(filepath)
@@ -261,7 +257,6 @@ class Frame(pd.DataFrame):
             from pathmagic import File
             return cast(Callable[..., File], File.from_pathlike)
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.PATHLIB:
-            import pathlib
             return pathlib.Path
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.STRING:
             return os.fspath
@@ -395,7 +390,6 @@ class ExcelWriter:
         self.writer.save()
 
     def __getitem__(self, sheet_name: str) -> Any:
-        if self.writer.sheets is None:
-            self.writer.add_worksheet(sheet_name)
-
+        # if self.writer.sheets is None:
+        # self.writer.add_worksheet(sheet_name)
         return self.writer.sheets.get(sheet_name)

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Iterator, Tuple
 
 
 class NameSpace:
@@ -21,6 +21,8 @@ class NameSpace:
         for name, item in self:
             del self[name]
 
+        return self
+
     def __len__(self) -> int:
         return len([item for item in self])
 
@@ -33,8 +35,8 @@ class NameSpace:
     def __delitem__(self, name: str) -> None:
         self.__delattr__(name)
 
-    def __iter__(self) -> NameSpace:
-        return iter({name: val for name, val in vars(self).items() if not name.startswith("_")}.items())
+    def __iter__(self) -> Iterator[Tuple[str, Any]]:
+        return ((name, val) for name, val in vars(self).items() if not name.startswith("_"))
 
     def __contains__(self, other: Any) -> bool:
         return other in set(vars(self).keys())

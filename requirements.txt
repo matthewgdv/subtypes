@@ -3,11 +3,14 @@ bs4
 case_conversion
 colour
 clipboard
+python-dateutil
 django
+fuzzywuzzy
 inflect
 maybe-else
 numpy
 pandas
 parsedatetime
 regex
+requests
 tabulate

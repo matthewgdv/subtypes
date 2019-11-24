@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 import json
 
-import requests
+from requests import Session
 import requests.models
 from requests.compat import quote, quote_plus
 
@@ -25,7 +25,7 @@ class Response(requests.models.Response):
             return None
 
 
-class Http(requests.Session):
+class Http(Session):
     """
     Subclass of requests.Session which takes a 'base_url' constructor argument and prepends it to all future requests.
     It returns Str, List_, and Dict_ instances when deserializing json from responses and can automatically quote all urls passed to its http methods.
