@@ -36,7 +36,7 @@ class NameSpace:
         self.__delattr__(name)
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
-        return ((name, val) for name, val in vars(self).items() if not name.startswith("_"))
+        return iter([(name, val) for name, val in vars(self).items() if not name.startswith("_")])
 
     def __contains__(self, other: Any) -> bool:
         return other in set(vars(self).keys())
