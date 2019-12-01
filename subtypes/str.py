@@ -15,6 +15,7 @@ from django.utils.functional import cached_property as lazy_property
 
 from maybe import Maybe
 
+from .enums import Enum
 from .translator import Translator
 
 with warnings.catch_warnings():
@@ -205,6 +206,9 @@ class CasingAccessor(Accessor):
         """Return the English plural of this Str"""
         return type(self.parent)(inflect.engine().plural(self.parent))
 
+    def from_enum(self, case: Str.Case) -> Str:
+        return getattr(self, str(case))()
+
 
 class SliceAccessor(Accessor):
     """An accessor class for all slicing-related Str methods"""
@@ -329,6 +333,12 @@ class StrSettings(Settings):
 
 class Str(collections.UserString, str):  # type: ignore
     """A subclass of the builin 'str' class which supports inplace mutation using item access. Has additional methods and accessor objects with additional methods for casing, regex, fuzzy-matching, trimming, and slicing."""
+
+    class Case(Enum):
+        SNAKE, CAMEL, PASCAL, CONSTANT = CasingAccessor.snake.__name__, CasingAccessor.camel.__name__, CasingAccessor.pascal.__name__, CasingAccessor.constant.__name__
+        DOT, DASH, SLASH, BACKSLASH = CasingAccessor.dot.__name__, CasingAccessor.dash.__name__, CasingAccessor.slash.__name__, CasingAccessor.backslash.__name__
+        IDENTIFIER, PLURAL = CasingAccessor.identifier.__name__, CasingAccessor.plural.__name__
+
     settings = StrSettings()
 
     def __init__(self, seq: str = None) -> None:
