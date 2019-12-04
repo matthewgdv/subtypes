@@ -13,6 +13,14 @@ from .translator import Translator
 from maybe import Maybe
 
 
+def is_special_private(name: str) -> bool:
+    return name.startswith("_") and name.endswith("_")
+
+
+def is_valid_for_attribute_actions(name: Any, dict_class: Type[Dict_]) -> bool:
+    return isinstance(name, str) and name not in dict_class.settings.dict_fields and not is_special_private(name) and name.isidentifier()
+
+
 class RegexAccessor(Accessor):
     """An accessor class for all regex-related Dict_ methods"""
     settings = StrRegexAccessor.Settings()
@@ -55,7 +63,26 @@ class DictSettings(Settings):
         self.re, self.dict_fields, self.translator, self.recursive = RegexAccessor.settings, {attr for attr in [*dir(dict()), "settings"] if not attr.startswith("_")}, Translator.default, True
 
 
-class Dict_(dict):
+class BaseDict(dict):
+    """
+    An alternative implementation of collections.UserDict that inherits directly from 'dict'. All the 'dict' class inplace methods return self and therefore allow chaining when called from this class.
+    """
+
+    def update(self, item: Mapping) -> BaseDict:
+        """Same as dict.update(), but returns self and thus allows chaining."""
+        super().update(item)
+        return self
+
+    def clear(self) -> BaseDict:
+        """Same as dict.clear(), but returns self and thus allows chaining."""
+        super().clear()
+        return self
+
+    def copy(self) -> BaseDict:
+        return type(self)(self.copy())
+
+
+class Dict_(BaseDict):
     """
     Subclass of the builtin 'dict' class with where inplace methods like dict.update() return self and therefore allow chaining.
     Also allows item access dynamically through attribute access. It recursively converts any str, list, and dict instances into Str, List_, and Dict_.
@@ -115,19 +142,6 @@ class Dict_(dict):
     def re(self) -> RegexAccessor:
         return RegexAccessor(parent=self)
 
-    def update(self, item: Mapping) -> Dict_:
-        """Same as dict.update(), but returns self and thus allows chaining."""
-        super().update(item)
-        return self
-
-    def clear(self) -> Dict_:
-        """Same as dict.clear(), but returns self and thus allows chaining."""
-        super().clear()
-        return self
-
-    def copy(self) -> Dict_:
-        return type(self)(self.copy())
-
     def to_json(self, indent: int = 4, **kwargs: Any) -> str:
         return json.dumps(self, indent=indent, **kwargs)
 
@@ -141,11 +155,3 @@ class Dict_(dict):
 
 
 Translator.translations[dict] = Dict_
-
-
-def is_special_private(name: str) -> bool:
-    return name.startswith("_") and name.endswith("_")
-
-
-def is_valid_for_attribute_actions(name: Any, dict_class: Type[Dict_]) -> bool:
-    return isinstance(name, str) and name not in dict_class.settings.dict_fields and not is_special_private(name) and name.isidentifier()

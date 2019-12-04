@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import copy
-import collections
 import itertools
 import re
-from typing import Any, Callable, Iterator, List, Tuple, Dict, Match, Union
+from typing import Any, Callable, Iterator, Iterable, List, Tuple, Dict, Mapping, Match, Union
 import warnings
 
 import regex as regexmod
@@ -331,7 +330,95 @@ class StrSettings(Settings):
         self.re, self.case, self.slice, self.fuzzy = RegexAccessor.settings, CasingAccessor.settings, SliceAccessor.settings, FuzzyAccessor.settings
 
 
-class Str(collections.UserString, str):  # type: ignore
+class BaseStr(str):
+    def __setitem__(self, key: slice, item: Any) -> None:
+        aslist = list(self)
+        aslist[key] = item
+        return type(self)("".join(aslist))
+
+    def __add__(self, other: str) -> BaseStr:
+        return type(self)(super().__add__(other))
+
+    def __radd__(self, other: str) -> BaseStr:
+        return type(self)(other) + self
+
+    def __mul__(self, n) -> BaseStr:
+        return type(self)(super().__mul__(n))
+
+    def __rmul__(self, n) -> BaseStr:
+        return self*n
+
+    def __mod__(self, args: Any) -> BaseStr:
+        return type(self)(super().__mod__(args))
+
+    def __rmod__(self, template: str) -> BaseStr:
+        return type(self)(template) % self
+
+    def capitalize(self) -> BaseStr:
+        return type(self)(super().capitalize())
+
+    def casefold(self) -> BaseStr:
+        return type(self)(super().casefold())
+
+    def center(self, width, *args) -> BaseStr:
+        return type(self)(super().center(width, *args))
+
+    def expandtabs(self, tabsize: int = 8) -> BaseStr:
+        return type(self)(super().expandtabs(tabsize))
+
+    def format(self, *args: Any, **kwds: Any) -> BaseStr:
+        return type(self)(super().format(*args, **kwds))
+
+    def format_map(self, map: Mapping[str, Any]) -> BaseStr:
+        return type(self)(super().format_map(map))
+
+    def join(self, iterable: Iterable[str]) -> BaseStr:
+        return type(self)(super().join(iterable))
+
+    def ljust(self, width: int, fillchar: str = " ") -> BaseStr:
+        return type(self)(super().ljust(width, fillchar))
+
+    def lower(self) -> BaseStr:
+        return type(self)(super().lower())
+
+    def lstrip(self, chars: str = None) -> BaseStr:
+        return type(self)(super().lstrip(chars))
+
+    def partition(self, sep: str) -> BaseStr:
+        return tuple(type(self)(item) for item in super().partition(sep))
+
+    def replace(self, old: str, new: str, maxsplit: int = -1) -> BaseStr:
+        return type(self)(super().replace(old, new, maxsplit))
+
+    def rjust(self, width: int, fillchar: str = " ") -> BaseStr:
+        return type(self)(super().rjust(width, fillchar))
+
+    def rpartition(self, sep: str) -> BaseStr:
+        return tuple(type(self)(item) for item in super().rpartition(sep))
+
+    def rstrip(self, chars: str = None) -> BaseStr:
+        return type(self)(super().rstrip(chars))
+
+    def strip(self, chars: str = None) -> BaseStr:
+        return type(self)(super().strip(chars))
+
+    def swapcase(self) -> BaseStr:
+        return type(self)(super().swapcase())
+
+    def title(self) -> BaseStr:
+        return type(self)(super().title())
+
+    def translate(self, *args) -> BaseStr:
+        return type(self)(super().translate(*args))
+
+    def upper(self) -> BaseStr:
+        return type(self)(super().upper())
+
+    def zfill(self, width: int) -> BaseStr:
+        return type(self)(super().zfill(width))
+
+
+class Str(str):
     """A subclass of the builin 'str' class which supports inplace mutation using item access. Has additional methods and accessor objects with additional methods for casing, regex, fuzzy-matching, trimming, and slicing."""
 
     class Case(Enum):
@@ -340,17 +427,6 @@ class Str(collections.UserString, str):  # type: ignore
         IDENTIFIER, PLURAL = CasingAccessor.identifier.__name__, CasingAccessor.plural.__name__
 
     settings = StrSettings()
-
-    def __init__(self, seq: str = None) -> None:
-        self.data = f"{Maybe(seq).else_('')}"
-
-    def __setitem__(self, key: slice, item: str) -> None:
-        aslist = list(self.data)
-        aslist[key] = str(item)
-        self.data = "".join(aslist)
-
-    def __rmod__(self, template: Any) -> Any:  # remove me in python 3.8, superclass has a bug in this method
-        return self.__class__(str(template) % self.data)
 
     @lazy_property
     def re(self) -> RegexAccessor:

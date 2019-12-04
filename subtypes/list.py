@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, List
+from collections.abc import Sequence
 import json
+from typing import Any, Iterable, List
 
 from django.utils.functional import cached_property as lazy_property
 
@@ -105,12 +106,75 @@ class ListSettings(Settings):
         self.slice, self.translator, self.recursive = SliceAccessor(), Translator.default, True
 
 
-class List_(list):  # type: ignore
+class BaseList(list):
+    """
+    An alternative implementation of collections.UserList that inherits directly from 'list'. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
+    """
+
+    def __add__(self, other: list) -> BaseList:
+        return type(self)(super().__add__(other))
+
+    def __radd__(self, other: list) -> BaseList:
+        return type(self)(other.__add__(self))
+
+    def __iadd__(self, other):
+        super().__iadd__(other)
+        return self
+
+    def __mul__(self, n: int) -> BaseList:
+        return type(self)(super().__mul__(n))
+
+    def __rmul__(self, n: int) -> BaseList:
+        return type(self)(super().__rmul__(n))
+
+    def __imul__(self, n: int) -> BaseList:
+        super().__imul__(n)
+        return self
+
+    def append(self, item: Any) -> BaseList:
+        """Same as list.append(), but returns self and thus allows chaining."""
+        super().append(item)
+        return self
+
+    def extend(self, item: Any) -> BaseList:
+        """Same as list.extend(), but returns self and thus allows chaining."""
+        super().extend(item)
+        return self
+
+    def insert(self, index: int, item: Any) -> BaseList:
+        """Same as list.insert(), but returns self and thus allows chaining."""
+        super().insert(index, item)
+        return self
+
+    def remove(self, item: Any) -> BaseList:
+        """Same as list.remove(), but returns self and thus allows chaining."""
+        super().remove(item)
+        return self
+
+    def reverse(self) -> BaseList:
+        """Same as list.reverse(), but returns self and thus allows chaining."""
+        super().reverse()
+        return self
+
+    def sort(self, *args: Any, **kwargs: Any) -> BaseList:
+        """Same as list.sort(), but returns self and thus allows chaining."""
+        super().sort(*args, **kwargs)
+        return self
+
+    def clear(self) -> BaseList:
+        """Same as list.clear(), but returns self and thus allows chaining."""
+        super().clear()
+        return self
+
+    def copy(self):
+        return type(self)(self)
+
+
+class List_(BaseList):
     """
     Subclass of the builtin 'list' class with additional useful methods. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
     Recursively traverses its members and converts any str, list and dict instances into Str, List_, and Dict_.
     """
-    settings = ListSettings()
 
     def __init__(self, iterable: Iterable = None) -> None:
         super().__init__(iterable)
@@ -119,110 +183,26 @@ class List_(list):  # type: ignore
             for index, val in enumerate(self):
                 self[index] = self.settings.translator.translate(val)
 
-    def __add__(self, other: list) -> List_:
-        return type(self)(super().__add__(other))
-
-    def __radd__(self, other: list) -> List_:
-        return type(self)(other.__add__(self))
-
-    def __iadd__(self, other):
-        super().__iadd__(other)
-        return self
-
-    def __mul__(self, n: int) -> List_:
-        return type(self)(super().__mul__(n))
-
-    def __rmul__(self, n: int) -> List_:
-        return type(self)(super().__rmul__(n))
-
-    def __imul__(self, n: int) -> List_:
-        super().__imul__(n)
-        return self
-
     @lazy_property
     def slice(self) -> SliceAccessor:
         return SliceAccessor(parent=self)
 
-    def append(self, item: Any) -> List_:
-        """Same as list.append(), but returns self and thus allows chaining."""
-        super().append(item)
-        return self
-
-    def extend(self, item: Any) -> List_:
-        """Same as list.extend(), but returns self and thus allows chaining."""
-        super().extend(item)
-        return self
-
-    def insert(self, index: int, item: Any) -> List_:
-        """Same as list.insert(), but returns self and thus allows chaining."""
-        super().insert(index, item)
-        return self
-
-    def remove(self, item: Any) -> List_:
-        """Same as list.remove(), but returns self and thus allows chaining."""
-        super().remove(item)
-        return self
-
-    def reverse(self) -> List_:
-        """Same as list.reverse(), but returns self and thus allows chaining."""
-        super().reverse()
-        return self
-
-    def sort(self, *args: Any, **kwargs: Any) -> List_:
-        """Same as list.sort(), but returns self and thus allows chaining."""
-        super().sort(*args, **kwargs)
-        return self
-
-    def clear(self) -> List_:
-        """Same as list.clear(), but returns self and thus allows chaining."""
-        super().clear()
-        return self
-
-    def copy(self):
-        return type(self)(self)
-
-    def flatten(self) -> List_:
-        """Recursively traverses any iterables within this List_ and unpacks them in order into a new flat List_."""
-        def recurse(iterable: Iterable, output: list) -> None:
-            for item in iterable:
-                if hasattr(item, "__iter__") and not isinstance(item, str):
-                    recurse(iterable=item, output=output)
-                else:
-                    output.append(item)
-
-        new_data: list = []
-        recurse(iterable=self, output=new_data)
-        return type(self)(new_data)
-
-    def align_nested_strings(self, fieldsep: str = ",", linesep: str = "\n", tabsize: int = 4, tabs: bool = False) -> str:
-        """Align nested iterables of strings to return a string such that the strings at each index position align with each other."""
-        def calculate_tabs_needed(this_len: int, max_len: int, tab_size: int = 4) -> int:
-            return ((max_len // tab_size) + 1) - (this_len // tab_size)
-
-        def calculate_spaces_needed(this_len: int, max_len: int, tab_size: int = 4) -> int:
-            return ((calculate_tabs_needed(this_len, max_len, tab_size) - 1) * tab_size) + (tab_size - (this_len % tab_size))
-
-        def calculate_tabs_or_spaces_needed(strings: List[str], tab_size: int = 4, with_tabs: bool = True) -> Dict[int, int]:
-            max_len = max([len(text) for text in strings])
-            return {index: ((calculate_tabs_needed if with_tabs else calculate_spaces_needed)(len(text), max_len, tab_size)) for index, text in enumerate(strings)}
-
-        if not self:
-            return ""
-
-        if not all([len(sublist) == len(self[0]) for sublist in self[1:]]):
-            raise ValueError(f"All sublists must be the same length. The current breakdown is:\n\n{[len(sub) for sub in self]}\n\nThe sublists are:\n\n{self}")
-
-        delimiter = "\t" if tabs else " "
-        indices = range(len(self[0]))
-
-        with_seps = [[text if index == (len(sublist) - 1) else f"{text}{fieldsep}" for index, text in enumerate(sublist)] for sublist in self]
-        tab_sizes = {index: calculate_tabs_or_spaces_needed([sublist[index] for sublist in with_seps], with_tabs=tabs, tab_size=tabsize) for index in indices}
-        adjusted = [[f"{with_seps[num][index]}{tab_sizes[index][num] * delimiter}" for index in indices] for num in range(len(with_seps))]
-
-        return f"{linesep}".join(["".join(sublist).rstrip() for sublist in adjusted])
-
     def to_json(self, indent: int = 4, **kwargs: Any) -> str:
         return json.dumps(self, indent=indent, **kwargs)
+
+    def flatten(self) -> List_:
+        """Recursively traverses any Sequence objects within this List_ and unpacks them in order into a new flat List_."""
+        new_data: list = []
+        return type(self)(self._flatten_more(iterable=self, output=new_data))
+
+    def _flatten_more(self, iterable: Iterable, output: list) -> None:
+        for item in iterable:
+            if isinstance(item, Sequence) and not isinstance(item, (str, bytes)):
+                self._flatten_more(iterable=item, output=output)
+            else:
+                output.append(item)
+
+        return output
 
     @classmethod
     def from_json(cls, json_string: str, **kwargs: Any) -> List_:
