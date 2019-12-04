@@ -331,6 +331,8 @@ class StrSettings(Settings):
 
 
 class BaseStr(str):
+    """An alternative implementation of collections.UserString that inherits directly from 'str'. Supports item access syntax (though a new object will be returned)."""
+
     def __setitem__(self, key: slice, item: Any) -> None:
         aslist = list(self)
         aslist[key] = item
