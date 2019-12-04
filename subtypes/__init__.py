@@ -4,9 +4,9 @@ __all__ = [
     "Http",
     "Singleton",
     "NameSpace", "NameSpaceDict",
-    "Str",
-    "List_",
-    "Dict_",
+    "Str", "BaseStr",
+    "List_", "BaseList",
+    "Dict_", "BaseDict",
     "DateTime",
     "Frame",
     "Process",
@@ -20,9 +20,9 @@ from .http import Http
 from .singleton import Singleton
 from .namespace import NameSpace
 from .translator import Translator
-from .str import Str
-from .list import List_
-from .dict import Dict_
+from .str import Str, BaseStr
+from .list import List_, BaseList
+from .dict import Dict_, BaseDict
 from .datetime import DateTime
 from .frame import Frame
 from .process import Process
