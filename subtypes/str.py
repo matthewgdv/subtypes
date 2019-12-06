@@ -452,7 +452,7 @@ class Str(str):
 
     def to_clipboard(self) -> None:
         """Save the content of this string to the clipboard"""
-        clipboard.copy(self.data)
+        clipboard.copy(self)
 
     # parsing
 
@@ -460,7 +460,7 @@ class Str(str):
         """Return a list of all the index positions at which the given substring occurs."""
         pattern = substring if regex else re.escape(substring)
         prefix = "".join([fr"{start}.*?{end}|" for start, end in not_within]) if not_within is not None else ""
-        return [match.start() for match in regexmod.finditer(fr"{prefix}({pattern})", self.data, overlapped=overlapping if not_within is None else False, flags=self.re.settings.to_flag() if regex else 0) if match.group(1)]
+        return [match.start() for match in regexmod.finditer(fr"{prefix}({pattern})", self, overlapped=overlapping if not_within is None else False, flags=self.re.settings.to_flag() if regex else 0) if match.group(1)]
 
     def extract_uk_postcode(self) -> Str:
         """Attempt to extract a valid UK postcode from the given string. Returns None upon failure."""
