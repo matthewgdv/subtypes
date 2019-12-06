@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 import json
+import simplejson
 
 from requests import Session
 import requests.models
@@ -21,7 +22,7 @@ class Response(requests.models.Response):
         """Returns Str, List_, and Dict_ items rather than their builtin superclasses. If there is no data will return None rather than raising JSONDecodeError."""
         try:
             return Translator.default.translate(super().json())
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, simplejson.JSONDecodeError):
             return None
 
 
@@ -42,7 +43,7 @@ class Http(Session):
         return f"{type(self).__name__}(base_url={repr(self.base_url)}, auth={repr(self.auth)}, headers={repr(self.headers)})"
 
     def request(self, method: str, url: str, *args: Any, **kwargs: Any) -> Any:
-        return Response(super().request(method=method, url=self._quote_encode(f"{self.base_url}/{url.strip('/')}"), *args, **kwargs).__dict__)
+        return Response(super().request(method=method, url=self._quote_encode(f"""{f"{self.base_url}/{url.strip('/')}".strip("/")}/"""), *args, **kwargs).__dict__)
 
     def _quote_encode(self, url: str) -> str:
         if self.quote_level == Http.QuoteLevel.NONE:
