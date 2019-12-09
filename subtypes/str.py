@@ -420,7 +420,7 @@ class BaseStr(str):
         return type(self)(super().zfill(width))
 
 
-class Str(str):
+class Str(BaseStr):
     """A subclass of the builin 'str' class which supports inplace mutation using item access. Has additional methods and accessor objects with additional methods for casing, regex, fuzzy-matching, trimming, and slicing."""
 
     class Case(Enum):
