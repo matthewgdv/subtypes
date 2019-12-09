@@ -132,7 +132,7 @@ class Frame(pd.DataFrame):
         pivoted.columns = [list(itertools.takewhile(lambda val: val, item))[-1] for item in pivoted.columns.to_flat_index()]
         return pivoted
 
-    def unpivot(self, index_cols: List[Union[pd.Series, str]] = None, cols_to_unpivot: List[Union[pd.Series, str]] = None, unpivot_field_name: str = "field", unpivot_value_name: str = "value") -> Frame:
+    def unpivot(self, index_cols: List[Union[pd.Series, str]] = None, cols_to_unpivot: List[Union[pd.Series, str]] = None, field_name: str = "field", value_name: str = "value") -> Frame:
         """Unpivot the content of this Frame."""
         indexed = self.set_index(index_cols) if index_cols is not None else self.copy()
 
@@ -140,8 +140,8 @@ class Frame(pd.DataFrame):
             indexed.drop([colname for colname in indexed.columns if colname not in cols_to_unpivot], axis=1, inplace=True)
 
         unpivoted = type(self)(indexed.stack().reset_index())
-        final: Frame = unpivoted.rename(columns={unpivoted.columns[-2]: unpivot_field_name, unpivoted.columns[-1]: unpivot_value_name})
-        final[unpivot_field_name] = final[unpivot_field_name].replace(True, 1).replace(False, 0)
+        final: Frame = unpivoted.rename(columns={unpivoted.columns[-2]: field_name, unpivoted.columns[-1]: value_name})
+        final[field_name] = final[field_name].replace(True, 1).replace(False, 0)
         final.dropna(how="all", subset=list(final.columns[:-2]), inplace=True)
 
         return final
