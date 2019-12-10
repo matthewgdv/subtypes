@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import Any, Dict, cast
+from typing import Any, Dict, Union
 
 from django.utils.functional import cached_property as lazy_property
 from dateutil.relativedelta import relativedelta
@@ -59,25 +59,12 @@ class DateTime(dt.datetime):
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([str(getattr(self, attr)) for attr in ['year', 'month', 'day', 'hour', 'minute', 'second'] if getattr(self, attr)])})"
 
-    @staticmethod
-    def today(**kwargs: Any) -> DateTime:
-        """Create a DateTime from today at midnight."""
-        return DateTime.from_date(dt.date.today())
+    def delta(self, *args: Any, **kwargs: Any) -> DateTime:
+        """Add/subtract the given amount of time units (as keyword arguments) to this DateTime. E.g. DateTime.now().delta(days=-3, hours=15)"""
+        return self.fromisoformat((self + relativedelta(*args, **kwargs)).isoformat())
 
-    @classmethod
-    def now(cls, tz: Any = None) -> DateTime:
-        """Create a DateTime from the current time."""
-        return cast(DateTime, super().now(tz=tz))
-
-    @staticmethod
-    def from_date(date: dt.date) -> DateTime:
-        """Create a DateTime from a datetime.date object."""
-        return DateTime.fromordinal(date.toordinal())  # type: ignore
-
-    @staticmethod
-    def from_datetime(datetime: dt.datetime) -> DateTime:
-        """Create a DateTime from a datetime.datetime object."""
-        return DateTime.fromisoformat(datetime.isoformat())  # type: ignore
+    def truncate_time(self) -> DateTime:
+        return type(self)(self.year, self.month, self.day)
 
     def to_date(self) -> dt.date:
         """Create the equivalent datetime.date object from this DateTime."""
@@ -87,37 +74,75 @@ class DateTime(dt.datetime):
         """Create the equivalent datetime.datetime object from this DateTime."""
         return dt.datetime.fromisoformat(self.isoformat())
 
-    def casual_date(self, full_month: bool = False, day_first: bool = True, day_suffix: bool = False) -> str:
+    def to_ordinal(self) -> int:
+        return self.toordinal()
+
+    def to_isoformat(self, sep: str = " ", timespec: str = "auto") -> str:
+        return self.isoformat(sep=sep, timespec=timespec)
+
+    def to_isoformat_date(self) -> str:
+        """Create an isoformat date string from this DateTime with several options."""
+        return self.strftime(f"{FormatCode.YEAR.WITH_CENTURY}-{FormatCode.MONTH.NUM}-{FormatCode.DAY.NUM}")
+
+    def to_casual_date(self, full_month: bool = False, day_first: bool = True, day_suffix: bool = False) -> str:
         """Create a human-readable datetime string from this DateTime with several options."""
         day, month, year = self.Day.with_suffix if day_suffix else self.day, self.Month.full if full_month else self.Month.short, self.Year.with_century
         return " ".join([str(item) for item in ((day, month, year) if day_first else (month, day, year))])
 
-    def isoformat_date(self, dashes: bool = True, reverse: bool = False) -> str:
-        """Create an isoformat date string from this DateTime with several options."""
-        codes = (FormatCode.YEAR.WITH_CENTURY, FormatCode.MONTH.NUM, FormatCode.DAY.NUM)
-        return self.strftime(f"{'-' if dashes else ''}".join([str(code) for code in (codes if not reverse else reversed(codes))]))
+    def to_filetag(self) -> str:
+        """Create a string suitable to be used as a date (not datetime!) tag within a filename."""
+        return self.strftime(f"{FormatCode.YEAR.WITH_CENTURY}{FormatCode.MONTH.NUM}{FormatCode.DAY.NUM}")
 
-    def filetag_date(self) -> str:
-        """Create a date string suitable to be used as a tag within a filename."""
-        return self.isoformat_date(dashes=False)
-
-    def logformat(self, labels: bool = False) -> str:
-        """Create a datetime string suitable to be used for logging."""
+    def to_logformat(self, labels: bool = False) -> str:
+        """Create a precise datetime string suitable to be used for logging."""
         Code = FormatCode
         if labels:
             return self.strftime(f"[{Code.YEAR.WITH_CENTURY}-{Code.MONTH.NUM}-{Code.DAY.NUM} {Code.HOUR.H24}h {Code.MINUTE.NUM}m {Code.SECOND.NUM}s {Code.MICROSECOND.NUM}ms]")
         else:
             return self.strftime(f"[{Code.YEAR.WITH_CENTURY}-{Code.MONTH.NUM}-{Code.DAY.NUM} {Code.HOUR.H24}:{Code.MINUTE.NUM}:{Code.SECOND.NUM}:{Code.MICROSECOND.NUM}]")
 
-    def delta(self, *args: Any, **kwargs: Any) -> DateTime:
-        """Add/subtract the given amount of time units (as keyword arguments) to this DateTime. E.g. DateTime.now().delta(days=-3, hours=15)"""
-        return self.fromisoformat((self + relativedelta(*args, **kwargs)).isoformat())  # type: ignore
+    @classmethod
+    def today(cls, **kwargs: Any) -> DateTime:
+        """Create a DateTime from today at midnight."""
+        return cls.from_date(dt.date.today())
+
+    @classmethod
+    def from_date(cls, date: dt.date) -> DateTime:
+        """Create a DateTime from a datetime.date object."""
+        return cls.fromordinal(date.toordinal())
+
+    @classmethod
+    def from_datetime(cls, datetime: dt.datetime) -> DateTime:
+        """Create a DateTime from a datetime.datetime object."""
+        return cls.fromisoformat(datetime.isoformat())
 
     @classmethod
     def from_string(cls, text: str) -> DateTime:
         """Attempt to parse a string of text into a DateTime. Returns None upon failure."""
         val, code = cls.calendar.parse(text)
         return cls(*val[:6 if code == 3 else 3]) if code in (1, 3) else None
+
+    @classmethod
+    def from_inference(cls, datelike: Union[dt.datetime, dt.date, int, str]) -> DateTime:
+        """Create a DateTime from a valid python object. Raises TypeError if an unsupported type is passed. Raises ValueError if an invalid instance of a supported type (like 'str' or 'int') is passed."""
+        if isinstance(datelike, cls):
+            return datelike
+        elif isinstance(datelike, dt.datetime):
+            return cls.from_datetime(datelike)
+        elif isinstance(datelike, dt.date):
+            return cls.from_date(datelike)
+        elif isinstance(datelike, int):
+            return cls.fromordinal(datelike)
+        elif isinstance(datelike, str):
+            try:
+                return cls.fromisoformat(datelike)
+            except ValueError:
+                if (ret := cls.from_string(datelike)) is not None:
+                    return ret
+                else:
+                    raise ValueError(f"Could not parse stringlike value '{datelike}' to type '{cls.__name__}'.")
+        else:
+            raise TypeError(f"Unsupported type '{type(datelike)}' for inference to type '{cls.__name__}'.")
 
     @lazy_property
     def TimeZone(self) -> TimeZone:
