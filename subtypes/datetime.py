@@ -77,8 +77,12 @@ class DateTime(dt.datetime):
     def to_ordinal(self) -> int:
         return self.toordinal()
 
-    def to_isoformat(self, sep: str = " ", timespec: str = "auto") -> str:
-        return self.isoformat(sep=sep, timespec=timespec)
+    def to_isoformat(self, sep: str = " ", timespec: str = "seconds", show_tzinfo: bool = False) -> str:
+        iso = self.isoformat(sep=sep, timespec=timespec)
+        if show_tzinfo or self.tzinfo is None:
+            return iso
+        else:
+            return str(Str(iso).slice.before(r"[+-]"))
 
     def to_isoformat_date(self) -> str:
         """Create an isoformat date string from this DateTime with several options."""
