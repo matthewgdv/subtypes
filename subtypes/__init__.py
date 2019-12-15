@@ -3,7 +3,7 @@ __all__ = [
     "Markup",
     "Http",
     "Singleton",
-    "NameSpace", "NameSpaceDict",
+    "NameSpace",
     "Str", "BaseStr",
     "List_", "BaseList",
     "Dict_", "BaseDict",

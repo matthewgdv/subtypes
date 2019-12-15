@@ -4,7 +4,7 @@ from collections.abc import Sequence
 import json
 from typing import Any, Iterable, List
 
-from django.utils.functional import cached_property as lazy_property
+from django.utils.functional import cached_property
 
 from maybe import Maybe
 
@@ -173,7 +173,7 @@ class BaseList(list):
 class List_(BaseList):
     """
     Subclass of the builtin 'list' class with additional useful methods. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
-    Recursively traverses its members and converts any str, list and dict instances into Str, List_, and Dict_.
+    Recursively traverses its members and converts any str, list and dict instances into into their subtypes equivalents.
     """
     settings = ListSettings()
 
@@ -184,7 +184,7 @@ class List_(BaseList):
             for index, val in enumerate(self):
                 self[index] = self.settings.translator.translate(val)
 
-    @lazy_property
+    @cached_property
     def slice(self) -> SliceAccessor:
         return SliceAccessor(parent=self)
 
@@ -193,10 +193,9 @@ class List_(BaseList):
 
     def flatten(self) -> List_:
         """Recursively traverses any Sequence objects within this List_ and unpacks them in order into a new flat List_."""
-        new_data: list = []
-        return type(self)(self._flatten_more(iterable=self, output=new_data))
+        return self._flatten_more(iterable=self, output=type(self)())
 
-    def _flatten_more(self, iterable: Iterable, output: list) -> None:
+    def _flatten_more(self, iterable: Iterable, output: List_) -> List_:
         for item in iterable:
             if isinstance(item, Sequence) and not isinstance(item, (str, bytes)):
                 self._flatten_more(iterable=item, output=output)

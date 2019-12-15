@@ -10,7 +10,7 @@ import regex as regexmod
 import case_conversion
 import inflect
 import clipboard
-from django.utils.functional import cached_property as lazy_property
+from django.utils.functional import cached_property
 
 from maybe import Maybe
 
@@ -331,12 +331,7 @@ class StrSettings(Settings):
 
 
 class BaseStr(str):
-    """An alternative implementation of collections.UserString that inherits directly from 'str'. Supports item access syntax (though a new object will be returned)."""
-
-    def __setitem__(self, key: slice, item: Any) -> None:
-        aslist = list(self)
-        aslist[key] = item
-        return type(self)("".join(aslist))
+    """An alternative implementation of collections.UserString that inherits directly from 'str'."""
 
     def __add__(self, other: str) -> BaseStr:
         return type(self)(super().__add__(other))
@@ -371,8 +366,8 @@ class BaseStr(str):
     def format(self, *args: Any, **kwds: Any) -> BaseStr:
         return type(self)(super().format(*args, **kwds))
 
-    def format_map(self, map: Mapping[str, Any]) -> BaseStr:
-        return type(self)(super().format_map(map))
+    def format_map(self, mapping: Mapping[str, Any]) -> BaseStr:
+        return type(self)(super().format_map(mapping))
 
     def join(self, iterable: Iterable[str]) -> BaseStr:
         return type(self)(super().join(iterable))
@@ -386,7 +381,7 @@ class BaseStr(str):
     def lstrip(self, chars: str = None) -> BaseStr:
         return type(self)(super().lstrip(chars))
 
-    def partition(self, sep: str) -> BaseStr:
+    def partition(self, sep: str) -> Tuple[BaseStr, ...]:
         return tuple(type(self)(item) for item in super().partition(sep))
 
     def replace(self, old: str, new: str, maxsplit: int = -1) -> BaseStr:
@@ -395,7 +390,7 @@ class BaseStr(str):
     def rjust(self, width: int, fillchar: str = " ") -> BaseStr:
         return type(self)(super().rjust(width, fillchar))
 
-    def rpartition(self, sep: str) -> BaseStr:
+    def rpartition(self, sep: str) -> Tuple[BaseStr, ...]:
         return tuple(type(self)(item) for item in super().rpartition(sep))
 
     def rstrip(self, chars: str = None) -> BaseStr:
@@ -430,23 +425,23 @@ class Str(BaseStr):
 
     settings = StrSettings()
 
-    @lazy_property
+    @cached_property
     def re(self) -> RegexAccessor:
         return RegexAccessor(parent=self)
 
-    @lazy_property
+    @cached_property
     def case(self) -> CasingAccessor:
         return CasingAccessor(parent=self)
 
-    @lazy_property
+    @cached_property
     def slice(self) -> SliceAccessor:
         return SliceAccessor(parent=self)
 
-    @lazy_property
+    @cached_property
     def trim(self) -> TrimAccessor:
         return TrimAccessor(parent=self)
 
-    @lazy_property
+    @cached_property
     def fuzzy(self) -> FuzzyAccessor:
         return FuzzyAccessor(parent=self)
 

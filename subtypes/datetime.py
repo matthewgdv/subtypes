@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import Any, Dict, Union
+from typing import Any, Union
 
-from django.utils.functional import cached_property as lazy_property
+from django.utils.functional import cached_property
 from dateutil.relativedelta import relativedelta
 import parsedatetime
 
+from .str import Str
 from .enums import Enum, ValueEnum
 
 
@@ -99,11 +100,11 @@ class DateTime(dt.datetime):
 
     def to_logformat(self, labels: bool = False) -> str:
         """Create a precise datetime string suitable to be used for logging."""
-        Code = FormatCode
+        code = FormatCode
         if labels:
-            return self.strftime(f"[{Code.YEAR.WITH_CENTURY}-{Code.MONTH.NUM}-{Code.DAY.NUM} {Code.HOUR.H24}h {Code.MINUTE.NUM}m {Code.SECOND.NUM}s {Code.MICROSECOND.NUM}ms]")
+            return self.strftime(f"[{code.YEAR.WITH_CENTURY}-{code.MONTH.NUM}-{code.DAY.NUM} {code.HOUR.H24}h {code.MINUTE.NUM}m {code.SECOND.NUM}s {code.MICROSECOND.NUM}ms]")
         else:
-            return self.strftime(f"[{Code.YEAR.WITH_CENTURY}-{Code.MONTH.NUM}-{Code.DAY.NUM} {Code.HOUR.H24}:{Code.MINUTE.NUM}:{Code.SECOND.NUM}:{Code.MICROSECOND.NUM}]")
+            return self.strftime(f"[{code.YEAR.WITH_CENTURY}-{code.MONTH.NUM}-{code.DAY.NUM} {code.HOUR.H24}:{code.MINUTE.NUM}:{code.SECOND.NUM}:{code.MICROSECOND.NUM}]")
 
     @classmethod
     def today(cls, **kwargs: Any) -> DateTime:
@@ -148,43 +149,43 @@ class DateTime(dt.datetime):
         else:
             raise TypeError(f"Unsupported type '{type(datelike)}' for inference to type '{cls.__name__}'.")
 
-    @lazy_property
+    @cached_property
     def TimeZone(self) -> TimeZone:
         return TimeZone(self)
 
-    @lazy_property
+    @cached_property
     def WeekDay(self) -> WeekDay:
         return WeekDay(self)
 
-    @lazy_property
+    @cached_property
     def Week(self) -> Week:
         return Week(self)
 
-    @lazy_property
+    @cached_property
     def Year(self) -> Year:
         return Year(self)
 
-    @lazy_property
+    @cached_property
     def Month(self) -> Month:
         return Month(self)
 
-    @lazy_property
+    @cached_property
     def Day(self) -> Day:
         return Day(self)
 
-    @lazy_property
+    @cached_property
     def Hour(self) -> Hour:
         return Hour(self)
 
-    @lazy_property
+    @cached_property
     def Minute(self) -> Minute:
         return Minute(self)
 
-    @lazy_property
+    @cached_property
     def Second(self) -> Second:
         return Second(self)
 
-    @lazy_property
+    @cached_property
     def MicroSecond(self) -> MicroSecond:
         return MicroSecond(self)
 
@@ -249,6 +250,8 @@ class Month(DateTimeAccessor):
 
 
 class Day(DateTimeAccessor):
+    _suffixes = {day: suffix for days, suffix in [([1, 21, 31], "st"), ([2, 22], "nd"), ([3, 23], "rd")] for day in days}
+
     @property
     def num(self) -> str:
         return self._datetime.strftime(FormatCode.DAY.NUM)
@@ -264,10 +267,6 @@ class Day(DateTimeAccessor):
     @property
     def with_suffix(self) -> str:
         return f"{self._datetime.day}{self.suffix}"
-
-    @lazy_property
-    def _suffixes(self) -> Dict[int, str]:
-        return {day: suffix for days, suffix in [([1, 21, 31], "st"), ([2, 22], "nd"), ([3, 23], "rd")] for day in days}
 
 
 class Hour(DateTimeAccessor):

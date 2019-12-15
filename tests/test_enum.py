@@ -1,5 +1,5 @@
 import pytest
-from subtypes.enum import Enum
+from subtypes.enums import Enum
 
 
 class Animal(Enum):

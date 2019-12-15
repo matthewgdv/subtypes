@@ -66,42 +66,40 @@ class TestStr:
         assert True
 
     def test_after(self):
-        assert hi.after(r"w") == "orld!"
+        assert hi.slice.after(r"w") == "orld!"
         with pytest.raises(ValueError):
-            hi.after(r"l")
+            hi.slice.after(r"l")
 
     def test_after_first(self):
-        assert hi.after_first(r"l") == "lo World!"
+        assert hi.slice.after_first(r"l") == "lo World!"
 
     def test_after_last(self):
-        assert hi.after_last(r"l") == "d!"
+        assert hi.slice.after_last(r"l") == "d!"
 
     def test_before(self):
-        assert hi.before(r"w") == "Hello "
+        assert hi.slice.before(r"w") == "Hello "
         with pytest.raises(ValueError):
-            hi.before(r"l")
+            hi.slice.before(r"l")
 
     def test_before_first(self):
-        assert hi.before_first(r"l") == "He"
+        assert hi.slice.before_first(r"l") == "He"
 
     def test_before_last(self):
-        assert hi.before_last(r"l") == "Hello Wor"
+        assert hi.slice.before_last(r"l") == "Hello Wor"
 
     def test_best_n_fuzzy_matches(self):
-        assert [match for match, score in hi.best_n_fuzzy_matches(["Hello Worlds!", "Haii, I'm a world!", "Hiya World!", "Hi Friend!"], num=2)] == ["Hello Worlds!", "Hiya World!"]
+        assert [match for match, score in hi.fuzzy.best_n_matches(["Hello Worlds!", "Haii, I'm a world!", "Hiya World!", "Hi Friend!"], num=2)] == ["Hello Worlds!", "Hiya World!"]
 
     def test_camel_case(self):
-        assert hi.camel_case() == "HelloWorld"
+        assert hi.case.camel() == "HelloWorld"
 
     def test_configure_fuzzy(self):
-        val = Str("")
-        val.configure_fuzzy(tokenize=True, partial=True)
-        assert val.fuzzy.tokenize == True and val.fuzzy.partial == True
+        accessor = Str("").fuzzy(tokenize=True, partial=True)
+        assert accessor.settings.tokenize == True and accessor.settings.partial == True
 
     def test_configure_re(self):
-        val = Str("")
-        val.configure_re(dotall=False, ignorecase=False, multiline=True)
-        assert val.re.dotall == False and val.re.ignorecase == False and val.re.multiline == True
+        accessor = Str("").re(dotall=False, ignorecase=False, multiline=True)
+        assert accessor.settings.dotall == False and accessor.settings.ignorecase == False and accessor.settings.multiline == True
 
     def test_extract_uk_postcode(self):
         assert Str("Hi, I'm located at eh165pn.").extract_uk_postcode() == "EH16 5PN"
@@ -110,60 +108,60 @@ class TestStr:
         assert hi.find_all("l") == [2, 3, 9]
 
     def test_finditer(self):
-        assert [match.group() for match in hi.finditer(r"\b[A-Za-z]+\b")] == ["Hello", "World"]
+        assert [match.group() for match in hi.re.finditer(r"\b[A-Za-z]+\b")] == ["Hello", "World"]
 
     def test_from_(self):
-        assert hi.from_(r"w") == "World!"
+        assert hi.slice.from_(r"w") == "World!"
         with pytest.raises(ValueError):
-            hi.from_(r"l")
+            hi.slice.from_(r"l")
 
     def test_from_first(self):
-        assert hi.from_first(r"l") == "llo World!"
+        assert hi.slice.from_first(r"l") == "llo World!"
 
     def test_from_last(self):
-        assert hi.from_last(r"l") == "ld!"
+        assert hi.slice.from_last(r"l") == "ld!"
 
     def test_fuzzy_match(self):
-        assert hi.fuzzy_match("Hello Worlds!") > 95
+        assert hi.fuzzy.match("Hello Worlds!") > 95
 
     def test_identifier(self):
-        assert Str("123Hello World!").identifier() == "_123_hello_world"
+        assert Str("123Hello World!").case.identifier() == "_123_hello_world"
 
     @pytest.mark.parametrize(["value", "expected"], [("Snake", "Snakes"), ("Hero", "Heroes"), ("Princess", "Princesses"), ("Leaf", "Leaves"), ("Man", "Men"), ("Woman", "Women"), ("Tooth", "Teeth"), ("Mouse", "Mice"), ("Deer", "Deer")])
     def test_plural(self, value, expected):
-        assert Str(value).plural() == expected
+        assert Str(value).case.plural() == expected
 
     def test_search(self):
-        assert hi.search(r"\bwor[A-Za-z]+\b").group() == "World"
+        assert hi.re.search(r"\bwor[A-Za-z]+\b").group() == "World"
 
     def test_snake_case(self):
-        assert hi.snake_case() == "hello_world"
+        assert hi.case.snake() == "hello_world"
 
-    def test_splitre(self):
-        assert Str("Hi, how's it going?").splitre(r",?\s+") == ["Hi", "how's", "it", "going?"]
+    def test_re_split(self):
+        assert Str("Hi, how's it going?").re.split(r",?\s+") == ["Hi", "how's", "it", "going?"]
 
-    def test_strip_non_alphanumeric(self):
-        assert hi.strip_non_alphanumeric() == "HelloWorld"
+    def test_trim_non_alphanumeric(self):
+        assert hi.trim.non_alphanumeric() == "HelloWorld"
 
-    def test_strip_non_ascii(self):
-        assert Str("★Hi!★").strip_non_ascii() == "Hi!"
+    def test_trim_non_ascii(self):
+        assert Str("★Hi!★").trim.non_ascii() == "Hi!"
 
-    def test_strip_whitespace(self):
-        assert Str("\nHello   World!\n\t").strip_whitespace() == "Hello World!"
+    def test_trim_whitespace(self):
+        assert Str("\nHello   World!\n\t").trim.all_whitespace() == "Hello World!"
 
-    def test_sub(self):
-        assert hi.sub(r"world", "Friend") == "Hello Friend!"
+    def test_re_sub(self):
+        assert hi.re.sub(r"world", "Friend") == "Hello Friend!"
 
     def test_to_clipboard(self):
         assert True
 
     def test_until(self):
-        assert hi.until(r"w") == "Hello W"
+        assert hi.slice.until(r"w") == "Hello W"
         with pytest.raises(ValueError):
-            hi.until(r"l")
+            hi.slice.until(r"l")
 
     def test_until_first(self):
-        assert hi.until_first(r"l") == "Hel"
+        assert hi.slice.until_first(r"l") == "Hel"
 
     def test_until_last(self):
-        assert hi.until_last(r"l") == "Hello Worl"
+        assert hi.slice.until_last(r"l") == "Hello Worl"

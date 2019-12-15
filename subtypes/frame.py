@@ -40,6 +40,8 @@ def _check_import_is_available(func: FuncSig) -> FuncSig:
 
 
 class Frame(pd.DataFrame):
+    columns: Union[Index, Iterable]
+
     class InferRange(Enum):
         TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID = "trim_surrounding", "strip_nulls", "smallest_valid"
 
@@ -53,8 +55,6 @@ class Frame(pd.DataFrame):
     DEFAULT_INFER_RANGE = InferRange.SMALLEST_VALID
     DEFAULT_PATH_TYPE = PathType.PATHMAGIC
     DEFAULT_SHEET_NAME = "Sheet1"
-
-    columns: Index
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         with self._using_parent_constructor():
@@ -85,7 +85,7 @@ class Frame(pd.DataFrame):
         """Load this Frame into a SQL database table using the config defaults of the sqlhandler library. An sqlhandler.Sql object can be provided to override the connection defaults."""
         from sqlhandler import Sql
         sql = sql if sql is not None else Sql(database=database)
-        return sql.frame_to_table(self, table=table, schema=schema, if_exists=if_exists, primary_key=primary_key)
+        return sql.frame_to_table(self, table=table, schema=schema, if_exists=Sql.IfExists(if_exists), primary_key=primary_key)
 
     def to_dataframe(self) -> pd.DataFrame:
         """Convert this Frame to a pandas.DataFrame."""
@@ -167,7 +167,7 @@ class Frame(pd.DataFrame):
         style = Maybe(style).else_({'full_width': True})
         return pandas_profiling.ProfileReport(pd.DataFrame(self), *args, style=style, **kwargs)
 
-    def profile_report_to(self, path: PathLike, *args: Any, style: dict = None, **kwargs: Any) -> PathLike:
+    def profile_report_to(self, path: PathLike, *args: Any, **kwargs: Any) -> PathLike:
         """Produce a pandas profile report and return it as an html file"""
         file = self._get_path_constructor()(path)
         self.profile_report(*args, **kwargs).to_file(output_file=str(file))
