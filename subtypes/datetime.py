@@ -83,7 +83,7 @@ class DateTime(dt.datetime):
         if show_tzinfo or self.tzinfo is None:
             return iso
         else:
-            return str(Str(iso).slice.before(r"[+-]"))
+            return str(Str(iso).slice.before_last(r"[+-]"))
 
     def to_isoformat_date(self) -> str:
         """Create an isoformat date string from this DateTime with several options."""
