@@ -118,7 +118,7 @@ class Frame(pd.DataFrame):
         """Save this Frame to the current user's desktop as an xlsx file. Returns that File."""
         from pathmagic import Dir
 
-        file = Dir.from_desktop().new_file(f"{name}_{DateTime.today().filetag_date() if with_timestamp else ''}", "xlsx")
+        file = Dir.from_desktop().new_file(f"{name}_{DateTime.today().to_filetag() if with_timestamp else ''}", "xlsx")
         self.to_excel(file.path, index=index, **kwargs)
         return file
 
