@@ -44,9 +44,15 @@ class FormatCode(ValueEnum):
         NUM = "%f"
 
 
-class WeekDays(Enum):
+class WeekDay(Enum):
     """An Enum holding the days of the week."""
     MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"
+
+
+class MonthName(Enum):
+    """An Enum holding the months of the year."""
+    JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE = "january", "february", "march", "april", "may", "june"
+    JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER = "july", "august", "september", "october", "november", "december"
 
 
 class DateTime(dt.datetime):
@@ -55,7 +61,7 @@ class DateTime(dt.datetime):
     All normal datetime attributes are shadowed by PascalCase attributes which have properties providing various string representations of that attribute.
     E.g. DateTime.now().WeekDay.full, or DateTime.now().Year.without_century
     """
-    nanosecond, FormatCode, WeekDays, calendar = 0, FormatCode, WeekDays, parsedatetime.Calendar()
+    nanosecond, FormatCode, WeekDay, MonthName, calendar = 0, FormatCode, WeekDay, MonthName, parsedatetime.Calendar()
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([str(getattr(self, attr)) for attr in ['year', 'month', 'day', 'hour', 'minute', 'second'] if getattr(self, attr)])})"
