@@ -7,6 +7,25 @@ import aenum
 
 
 class EnumMeta(aenum.EnumMeta):
+    # Implementation of EnumMeta.__new__() and EnumMeta.__prepare__() alongside subtypes.Enum inheriting from enum.Enum unnecessarily
+    # when it already inherits from aenum.Enum which is a subclass of enum.Enum, is done so that the goddamn PyCharm type checker
+    # is satisfied that subtypes.Enum is, in fact, a freaking enumeration. Otherwise it just doesn't get it.
+
+    def __new__(mcs, name: str, bases: tuple, namespace: dict, init: Any = None, start: Any = None, settings: tuple = ()) -> EnumMeta:
+        if enum.Enum in bases:
+            (bases := list(bases)).remove(enum.Enum)
+            bases = tuple(bases)
+
+        return super().__new__(mcs, name, bases, namespace, init, start, settings)
+
+    @classmethod
+    def __prepare__(mcs, name: str, bases: tuple, init: Any = None, start: Any = None, settings: tuple = ()) -> EnumMeta:
+        if enum.Enum in bases:
+            (bases := list(bases)).remove(enum.Enum)
+            bases = tuple(bases)
+
+        return super().__prepare__(name, bases, init, start, settings)
+
     def __repr__(cls) -> str:
         return f"{cls.__name__}[{', '.join([f'{member.name}={repr(member.value)}' for member in cls])}]"
 
@@ -50,7 +69,7 @@ class ValueEnumMeta(EnumMeta):
         return value
 
 
-class Enum(aenum.Enum, metaclass=EnumMeta):
+class Enum(aenum.Enum, enum.Enum, metaclass=EnumMeta):
     """A subclass of aenum.Enum with additional methods."""
 
     def __repr__(self) -> str:
@@ -73,12 +92,11 @@ class AutoEnum(Enum):
     """A subclass of subtypes.Enum. Automatically uses _generate_next_value_ when values are missing"""
     _settings_ = aenum.AutoValue
 
-    # noinspection PyUnusedLocal
     def _generate_next_value_(name: str, start: str, count: str, last_values: List[str]) -> str:
         return name.lower()
 
 
-class ValueEnum(aenum.Enum, metaclass=ValueEnumMeta):
+class ValueEnum(Enum, metaclass=ValueEnumMeta):
     """A subclass of subtypes.Enum. Attribute access on descendants of this class returns the value corresponding to that name, rather than returning the member."""
     pass
 
