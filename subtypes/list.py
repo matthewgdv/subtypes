@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 import json
-from typing import Any, Iterable, List
+from typing import Any, Iterable, Iterator, List
 
 from django.utils.functional import cached_property
 
@@ -10,6 +10,9 @@ from maybe import Maybe
 
 from .str import Accessor, Settings
 from .translator import Translator
+
+
+# TODO: add List_.split_into_batches(), List_.split_into_batches_of_size()
 
 
 class SliceAccessor(Accessor):
@@ -187,6 +190,44 @@ class List_(BaseList):
     @cached_property
     def slice(self) -> SliceAccessor:
         return SliceAccessor(parent=self)
+
+    def one(self) -> Any:
+        if len(self) == 1:
+            return self[0]
+        else:
+            raise ValueError(f"Expected '{self}' to contain a single value, but actual length was: {len(self)}.")
+
+    def one_or_none(self, candidate: Any) -> Any:
+        if not self:
+            return None
+        elif len(self) == 1:
+            return self[0]
+        else:
+            raise ValueError(f"Expected '{self}' to contain a single value or be empty, but actual length was: {len(self)}.")
+
+    def split_into_batches(self, num_batches: int) -> Iterator[List_]:
+        """Split this container into 'num_batches' equally sized containers of the same type. If the length of this container is not perfectly divisible by 'num_batches', the final container will be longer than the rest."""
+        if num_batches >= len(self):
+            yield type(self)(self)
+        else:
+            batch_size, final_batch_size_extra = len(self) // num_batches, len(self) % num_batches
+
+            if not final_batch_size_extra:
+                for run in range(0, len(self), batch_size):
+                    yield self[run:run + batch_size]
+            else:
+                for run in range(0, (final_batch_position := batch_size*(num_batches - 1)), batch_size):
+                    yield self[run:run + batch_size]
+
+                yield self[final_batch_position:]
+
+    def split_into_batches_of_size(self, batch_size: int) -> Iterator[List_]:
+        """Split this container into smaller containers of the same type of size 'batch_size'. If the length of this container is not perfectly divisible by 'batch_size', the final container will be shorter than the rest."""
+        if batch_size >= len(self):
+            yield type(self)(self)
+        else:
+            for run in range(0, len(self), batch_size):
+                yield self[run:run + batch_size]
 
     def to_json(self, indent: int = 4, **kwargs: Any) -> str:
         return json.dumps(self, indent=indent, **kwargs)
