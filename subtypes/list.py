@@ -12,9 +12,6 @@ from .str import Accessor, Settings
 from .translator import Translator
 
 
-# TODO: add List_.split_into_batches(), List_.split_into_batches_of_size()
-
-
 class SliceAccessor(Accessor):
     """An accessor class for all slicing-related Str methods"""
 
