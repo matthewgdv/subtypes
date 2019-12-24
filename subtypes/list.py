@@ -101,6 +101,14 @@ class SliceAccessor(Accessor):
         return matches
 
 
+class AttributeAccessor(Accessor):
+    def __init__(self, parent: List_) -> None:
+        self.parent = parent
+
+    def __getattr__(self, attr: str) -> List_:
+        return List_([getattr(item, attr) for item in self.parent])
+
+
 class ListSettings(Settings):
     def __init__(self) -> None:
         self.slice, self.translator, self.recursive = SliceAccessor(), Translator.default, True
@@ -188,13 +196,17 @@ class List_(BaseList):
     def slice(self) -> SliceAccessor:
         return SliceAccessor(parent=self)
 
+    @cached_property
+    def attr(self) -> AttributeAccessor:
+        return AttributeAccessor(self)
+
     def one(self) -> Any:
         if len(self) == 1:
             return self[0]
         else:
             raise ValueError(f"Expected '{self}' to contain a single value, but actual length was: {len(self)}.")
 
-    def one_or_none(self, candidate: Any) -> Any:
+    def one_or_none(self) -> Any:
         if not self:
             return None
         elif len(self) == 1:
