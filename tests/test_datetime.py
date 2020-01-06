@@ -15,8 +15,8 @@ class TestDateTime:
         assert True
 
     def test_casual_date(self):
-        assert example_datetime.to_casual_date(full_month=True, day_first=True, day_suffix=True) == "24th March 1994"
-        assert example_datetime.to_casual_date(full_month=False, day_first=False, day_suffix=False) == "Mar 24 1994"
+        assert example_datetime.to_casual(full_month=True, day_first=True, day_suffix=True) == "24th March 1994"
+        assert example_datetime.to_casual(full_month=False, day_first=False, day_suffix=False) == "Mar 24 1994"
 
     def test_delta(self):
         assert example_datetime.delta(years=26, months=-2, days=-23) == DateTime(2020, 1, 1)
@@ -30,8 +30,8 @@ class TestDateTime:
     def test_from_datetime(self):
         assert example_datetime == DateTime.from_datetime(datetime.datetime(1994, 3, 24))
 
-    def test_isoformat_date(self):
-        assert example_datetime.to_isoformat_date() == "1994-03-24"
+    def test_isoformat(self):
+        assert example_datetime.to_isoformat() == "1994-03-24"
 
     def test_logformat(self):
         assert example_datetime.to_logformat() == "[1994-03-24 00:00:00:000000]"

@@ -7,7 +7,7 @@ __all__ = [
     "Str", "BaseStr",
     "List_", "BaseList",
     "Dict_", "BaseDict",
-    "DateTime",
+    "DateTime", "Date",
     "Frame",
     "Process",
     "Color",
@@ -23,7 +23,7 @@ from .translator import Translator
 from .str import Str, BaseStr
 from .list import List_, BaseList
 from .dict import Dict_, BaseDict
-from .datetime import DateTime
+from .datetime import DateTime, Date
 from .frame import Frame
 from .process import Process
 from .color import Color
