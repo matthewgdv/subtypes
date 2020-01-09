@@ -6,20 +6,20 @@ from typing import Any, Iterator, Tuple
 class NameSpace:
     """A namespace class that allows attribute access dynamically through item access."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        if len(args) > 1:
-            raise TypeError(f"{type(self).__name__} only accepts a single positional argument (of type collections.Mapping).")
-        else:
-            mappings = {} if not len(args) else args[0]
-
-        self.__dict__.update({**mappings, **kwargs})
+    def __init__(self, mapping: dict = None, /, **kwargs: Any) -> None:
+        self(mapping, **kwargs)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self])})"
 
-    def __call__(self) -> NameSpace:
-        for name, item in self:
+    def __call__(self, mapping: dict = None, /, **kwargs: Any) -> NameSpace:
+        for name, _ in self:
             del self[name]
+
+        if mapping is not None:
+            vars(self).update(mapping)
+
+        vars(self).update(kwargs)
 
         return self
 
