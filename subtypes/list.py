@@ -186,7 +186,7 @@ class List_(BaseList):
     settings = ListSettings()
 
     def __init__(self, iterable: Iterable = None) -> None:
-        super().__init__(iterable)
+        super().__init__(iterable) if iterable is not None else super().__init__()
 
         if self.settings.recursive:
             for index, val in enumerate(self):
