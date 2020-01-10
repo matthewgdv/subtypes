@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 import json
-from typing import Any, Iterable, Iterator, List
+from typing import Any, Iterable, Iterator, List, Callable
 
 from django.utils.functional import cached_property
 
@@ -106,7 +106,7 @@ class AttributeAccessor(Accessor):
         self.parent = parent
 
     def __getattr__(self, attr: str) -> List_:
-        return List_([getattr(item, attr) for item in self.parent])
+        return type(self.parent)([getattr(item, attr) for item in self.parent])
 
 
 class ListSettings(Settings):
@@ -199,6 +199,9 @@ class List_(BaseList):
     @cached_property
     def attr(self) -> AttributeAccessor:
         return AttributeAccessor(self)
+
+    def apply(self, func: Callable) -> List_:
+        return type(self)(map(func, self))
 
     def one(self) -> Any:
         if len(self) == 1:
