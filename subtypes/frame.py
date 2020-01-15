@@ -114,7 +114,7 @@ class Frame(pd.DataFrame):
         return str(tabulate.tabulate(self, headers=self.columns, tablefmt="fancy_grid" if fancy else "grid", showindex="never" if not index else "default"))
 
     @_check_import_is_available
-    def to_desktop_as_excel(self, name: str, with_timestamp: bool = True, index: bool = False, **kwargs: Any) -> PathLike:
+    def to_desktop_as_excel(self, name: str, with_timestamp: bool = True, index: bool = False, **kwargs: Any) -> File:
         """Save this Frame to the current user's desktop as an xlsx file. Returns that File."""
         from pathmagic import Dir
 
