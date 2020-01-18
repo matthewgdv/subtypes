@@ -4,7 +4,7 @@ from typing import List, Any, Type
 from collections.abc import Mapping
 import json
 
-from django.utils.functional import cached_property as lazy_property
+from django.utils.functional import cached_property
 
 from .str import Str, Accessor
 from .str import RegexAccessor as StrRegexAccessor, Settings
@@ -138,7 +138,7 @@ class Dict_(BaseDict):
     def _factory_(self) -> Dict_:
         return type(self)()
 
-    @lazy_property
+    @cached_property
     def re(self) -> RegexAccessor:
         return RegexAccessor(parent=self)
 
