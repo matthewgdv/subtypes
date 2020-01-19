@@ -1,5 +1,5 @@
 Welcome to subtypes' documentation!
-=================================
+===================================
 
 .. toctree::
    :caption: Contents:
