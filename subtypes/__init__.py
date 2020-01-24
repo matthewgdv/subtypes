@@ -1,6 +1,6 @@
 __all__ = [
     "Enum", "ValueEnum", "AutoEnum", "ValueAutoEnum",
-    "Markup",
+    "Html",
     "Http",
     "Singleton",
     "NameSpace",
@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 from .enums import Enum, ValueEnum, AutoEnum, ValueAutoEnum
-from .markup import Markup
+from .markup import Html
 from .http import Http
 from .singleton import Singleton
 from .namespace import NameSpace
