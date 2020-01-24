@@ -68,6 +68,9 @@ class Frame(pd.DataFrame):
     def _constructor(self) -> Type[pd.DataFrame]:
         return type(self) if self._using_own_constructor() else pd.DataFrame
 
+    def is_nan(self, val: Any) -> bool:
+        return pd.isna(val)
+
     def to_excel(self, filepath: PathLike, sheet_name: str = None, index: bool = False, **kwargs: Any) -> PathLike:
         """Write this Frame to an xlsx file. Returns that File."""
         with ExcelWriter(filepath) as writer:
