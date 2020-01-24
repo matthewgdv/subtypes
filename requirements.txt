@@ -12,6 +12,7 @@ maybe-else
 numpy
 pandas
 parsedatetime
+prettierfier
 regex
 requests
 tabulate
