@@ -27,13 +27,13 @@ class NameSpace:
         return len([item for item in self])
 
     def __getitem__(self, name: str) -> Any:
-        return getattr(self, name)
+        return getattr(self, name if name is not None else "__none")
 
     def __setitem__(self, name: str, val: Any) -> None:
-        setattr(self, name, val)
+        setattr(self, name if val is not None else "__none", val)
 
     def __delitem__(self, name: str) -> None:
-        self.__delattr__(name)
+        delattr(self, name if name is not None else "__none")
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
         return iter([(name, val) for name, val in vars(self).items() if not name.startswith("_")])
