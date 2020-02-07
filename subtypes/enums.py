@@ -30,7 +30,14 @@ class EnumMeta(aenum.EnumMeta):
         return f"{cls.__name__}[{', '.join([f'{member.name}={repr(member.value)}' for member in cls])}]"
 
     def __str__(cls) -> str:
-        return f"{', '.join([repr(member.value) for member in cls])}"
+        return cls.__name__
+
+    def __call__(cls, *args: Any, **kwargs: Any):
+        try:
+            return super().__call__(*args, **kwargs)
+        except ValueError as ex:
+            msg, = ex.args
+            raise ValueError(f"{msg}, must be one of: {', '.join([repr(member.value) for member in cls])}.")
 
     @property
     def names(cls) -> List[str]:
@@ -42,7 +49,7 @@ class EnumMeta(aenum.EnumMeta):
         """A list of the values in this Enum."""
         return [member.value for member in cls]
 
-    def extend_enum(cls, name: str, value: Any) -> None:
+    def extend(cls, name: str, value: Any) -> None:
         """Extend this Enum with an additional member created from the given name and value."""
         aenum.extend_enum(cls, name, value)
 
@@ -52,11 +59,6 @@ class EnumMeta(aenum.EnumMeta):
             return issubclass(candidate, enum.Enum)
         except TypeError:
             return False
-
-    def raise_if_not_a_member(cls, value: Any) -> None:
-        """Raises ValueError if the given value is not one of the values in this Enum, otherwise does nothing."""
-        if value not in cls.values:
-            raise ValueError(f"Invalid {cls.__name__} '{value}', must be one of {cls}.")
 
 
 class ValueEnumMeta(EnumMeta):
@@ -84,6 +86,12 @@ class BaseEnum(aenum.Enum):
 
     def __str__(self) -> str:
         return str(self.value)
+
+    def map_to(self, mapping: dict, raise_for_failure: bool = True) -> Any:
+        if (ret := mapping.get(self)) is None and raise_for_failure:
+            raise ValueError(f"No mapping for '{self}' found in {mapping}.")
+
+        return ret
 
 
 class Enum(BaseEnum, enum.Enum, metaclass=EnumMeta):

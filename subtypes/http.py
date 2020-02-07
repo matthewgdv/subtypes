@@ -46,11 +46,8 @@ class Http(Session):
         return Response(super().request(method=method, url=self._quote_encode(f"""{f"{self.base_url}/{url.strip('/')}".strip("/")}/"""), *args, **kwargs).__dict__)
 
     def _quote_encode(self, url: str) -> str:
-        if self.quote_level == Http.QuoteLevel.NONE:
-            return url
-        elif self.quote_level == Http.QuoteLevel.NORMAL:
-            return quote(url)
-        elif self.quote_level == Http.QuoteLevel.PLUS:
-            return quote_plus(url)
-        else:
-            Http.QuoteLevel.raise_if_not_a_member(self.quote_level)
+        return self.QuoteLevel(self.quote_level).map_to({
+            self.QuoteLevel.NONE: lambda url_: url_,
+            self.QuoteLevel.NORMAL: lambda url_: quote(url_),
+            self.QuoteLevel.PLUS: lambda url_: quote_plus(url_),
+        })()

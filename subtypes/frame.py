@@ -5,7 +5,7 @@ import itertools
 import io
 import functools
 import os
-from typing import Any, Collection, List, Dict, Union, Type, Iterable, TypeVar, Callable, Iterator, cast
+from typing import Any, Collection, List, Dict, Union, Type, Iterable, TypeVar, Callable, Iterator, cast, TYPE_CHECKING
 import pathlib
 
 import tabulate
@@ -18,6 +18,9 @@ from maybe import Maybe
 from .str import Str
 from .enums import Enum
 from .datetime import DateTime
+
+if TYPE_CHECKING:
+    from pathmagic import File
 
 
 pd.set_option("max_columns", None)
@@ -108,7 +111,7 @@ class Frame(pd.DataFrame):
             elif casing == self.ColumnCase.PASCAL:
                 df.columns = [Str(colname).case.pascal() for colname in df.columns]
             else:
-                self.ColumnCase.raise_if_not_a_member(casing)
+                self.ColumnCase(casing)
 
         return df
 
@@ -258,13 +261,13 @@ class Frame(pd.DataFrame):
     def _get_path_constructor(cls) -> Callable[..., PathLike]:
         if cls.DEFAULT_PATH_TYPE == Frame.PathType.PATHMAGIC:
             from pathmagic import File
-            return cast(Callable[..., File], File.from_pathlike)
+            return File.from_pathlike
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.PATHLIB:
             return pathlib.Path
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.STRING:
             return os.fspath
         else:
-            raise cls.PathType.raise_if_not_a_member(cls.DEFAULT_PATH_TYPE)
+            raise cls.PathType(cls.DEFAULT_PATH_TYPE)
 
     def _infer_column_headers(self) -> None:
         col_run = len(max("".join(["0" if self._value_is_null(col) else "1" for col in self.columns]).split("0")))
@@ -278,17 +281,15 @@ class Frame(pd.DataFrame):
             self.columns = [str(val) for val in self.loc[first_longest_index]]
             self.drop(self.loc[:first_longest_index].index.tolist(), axis=0, inplace=True)
 
-    def _infer_range(self, mode: str = None) -> None:
+    def _infer_range(self, mode: Frame.InferRange = None) -> None:
         if mode is None:
             pass
-        elif mode == Frame.InferRange.TRIM_SURROUNDING:
-            self._trim_nulls_around_table()
-        elif mode == Frame.InferRange.STRIP_NULLS:
-            self._strip_fully_null()
-        elif mode == Frame.InferRange.SMALLEST_VALID:
-            self._truncate_after_valid()
-        else:
-            Frame.InferRange.raise_if_not_a_member(mode)
+
+        self.InferRange(mode).map_to({
+            self.InferRange.TRIM_SURROUNDING: self._trim_nulls_around_table,
+            self.InferRange.STRIP_NULLS: self._strip_fully_null,
+            self.InferRange.SMALLEST_VALID: self._truncate_after_valid,
+        })()
 
     def _trim_nulls_around_table(self) -> None:
         self._drop_rows_around_table()
