@@ -6,7 +6,7 @@ __all__ = [
     "NameSpace",
     "Str", "BaseStr",
     "List_", "BaseList",
-    "Dict_", "BaseDict",
+    "Dict_", "DefaultDict", "BaseDict",
     "DateTime", "Date",
     "Frame",
     "Process",
@@ -22,7 +22,7 @@ from .namespace import NameSpace
 from .translator import Translator
 from .str import Str, BaseStr
 from .list import List_, BaseList
-from .dict import Dict_, BaseDict
+from .dict import Dict_, DefaultDict, BaseDict
 from .datetime import DateTime, Date
 from .frame import Frame
 from .process import Process
