@@ -116,11 +116,11 @@ class Date(dt.date):
         return DateTime.strptime(date_string, format_string).to_date()
 
     @classmethod
-    def from_datelike(cls, datelike: Union[dt.datetime, dt.date, int, str]) -> DateTime:
+    def from_datelike(cls, datelike: Union[dt.datetime, dt.date, int, str]) -> Date:
         """Create a DateTime from a valid python object. Raises TypeError if an unsupported type is passed. Raises ValueError if an invalid instance of a supported type (like 'str' or 'int') is passed."""
         if isinstance(datelike, dt.datetime):
             return DateTime.from_datetime(datelike).to_date()
-        if isinstance(datelike, cls):
+        elif isinstance(datelike, cls):
             return datelike
         elif isinstance(datelike, dt.date):
             return cls.from_date(datelike)
