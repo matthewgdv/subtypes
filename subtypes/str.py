@@ -10,7 +10,7 @@ import regex as regexmod
 import case_conversion
 import inflect
 import clipboard
-from django.utils.functional import cached_property
+from .lazy import cached_property
 
 from maybe import Maybe
 

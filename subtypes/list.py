@@ -4,7 +4,7 @@ from collections.abc import Sequence
 import json
 from typing import Any, Iterable, Iterator, List, Callable
 
-from django.utils.functional import cached_property
+from .lazy import cached_property
 
 from maybe import Maybe
 

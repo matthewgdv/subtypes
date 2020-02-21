@@ -4,7 +4,7 @@ from typing import List, Any, Type
 from collections.abc import Mapping
 import json
 
-from django.utils.functional import cached_property
+from .lazy import cached_property
 
 from .str import Str, Accessor
 from .str import RegexAccessor as StrRegexAccessor, Settings

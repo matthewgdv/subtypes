@@ -3,12 +3,11 @@ from __future__ import annotations
 import datetime as dt
 from typing import Any, Union
 
-from django.utils.functional import cached_property
 from dateutil.relativedelta import relativedelta
 import parsedatetime
 
-from .str import Str
 from .enums import Enum, ValueEnum
+from .lazy import cached_property
 
 
 class FormatCode(ValueEnum):

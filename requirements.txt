@@ -5,7 +5,6 @@ case_conversion
 colour
 clipboard
 python-dateutil
-django
 fuzzywuzzy
 inflect
 maybe-else
