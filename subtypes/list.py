@@ -207,7 +207,7 @@ class List_(BaseList):
         if len(self) == 1:
             return self[0]
         else:
-            raise ValueError(f"Expected '{self}' to contain a single value, but actual length was: {len(self)}.")
+            raise ValueError(f"Expected {self} to contain a single value, but actual length was {len(self)}.")
 
     def one_or_none(self) -> Any:
         if not self:
@@ -215,7 +215,7 @@ class List_(BaseList):
         elif len(self) == 1:
             return self[0]
         else:
-            raise ValueError(f"Expected '{self}' to contain a single value or be empty, but actual length was: {len(self)}.")
+            raise ValueError(f"Expected {self} to contain a single value or be empty, but actual length was {len(self)}.")
 
     def split_into_batches(self, num_batches: int) -> Iterator[List_]:
         """Split this container into 'num_batches' equally sized containers of the same type. If the length of this container is not perfectly divisible by 'num_batches', the final container will be longer than the rest."""
