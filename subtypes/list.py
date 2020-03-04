@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 import json
-from typing import Any, Iterable, Iterator, List, Callable
+from typing import Any, Iterable, Iterator, List, Callable, Union
 
 from .lazy import cached_property
 
@@ -118,6 +118,9 @@ class BaseList(list):
     """
     An alternative implementation of collections.UserList that inherits directly from 'list'. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
     """
+
+    def __getitem__(self, item: Union[slice, int]) -> Union[BaseList, Any]:
+        return type(self)(ret) if isinstance((ret := list(self)[item]), list) else ret
 
     def __add__(self, other: list) -> BaseList:
         return type(self)(super().__add__(other))
