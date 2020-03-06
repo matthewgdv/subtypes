@@ -141,6 +141,12 @@ class Dict_(BaseDict):
     def _factory_(self, name: str) -> Dict_:
         raise AccessError(f"'{name}' not found in {type(self).__name__}: {self}")
 
+    def setdefault_lazy(self, key: Any, factory: Callable = None, pass_key: bool = False) -> Any:
+        if (val := self.get(key, AccessError)) is AccessError:
+            self[key] = val = factory(key) if pass_key else factory()
+
+        return val
+
     @cached_property
     def re(self) -> RegexAccessor:
         return RegexAccessor(parent=self)
