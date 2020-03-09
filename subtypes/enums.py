@@ -13,8 +13,7 @@ class EnumMeta(aenum.EnumMeta):
 
     def __new__(mcs, name: str, bases: tuple, namespace: dict, init: Any = None, start: Any = None, settings: tuple = ()) -> EnumMeta:
         if enum.Enum in bases:
-            (bases := list(bases)).remove(enum.Enum)
-            bases = tuple(bases)
+            bases = tuple(base for base in bases if not base == enum.Enum)
 
         return super().__new__(mcs, name, bases, namespace, init, start, settings)
 
@@ -87,8 +86,8 @@ class BaseEnum(aenum.Enum):
     def __str__(self) -> str:
         return str(self.value)
 
-    def map_to(self, mapping: dict, raise_for_failure: bool = True) -> Any:
-        if (ret := mapping.get(self)) is None and raise_for_failure:
+    def map_to(self, mapping: dict, else_: Any = None, raise_for_failure: bool = True) -> Any:
+        if (ret := mapping.get(self, else_)) is None and raise_for_failure:
             raise ValueError(f"No mapping for '{self}' found in {mapping}.")
 
         return ret
