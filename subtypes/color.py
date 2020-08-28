@@ -6,7 +6,7 @@ import colour
 class ColorProxy:
     def __init__(self, name: str) -> None:
         self.name = name
-    
+
     def __repr__(self) -> str:
         return f"{type(self).__name__}(name={self.name})"
 
@@ -165,7 +165,6 @@ class ColorName:
     WHITE_SMOKE = ColorProxy("whitesmoke")
     YELLOW = ColorProxy("yellow")
     YELLOW_GREEN = ColorProxy("yellowgreen")
-
 
 
 class Color(colour.Color):
