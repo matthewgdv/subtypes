@@ -4,6 +4,7 @@ from typing import Any
 
 from bs4 import BeautifulSoup, Tag
 from prettierfier import prettify_html
+import html_text
 
 from .str import Str
 
@@ -33,8 +34,8 @@ class Html(BeautifulSoup):
     def __exit__(self, ex_type: Any, ex_value: Any, ex_traceback: Any) -> None:
         Html._stack.pop()
 
-    def tag(self, name: str, content: str = None, / , attrs: dict = {}, **kwattrs: Any) -> Html.Tag:
-        tag = self.new_tag(name=name, attrs=attrs, **kwattrs)
+    def tag(self, name: str, content: str = None, /, attrs: dict = None, **kwattrs: Any) -> Html.Tag:
+        tag = self.new_tag(name=name, attrs=attrs or {}, **kwattrs)
 
         if content:
             tag.string = content
@@ -46,8 +47,12 @@ class Html(BeautifulSoup):
 
         return tag
 
+    @property
+    def text(self) -> str:
+        return html_text.extract_text(str(self))
+
     class Tag(Tag):
-        def __enter__(self) -> Html:
+        def __enter__(self) -> Tag:
             Html._stack.append(self)
             return self
 

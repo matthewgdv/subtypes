@@ -4,11 +4,11 @@ bs4
 case_conversion
 colour
 clipboard
+html-text
 python-dateutil
 fuzzywuzzy
 inflect
 maybe-else
-numpy
 pandas
 parsedatetime
 prettierfier
