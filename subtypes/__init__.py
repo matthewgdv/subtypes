@@ -6,8 +6,8 @@ __all__ = [
     "Singleton",
     "NameSpace",
     "Str", "BaseStr",
-    "List_", "BaseList",
-    "Dict_", "DefaultDict", "BaseDict",
+    "List", "BaseList",
+    "Dict", "DefaultDict", "BaseDict",
     "DateTime", "Date",
     "Frame",
     "Process",
@@ -23,8 +23,8 @@ from .singleton import Singleton
 from .namespace import NameSpace
 from .translator import Translator
 from .str import Str, BaseStr
-from .list import List_, BaseList
-from .dict import Dict_, DefaultDict, BaseDict
+from .list import List, BaseList
+from .dict import Dict, DefaultDict, BaseDict
 from .datetime import DateTime, Date
 from .frame import Frame
 from .process import Process

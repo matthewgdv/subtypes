@@ -1,10 +1,10 @@
 import pytest
-from subtypes.list import List_
+from subtypes.list import List
 
 
 @pytest.fixture
 def default_list():
-    return List_([0, 1, 1, 1, 2, 3, 4, 4, 5])
+    return List([0, 1, 1, 1, 2, 3, 4, 4, 5])
 
 
 class TestSliceAccessor:
@@ -111,7 +111,7 @@ class TestBaseList:
         assert ret is default_list and default_list == [5, 4, 4, 3, 2, 1, 1, 1, 0]
 
     def test_sort(self):  # synced
-        unsorted = List_([3, 2, 5, 4, 1])
+        unsorted = List([3, 2, 5, 4, 1])
         ret = unsorted.sort()
         assert ret is unsorted and unsorted == [1, 2, 3, 4, 5]
 
@@ -123,7 +123,7 @@ class TestBaseList:
         assert True
 
 
-class TestList_:
+class TestList:
     def test_slice(self):  # synced
         assert True
 
@@ -149,7 +149,7 @@ class TestList_:
         assert True
 
     def test_flatten(self):  # synced
-        assert List_([[1, 2], [3], [4, [5, 6]]]).flatten() == [1, 2, 3, 4, 5, 6]
+        assert List([[1, 2], [3], [4, [5, 6]]]).flatten() == [1, 2, 3, 4, 5, 6]
 
     def test__flatten_more(self):  # synced
         assert True

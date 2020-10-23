@@ -17,7 +17,7 @@ def is_special_private(name: str) -> bool:
     return name.startswith("_") and name.endswith("_")
 
 
-def is_valid_for_attribute_actions(name: Any, dict_class: Type[Dict_]) -> bool:
+def is_valid_for_attribute_actions(name: Any, dict_class: Type[Dict]) -> bool:
     return isinstance(name, str) and name not in dict_class.settings.dict_fields and not is_special_private(name) and name.isidentifier()
 
 
@@ -26,29 +26,29 @@ class AccessError(KeyError, AttributeError):
 
 
 class RegexAccessor(Accessor):
-    """An accessor class for all regex-related Dict_ methods"""
+    """An accessor class for all regex-related Dict methods"""
     settings = StrRegexAccessor.Settings()
 
-    def __init__(self, parent: Dict_ = None) -> None:
+    def __init__(self, parent: Dict = None) -> None:
         default = type(self).settings
         self.parent, self.settings = parent, StrRegexAccessor.Settings(dotall=default.dotall, ignorecase=default.ignorecase, multiline=default.multiline)
         self.str = Str()
 
-    def __call__(self, parent: Dict_ = None, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
+    def __call__(self, parent: Dict = None, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
         self.parent = Maybe(parent).else_(self.parent)
         self.settings.dotall = Maybe(dotall).else_(self.settings.dotall)
         self.settings.ignorecase = Maybe(ignorecase).else_(self.settings.ignorecase)
         self.settings.multiline = Maybe(multiline).else_(self.settings.multiline)
         return self
 
-    def filter(self, regex: str) -> Dict_:
+    def filter(self, regex: str) -> Dict:
         """Remove any key-value pairs where the key is not a string, or where it is a string but doesn't match the given regex."""
         return type(self.parent)(
             {key: val for key, val in self.parent.items()
              if isinstance(key, str) and Str(key).re(dotall=self.settings.dotall, ignorecase=self.settings.ignorecase, multiline=self.settings.multiline).search(regex) is not None}
         )
 
-    def get_all(self, regex: str, limit: int = None) -> List[Any]:
+    def get_all(self, regex: str, limit: int = None) -> list[Any]:
         """Return a list of all the values whose keys match the given regex."""
         vals = self.filter(regex)
 
@@ -81,10 +81,10 @@ class BaseDict(dict):
         return type(self)(self.copy())
 
 
-class Dict_(BaseDict):
+class Dict(BaseDict):
     """
     Subclass of the builtin 'dict' class with where inplace methods like dict.update() return self and therefore allow chaining.
-    Also allows item access dynamically through attribute access. It recursively converts any str, list, and dict instances into Str, List_, and Dict_.
+    Also allows item access dynamically through attribute access. It recursively converts any str, list, and dict instances into Str, List, and Dict.
     """
 
     class Settings(Settings):
@@ -120,7 +120,7 @@ class Dict_(BaseDict):
         if is_valid_for_attribute_actions(name, type(self)):
             super().__delattr__(name)
 
-    def __getattr__(self, name: str) -> Dict_:
+    def __getattr__(self, name: str) -> Dict:
         if is_special_private(name):
             raise AttributeError(name)
         else:
@@ -138,7 +138,7 @@ class Dict_(BaseDict):
         if not is_special_private(name):
             super().__delitem__(name)
 
-    def _factory_(self, name: str) -> Dict_:
+    def _factory_(self, name: str) -> Dict:
         raise AccessError(f"'{name}' not found in {type(self).__name__}: {self}")
 
     def setdefault_lazy(self, key: Any, factory: Callable = None, pass_key: bool = False) -> Any:
@@ -155,16 +155,16 @@ class Dict_(BaseDict):
         return json.dumps(self, indent=indent, **kwargs)
 
     @classmethod
-    def from_json(cls, json_string: str, **kwargs: Any) -> Dict_:
+    def from_json(cls, json_string: str, **kwargs: Any) -> Dict:
         if isinstance((item := json.loads(json_string, **kwargs)), dict):
             return cls(item)
         else:
             raise TypeError(f"The following json string resolves to type '{type(item).__name__}', not type '{dict.__name__}':\n\n{json_string}")
 
 
-class DefaultDict(Dict_):
+class DefaultDict(Dict):
     def _factory_(self, name: str) -> DefaultDict:
         return type(self)()
 
 
-Translator.translations[dict] = Dict_
+Translator.translations[dict] = Dict

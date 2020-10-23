@@ -99,7 +99,7 @@ class RegexAccessor(Accessor):
         ret: Iterator[Match[str]] = regexmod.finditer(regex, self.parent, flags=Maybe(kwargs.pop("flags", None)).else_(self.settings.to_flag()), **kwargs)
         return ret
 
-    def split(self, regex: str, **kwargs: Any) -> List[Str]:
+    def split(self, regex: str, **kwargs: Any) -> list[Str]:
         """Perform a regex.split on this Str"""
         return [type(self.parent)(item) for item in regexmod.split(regex, self.parent, flags=Maybe(kwargs.pop("flags", None)).else_(self.settings.to_flag()), **kwargs)]
 
@@ -135,7 +135,7 @@ class FuzzyAccessor(Accessor):
         """Return a score out of 100 representing a fuzzy-match between this Str and another using the current fuzzy-matching settings"""
         return self._matcher(self.parent, other)
 
-    def best_n_matches(self, possible_matches: List[str], num: int = 3) -> Dict[str, int]:
+    def best_n_matches(self, possible_matches: list[str], num: int = 3) -> dict[str, int]:
         """Return a number of the best fuzzy matches between this Str and an iterable of strings in descending order using the current fuzzy-matching settings"""
         match_scores = {self.match(match): match for match in possible_matches}
         return {match_scores[score]: score for index, score in itertools.takewhile(lambda tup: tup[0] < num, enumerate(sorted(match_scores, reverse=True)))}
@@ -285,7 +285,7 @@ class SliceAccessor(Accessor):
         matches = self._slice_helper(regex, multiple_matches_forbidden=False)
         return type(self.parent)("") if not matches else type(self.parent)(self.parent[:matches[-1].span()[1]])
 
-    def _slice_helper(self, regex: str, multiple_matches_forbidden: bool) -> List[Match[str]]:
+    def _slice_helper(self, regex: str, multiple_matches_forbidden: bool) -> list[Match[str]]:
         matches = list(self.parent.re.finditer(regex=regex))
 
         if multiple_matches_forbidden:
@@ -451,7 +451,7 @@ class Str(BaseStr):
 
     # parsing
 
-    def find_all(self, substring: str, regex: bool = False, overlapping: bool = True, not_within: List[Tuple[str, str]] = None) -> List[int]:
+    def find_all(self, substring: str, regex: bool = False, overlapping: bool = True, not_within: list[Tuple[str, str]] = None) -> list[int]:
         """Return a list of all the index positions at which the given substring occurs."""
         pattern = substring if regex else re.escape(substring)
         prefix = "".join([fr"{start}.*?{end}|" for start, end in not_within]) if not_within is not None else ""

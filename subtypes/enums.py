@@ -39,12 +39,12 @@ class EnumMeta(aenum.EnumMeta):
             raise ValueError(f"{msg}, must be one of: {', '.join([repr(member.value) for member in cls])}.")
 
     @property
-    def names(cls) -> List[str]:
+    def names(cls) -> list[str]:
         """A list of the names in this Enum."""
         return [member.name for member in cls]
 
     @property
-    def values(cls) -> List[Any]:
+    def values(cls) -> list[Any]:
         """A list of the values in this Enum."""
         return [member.value for member in cls]
 
@@ -104,7 +104,7 @@ class ValueEnum(BaseEnum, metaclass=ValueEnumMeta):
 class BaseAutoEnum(aenum.Enum):
     _settings_ = aenum.AutoValue
 
-    def _generate_next_value_(name: str, start: str, count: str, last_values: List[str]) -> str:
+    def _generate_next_value_(name: str, start: str, count: str, last_values: list[str]) -> str:
         return name.lower()
 
 

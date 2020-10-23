@@ -5,7 +5,7 @@ from json import loads
 
 
 class Translator:
-    translations: Dict[Type, Type] = {}
+    translations: dict[Type, Type] = {}
     default: Translator = None
 
     def __init__(self, translations: dict = None) -> None:

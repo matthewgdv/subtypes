@@ -19,7 +19,7 @@ class Response(requests.models.Response):
         self.__dict__ = namespace
 
     def json(self) -> Any:
-        """Returns Str, List_, and Dict_ items rather than their builtin superclasses. If there is no data will return None rather than raising JSONDecodeError."""
+        """Returns Str, List, and Dict items rather than their builtin superclasses. If there is no data will return None rather than raising JSONDecodeError."""
         try:
             return Translator.default.translate(super().json())
         except (json.JSONDecodeError, simplejson.JSONDecodeError):
@@ -29,7 +29,7 @@ class Response(requests.models.Response):
 class Http(Session):
     """
     Subclass of requests.Session which takes a 'base_url' constructor argument and prepends it to all future requests.
-    It returns Str, List_, and Dict_ instances when deserializing json from responses and can automatically quote all urls passed to its http methods.
+    It returns Str, List, and Dict instances when deserializing json from responses and can automatically quote all urls passed to its http methods.
     """
 
     class QuoteLevel(Enum):

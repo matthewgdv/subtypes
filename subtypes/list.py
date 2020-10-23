@@ -21,74 +21,74 @@ class SliceAccessor(Accessor):
 
     settings = Settings()
 
-    def __init__(self, parent: List_ = None) -> None:
+    def __init__(self, parent: List = None) -> None:
         self.parent, self.settings = parent, self.Settings(raise_if_absent=type(self).settings.raise_if_absent)
 
-    def __call__(self, parent: List_ = None, raise_if_absent: bool = None) -> SliceAccessor:
+    def __call__(self, parent: List = None, raise_if_absent: bool = None) -> SliceAccessor:
         self.parent, self.settings.raise_if_absent = Maybe(parent).else_(self.parent), Maybe(raise_if_absent).else_(self.settings.raise_if_absent)
         return self
 
-    def before(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ before the given value. Raises ValueError if multiple matches are found."""
+    def before(self, value: Any) -> List:
+        """Return all elements (if any) in the List before the given value. Raises ValueError if multiple matches are found."""
         matches = self._slice_helper(value, multiple_matches_forbidden=True)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[0]])
 
-    def before_first(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ before the first instance of the given value."""
+    def before_first(self, value: Any) -> List:
+        """Return all elements (if any) in the List before the first instance of the given value."""
         matches = self._slice_helper(value, multiple_matches_forbidden=False)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[0]])
 
-    def before_last(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ before the last instance of the given value."""
+    def before_last(self, value: Any) -> List:
+        """Return all elements (if any) in the List before the last instance of the given value."""
         matches = self._slice_helper(value, multiple_matches_forbidden=False)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[-1]])
 
-    def after(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ after the given value. Raises ValueError if multiple matches are found."""
+    def after(self, value: Any) -> List:
+        """Return all elements (if any) in the List after the given value. Raises ValueError if multiple matches are found."""
         matches = self._slice_helper(value, multiple_matches_forbidden=True)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[0]+1:])
 
-    def after_first(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ after the first instance of the given value."""
+    def after_first(self, value: Any) -> List:
+        """Return all elements (if any) in the List after the first instance of the given value."""
         matches = self._slice_helper(value, multiple_matches_forbidden=False)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[0]+1:])
 
-    def after_last(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ after the last instance of the given value."""
+    def after_last(self, value: Any) -> List:
+        """Return all elements (if any) in the List after the last instance of the given value."""
         matches = self._slice_helper(value, multiple_matches_forbidden=False)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[-1]+1:])
 
-    def from_(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ from the given value onwards, including itself. Raises ValueError if multiple matches are found."""
+    def from_(self, value: Any) -> List:
+        """Return all elements (if any) in the List from the given value onwards, including itself. Raises ValueError if multiple matches are found."""
         matches = self._slice_helper(value, multiple_matches_forbidden=True)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[0]:])
 
-    def from_first(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ from the first instance of the given value onwards (including itself)."""
+    def from_first(self, value: Any) -> List:
+        """Return all elements (if any) in the List from the first instance of the given value onwards (including itself)."""
         matches = self._slice_helper(value, multiple_matches_forbidden=False)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[0]:])
 
-    def from_last(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ from the last instance of the given value onwards (including itself)."""
+    def from_last(self, value: Any) -> List:
+        """Return all elements (if any) in the List from the last instance of the given value onwards (including itself)."""
         matches = self._slice_helper(value, multiple_matches_forbidden=False)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[matches[-1]:])
 
-    def until(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ until the given value, including itself. Raises ValueError if multiple matches are found."""
+    def until(self, value: Any) -> List:
+        """Return all elements (if any) in the List until the given value, including itself. Raises ValueError if multiple matches are found."""
         matches = self._slice_helper(value, multiple_matches_forbidden=True)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[0]+1])
 
-    def until_first(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ until the first instance of the given value (including itself)."""
+    def until_first(self, value: Any) -> List:
+        """Return all elements (if any) in the List until the first instance of the given value (including itself)."""
         matches = self._slice_helper(value, multiple_matches_forbidden=False)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[0]+1])
 
-    def until_last(self, value: Any) -> List_:
-        """Return all elements (if any) in the List_ until the last instance of the given value (including itself)."""
+    def until_last(self, value: Any) -> List:
+        """Return all elements (if any) in the List until the last instance of the given value (including itself)."""
         matches = self._slice_helper(value, multiple_matches_forbidden=False)
         return type(self.parent)() if not matches else type(self.parent)(self.parent[:matches[-1]+1])
 
-    def _slice_helper(self, value: Any, multiple_matches_forbidden: bool) -> List[int]:
+    def _slice_helper(self, value: Any, multiple_matches_forbidden: bool) -> list[int]:
         matches = [index for index, val in enumerate(self.parent) if val == value]
 
         if multiple_matches_forbidden:
@@ -102,10 +102,10 @@ class SliceAccessor(Accessor):
 
 
 class AttributeAccessor(Accessor):
-    def __init__(self, parent: List_) -> None:
+    def __init__(self, parent: List) -> None:
         self.parent = parent
 
-    def __getattr__(self, attr: str) -> List_:
+    def __getattr__(self, attr: str) -> List:
         return type(self.parent)([getattr(item, attr) for item in self.parent])
 
 
@@ -181,7 +181,7 @@ class BaseList(list):
         return type(self)(self)
 
 
-class List_(BaseList):
+class List(BaseList):
     """
     Subclass of the builtin 'list' class with additional useful methods. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
     Recursively traverses its members and converts any str, list and dict instances into into their subtypes equivalents.
@@ -203,7 +203,7 @@ class List_(BaseList):
     def attr(self) -> AttributeAccessor:
         return AttributeAccessor(self)
 
-    def apply(self, func: Callable) -> List_:
+    def apply(self, func: Callable) -> List:
         return type(self)(map(func, self))
 
     def one(self) -> Any:
@@ -220,7 +220,7 @@ class List_(BaseList):
         else:
             raise ValueError(f"Expected {self} to contain a single value or be empty, but actual length was {len(self)}.")
 
-    def split_into_batches(self, num_batches: int) -> Iterator[List_]:
+    def split_into_batches(self, num_batches: int) -> Iterator[List]:
         """Split this container into 'num_batches' equally sized containers of the same type. If the length of this container is not perfectly divisible by 'num_batches', the final container will be longer than the rest."""
         if num_batches >= len(self):
             yield type(self)(self)
@@ -236,7 +236,7 @@ class List_(BaseList):
 
                 yield self[final_batch_position:]
 
-    def split_into_batches_of_size(self, batch_size: int) -> Iterator[List_]:
+    def split_into_batches_of_size(self, batch_size: int) -> Iterator[List]:
         """Split this container into smaller containers of the same type of size 'batch_size'. If the length of this container is not perfectly divisible by 'batch_size', the final container will be shorter than the rest."""
         if batch_size >= len(self):
             yield type(self)(self)
@@ -247,11 +247,11 @@ class List_(BaseList):
     def to_json(self, indent: int = 4, **kwargs: Any) -> str:
         return json.dumps(self, indent=indent, **kwargs)
 
-    def flatten(self) -> List_:
-        """Recursively traverses any Sequence objects within this List_ and unpacks them in order into a new flat List_."""
+    def flatten(self) -> List:
+        """Recursively traverses any Sequence objects within this List and unpacks them in order into a new flat List."""
         return self._flatten_more(iterable=self, output=type(self)())
 
-    def _flatten_more(self, iterable: Iterable, output: List_) -> List_:
+    def _flatten_more(self, iterable: Iterable, output: List) -> List:
         for item in iterable:
             if isinstance(item, Sequence) and not isinstance(item, (str, bytes)):
                 self._flatten_more(iterable=item, output=output)
@@ -261,7 +261,7 @@ class List_(BaseList):
         return output
 
     @classmethod
-    def from_json(cls, json_string: str, **kwargs: Any) -> List_:
+    def from_json(cls, json_string: str, **kwargs: Any) -> List:
         item = json.loads(json_string, **kwargs)
         if isinstance(item, list):
             return cls(item)
@@ -269,4 +269,4 @@ class List_(BaseList):
             raise TypeError(f"The following json string resolves to type '{type(item).__name__}', not type '{list.__name__}':\n\n{json_string}")
 
 
-Translator.translations[list] = List_
+Translator.translations[list] = List

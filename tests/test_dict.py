@@ -1,10 +1,10 @@
 import pytest
-from subtypes.dict import Dict_
+from subtypes.dict import Dict
 
 
 @pytest.fixture
 def example_dict():
-    return Dict_({"one": 1, "two": 2, "three": 3, 4: "four", 5: "five", "done": None})
+    return Dict({"one": 1, "two": 2, "three": 3, 4: "four", 5: "five", "done": None})
 
 
 def test_is_special_private():  # synced
@@ -49,7 +49,7 @@ class TestBaseDict:
         assert True
 
 
-class TestDict_:
+class TestDict:
     def test___getitem__(self):  # synced
         assert True
 

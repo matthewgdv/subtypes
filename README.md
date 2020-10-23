@@ -20,18 +20,18 @@ The `Str` class (subclasses `str`)
 * Casing
 * Stripping
 
-The `List_` class (subclasses `list`)
+The `List` class (subclasses `list`)
 --------------------
 * Method chaining on in-place mutation methods (`list.append()`, `list.clear()` etc.)
 * Complex slicing methods
 * Fuzzy matching
 
-The `Dict_` class (subclasses `dict`)
+The `Dict` class (subclasses `dict`)
 --------------------
 * Method chaining on in-place mutation methods (`dict.update()`, `dict.clear()` etc.)
 * filtering and getting values based on regular expressions, for keys that are strings.
 * Allows its attributes to be accessed and modified using item access
-* Recursively replaces dicts with `Dict_` instances when constructed and when settings an attribute or item
+* Recursively replaces dicts with `Dict` instances when constructed and when settings an attribute or item
 
 The `DateTime` class (subclasses `datetime.datetime`)
 --------------------

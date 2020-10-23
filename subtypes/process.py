@@ -20,7 +20,7 @@ class Process(subprocess.Popen):
     Can print the args passed to it when starting, and has a modified Process.wait() method that prints stdout in real time.
     """
 
-    def __init__(self, args: List[str], cwd: PathLike = None, shell: bool = False, print_call: bool = True, stdout: Any = subprocess.PIPE, stderr: Any = subprocess.STDOUT, encoding: str = "utf-8", errors: str = "replace", **kwargs: Any) -> None:
+    def __init__(self, args: list[str], cwd: PathLike = None, shell: bool = False, print_call: bool = True, stdout: Any = subprocess.PIPE, stderr: Any = subprocess.STDOUT, encoding: str = "utf-8", errors: str = "replace", **kwargs: Any) -> None:
         if cwd is not None and not shell:
             raise RuntimeError("'cwd' argument not supported without 'shell=True'")
 

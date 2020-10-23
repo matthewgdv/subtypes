@@ -138,7 +138,7 @@ class Frame(pd.DataFrame):
         pivoted.columns = [list(itertools.takewhile(lambda val: val, item))[-1] for item in pivoted.columns.to_flat_index()]
         return pivoted
 
-    def unpivot(self, index_cols: List[Union[pd.Series, str]] = None, cols_to_unpivot: List[Union[pd.Series, str]] = None, field_name: str = "field", value_name: str = "value") -> Frame:
+    def unpivot(self, index_cols: list[Union[pd.Series, str]] = None, cols_to_unpivot: list[Union[pd.Series, str]] = None, field_name: str = "field", value_name: str = "value") -> Frame:
         """Unpivot the content of this Frame."""
         indexed = self.set_index(index_cols) if index_cols is not None else self.copy()
 
@@ -181,7 +181,7 @@ class Frame(pd.DataFrame):
         return file
 
     @classmethod
-    def many_to_excel(cls, frames: Union[Collection[Frame], Dict[str, Collection[Frame]]], filepath: os.PathLike, index: bool = False, **kwargs: Any) -> PathLike:
+    def many_to_excel(cls, frames: Union[Collection[Frame], dict[str, Collection[Frame]]], filepath: os.PathLike, index: bool = False, **kwargs: Any) -> PathLike:
         """Write an iterable of Frames or a mapping of string-keys and Frame-values into an xlsx file with several sheets."""
 
         named_frames = frames if isinstance(frames, dict) else {f"Sheet{idx + 1}": frame for idx, frame in enumerate(frames)}
@@ -272,7 +272,7 @@ class Frame(pd.DataFrame):
     def _infer_column_headers(self) -> None:
         col_run = len(max("".join(["0" if self._value_is_null(col) else "1" for col in self.columns]).split("0")))
 
-        longest_runs: Dict[int, Any] = {}
+        longest_runs: dict[int, Any] = {}
         for index, row in self.iterrows():
             longest_runs.setdefault(len(max("".join(["0" if self._value_is_null(col) else "1" for col in row]).split("0"))), []).append(index)
 
