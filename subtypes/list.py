@@ -16,13 +16,10 @@ class SliceAccessor(Accessor):
     """An accessor class for all slicing-related Str methods"""
 
     class Settings(Settings):
-        def __init__(self, raise_if_absent: bool = False) -> None:
-            self.raise_if_absent = raise_if_absent
-
-    settings = Settings()
+        raise_if_absent = False
 
     def __init__(self, parent: List = None) -> None:
-        self.parent, self.settings = parent, self.Settings(raise_if_absent=type(self).settings.raise_if_absent)
+        self.parent, self.settings = parent, self.Settings()
 
     def __call__(self, parent: List = None, raise_if_absent: bool = None) -> SliceAccessor:
         self.parent, self.settings.raise_if_absent = Maybe(parent).else_(self.parent), Maybe(raise_if_absent).else_(self.settings.raise_if_absent)
@@ -109,11 +106,6 @@ class AttributeAccessor(Accessor):
         return type(self.parent)([getattr(item, attr) for item in self.parent])
 
 
-class ListSettings(Settings):
-    def __init__(self) -> None:
-        self.slice, self.translator, self.recursive = SliceAccessor(), Translator.default, True
-
-
 class BaseList(list):
     """
     An alternative implementation of collections.UserList that inherits directly from 'list'. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
@@ -186,10 +178,16 @@ class List(BaseList):
     Subclass of the builtin 'list' class with additional useful methods. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
     Recursively traverses its members and converts any str, list and dict instances into into their subtypes equivalents.
     """
-    settings = ListSettings()
+
+    class Accessors(Settings):
+        slice = SliceAccessor
+
+    class Settings(Settings):
+        translator, recursive = Translator.default, True
 
     def __init__(self, iterable: Iterable = None) -> None:
         super().__init__(iterable) if iterable is not None else super().__init__()
+        self.settings = self.Settings()
 
         if self.settings.recursive:
             for index, val in enumerate(self):

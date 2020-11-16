@@ -39,8 +39,7 @@ class RegexAccessor(Accessor):
     """An accessor class for all regex-related Str methods"""
 
     class Settings(Settings):
-        def __init__(self, dotall: bool = True, ignorecase: bool = True, multiline: bool = False):
-            self.dotall, self.ignorecase, self.multiline = dotall, ignorecase, multiline
+        dotall, ignorecase, multiline = True, True, False
 
         def __repr__(self) -> str:
             return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self.__dict__.items() if not attr.startswith('_')])})"
@@ -67,10 +66,8 @@ class RegexAccessor(Accessor):
                     ret |= flag
             return ret
 
-    settings = Settings()
-
     def __init__(self, parent: Str = None) -> None:
-        self.parent, self.settings = parent, self.settings.deepcopy()
+        self.parent, self.settings = parent, self.Settings()
 
     def __call__(self, parent: Str = None, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
         self.parent = Maybe(parent).else_(self.parent)
@@ -112,13 +109,10 @@ class FuzzyAccessor(Accessor):
     """An accessor class for all fuzzy-matching-related Str methods"""
 
     class Settings(Settings):
-        def __init__(self, tokenize: bool = False, partial: bool = False) -> None:
-            self.tokenize, self.partial = tokenize, partial
-
-    settings = Settings()
+        tokenize, partial = False, False
 
     def __init__(self, parent: Str = None) -> None:
-        self.parent, self.settings = parent, self.settings.deepcopy()
+        self.parent, self.settings = parent, self.Settings()
         self._determine_matcher()
 
     def __repr__(self) -> str:
@@ -150,52 +144,45 @@ class FuzzyAccessor(Accessor):
 class CasingAccessor(Accessor):
     """An accessor class for all casing-related Str methods"""
 
-    class Settings(Settings):
-        def __init__(self, detect_acronyms: bool = True, acronyms: list = None) -> None:
-            self.detect_acronyms, self.acronyms = detect_acronyms, acronyms
-
-    settings = Settings()
-
     def __init__(self, parent: Str = None) -> None:
-        self.parent, self.settings = parent, self.settings.deepcopy()
+        self.parent = parent
 
-    def __call__(self, parent: Str = None, detect_acronyms: bool = None, acronyms: list = None) -> CasingAccessor:
+    def __call__(self, parent: Str = None, acronyms: list = None) -> CasingAccessor:
         self.parent = Maybe(parent).else_(self.parent)
-        self.settings.detect_acronyms = Maybe(detect_acronyms).else_(self.settings.detect)
         self.settings.acronyms = Maybe(acronyms).else_(self.settings.acronyms)
         return self
 
     def snake(self) -> Str:
         """snake_case this Str"""
-        return type(self.parent)(case_conversion.snakecase(self.parent, detect_acronyms=self.settings.detect_acronyms, acronyms=self.settings.acronyms).strip("_"))
+        return type(self.parent)(case_conversion.snakecase(self.parent).strip("_"))
 
     def camel(self) -> Str:
         """camelCase this Str"""
-        return type(self.parent)(case_conversion.camelcase(self.snake(), detect_acronyms=self.settings.detect_acronyms, acronyms=self.settings.acronyms))
+        return type(self.parent)(case_conversion.camelcase(self.snake()))
 
     def pascal(self) -> Str:
         """PascalCase this Str"""
-        return type(self.parent)(case_conversion.pascalcase(self.snake(), detect_acronyms=self.settings.detect_acronyms, acronyms=self.settings.acronyms))
+        return type(self.parent)(case_conversion.pascalcase(self.snake()))
 
     def dash(self) -> Str:
         """dash-case this Str"""
-        return type(self.parent)(case_conversion.dashcase(self.parent, detect_acronyms=self.settings.detect_acronyms, acronyms=self.settings.acronyms))
+        return type(self.parent)(case_conversion.dashcase(self.parent))
 
     def constant(self) -> Str:
         """CONSTANT_CASE this Str"""
-        return type(self.parent)(case_conversion.constcase(self.parent, detect_acronyms=self.settings.detect_acronyms, acronyms=self.settings.acronyms))
+        return type(self.parent)(case_conversion.constcase(self.parent))
 
     def dot(self) -> Str:
         """dot.case this Str"""
-        return type(self.parent)(case_conversion.dotcase(self.parent, detect_acronyms=self.settings.detect_acronyms, acronyms=self.settings.acronyms))
+        return type(self.parent)(case_conversion.dotcase(self.parent))
 
     def slash(self) -> Str:
         """slash/case this Str"""
-        return type(self.parent)(case_conversion.slashcase(self.parent, detect_acronyms=self.settings.detect_acronyms, acronyms=self.settings.acronyms))
+        return type(self.parent)(case_conversion.slashcase(self.parent))
 
     def backslash(self) -> Str:
         """backslash\\case this Str"""
-        return type(self.parent)(case_conversion.backslashcase(self.parent, detect_acronyms=self.settings.detect_acronyms, acronyms=self.settings.acronyms))
+        return type(self.parent)(case_conversion.backslashcase(self.parent))
 
     def identifier(self) -> Str:
         """Turn this Str into a valid python identifier by first snake_casing it and then stripping away invalid characters"""
@@ -213,13 +200,10 @@ class SliceAccessor(Accessor):
     """An accessor class for all slicing-related Str methods"""
 
     class Settings(Settings):
-        def __init__(self, raise_if_absent: bool = False) -> None:
-            self.raise_if_absent = raise_if_absent
-
-    settings = Settings()
+        raise_if_absent = False
 
     def __init__(self, parent: Str = None) -> None:
-        self.parent, self.settings = parent, self.settings.deepcopy()
+        self.parent, self.settings = parent, self.Settings()
 
     def __call__(self, parent: Str = None, raise_if_absent: bool = None) -> SliceAccessor:
         self.parent, self.settings.raise_if_absent = Maybe(parent).else_(self.parent), Maybe(raise_if_absent).else_(self.settings.raise_if_absent)
@@ -325,11 +309,6 @@ class TrimAccessor(Accessor):
         return type(self.parent)(self.parent.encode("ascii", errors="ignore").decode("UTF-8"))
 
 
-class StrSettings(Settings):
-    def __init__(self) -> None:
-        self.re, self.case, self.slice, self.fuzzy = RegexAccessor.settings, CasingAccessor.settings, SliceAccessor.settings, FuzzyAccessor.settings
-
-
 class BaseStr(str):
     """An alternative implementation of collections.UserString that inherits directly from 'str'."""
 
@@ -423,7 +402,8 @@ class Str(BaseStr):
         DOT, DASH, SLASH, BACKSLASH = CasingAccessor.dot.__name__, CasingAccessor.dash.__name__, CasingAccessor.slash.__name__, CasingAccessor.backslash.__name__
         IDENTIFIER, PLURAL = CasingAccessor.identifier.__name__, CasingAccessor.plural.__name__
 
-    settings = StrSettings()
+    class Accessors(Settings):
+        re, slice, fuzzy = RegexAccessor, SliceAccessor, FuzzyAccessor
 
     @cached_property
     def re(self) -> RegexAccessor:

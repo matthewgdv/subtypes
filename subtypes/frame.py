@@ -60,16 +60,15 @@ class Frame(pd.DataFrame):
     DEFAULT_SHEET_NAME = "Sheet1"
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        with self._using_parent_constructor():
-            super().__init__(*args, **kwargs)
-            self._clean_dtypes()
+        # with self._using_parent_constructor():
+        super().__init__(pd.DataFrame(*args, **kwargs).convert_dtypes())
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(rows={len(self.index)}, columns={list(self.columns)})"
 
     @property
-    def _constructor(self) -> Type[pd.DataFrame]:
-        return type(self) if self._using_own_constructor() else pd.DataFrame
+    def _constructor(self) -> Type[Frame]:
+        return type(self)
 
     def is_nan(self, val: Any) -> bool:
         return pd.isna(val)
@@ -244,18 +243,6 @@ class Frame(pd.DataFrame):
         valid_attrs = attrs if private else [name for name in attrs if not name.startswith("_")]
         return cls([tuple(vars(obj).get(attr) for attr in valid_attrs) for obj in objects], columns=valid_attrs)
 
-    def _using_own_constructor(self) -> bool:
-        return bool(object.__getattribute__(self, "_own_constructor_"))
-
-    def _use_own_constructor(self, own: bool) -> None:
-        object.__setattr__(self, "_own_constructor_", own)
-
-    @contextlib.contextmanager
-    def _using_parent_constructor(self) -> Iterator[None]:
-        self._use_own_constructor(False)
-        yield
-        self._use_own_constructor(True)
-
     @classmethod
     @_check_import_is_available
     def _get_path_constructor(cls) -> Callable[..., PathLike]:
@@ -333,16 +320,6 @@ class Frame(pd.DataFrame):
 
     def _drop_fully_null_columns(self) -> None:
         self.drop([name for name, col in self.iteritems() if self._value_is_null(name) and col.isnull().all()], axis=1, inplace=True)
-
-    def _clean_dtypes(self) -> Frame:
-        self._clean_nullable_ints()
-        return self
-
-    def _clean_nullable_ints(self) -> None:
-        for name, col in self.iteritems():
-            if col.dtype.name == "float64":
-                if col.apply(lambda val: val is None or np.isnan(val) or val.is_integer()).all():
-                    self[name] = col.astype("Int64")
 
     def _infer_boolean_columns(self) -> None:
         for name, col in self.iteritems():
