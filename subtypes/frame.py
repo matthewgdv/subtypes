@@ -11,6 +11,7 @@ import pathlib
 import tabulate
 import pandas as pd
 from pandas.io.sql import SQLTable, pandasSQL_builder
+from pandas.io.excel._xlsxwriter import _XlsxWriter
 from pandas.core.indexes.base import Index
 import numpy as np
 from maybe import Maybe
@@ -60,7 +61,6 @@ class Frame(pd.DataFrame):
     DEFAULT_SHEET_NAME = "Sheet1"
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # with self._using_parent_constructor():
         super().__init__(pd.DataFrame(*args, **kwargs).convert_dtypes())
 
     def __repr__(self) -> str:
@@ -151,18 +151,17 @@ class Frame(pd.DataFrame):
 
         return final
 
-    def infer_dtypes(self) -> Frame:
-        """Return a new Frame with newly inferred dtypes."""
-        return type(self)(self.to_dict())
+    def convert_dtypes(self) -> Frame:
+        return type(self)(super().convert_dtypes())
 
     def fillna_as_none(self) -> Frame:
         """Fill any nan values with None. Returns self."""
         df = self.copy()
         for name, col in df.iteritems():
             if col.isnull().any():
-                df[name] = col.astype(object)
+                df[name] = col.astype(object).where(pd.notnull(col), None)
 
-        return cast(Frame, df.where(df.notnull(), None))
+        return df
 
     @_check_import_is_available
     def profile_report(self, *args: Any, style: dict = None, **kwargs: Any) -> Any:
@@ -211,8 +210,7 @@ class Frame(pd.DataFrame):
 
         frame = frame.sanitize_colnames(casing=Maybe(casing).else_(cls.DEFAULT_COLUMN_CASE))
 
-        infer_range = Maybe(infer_range).else_(cls.DEFAULT_INFER_RANGE)
-        if infer_range:
+        if infer_range := Maybe(infer_range).else_(cls.DEFAULT_INFER_RANGE):
             frame._infer_range(mode=infer_range)
 
         frame._infer_boolean_columns()
@@ -331,8 +329,8 @@ class Frame(pd.DataFrame):
                 pass
 
     def _write_to_excel(self, writer: ExcelWriter, sheet_name: str, index: bool, **kwargs: Any) -> None:
-        df, sheet_name = self.infer_dtypes(), Maybe(sheet_name).else_(self.DEFAULT_SHEET_NAME)
-        super(type(df), df).to_excel(writer.writer, sheet_name=sheet_name, index=index, **kwargs)
+        df, sheet_name = self.convert_dtypes(), Maybe(sheet_name).else_(self.DEFAULT_SHEET_NAME)
+        super(type(df), df).to_excel(writer, sheet_name=sheet_name, index=index, **kwargs)
         df._table_from_sheet(writer[sheet_name])
 
     def _table_from_sheet(self, sheet: Any) -> None:
@@ -360,17 +358,9 @@ class Frame(pd.DataFrame):
         return destination_stream
 
 
-class ExcelWriter:
+class ExcelWriter(_XlsxWriter):
     def __init__(self, filepath: PathLike) -> None:
-        self.writer = pd.ExcelWriter(os.fspath(filepath), engine="xlsxwriter", mode="w")
-
-    def __enter__(self) -> ExcelWriter:
-        return self
-
-    def __exit__(self, ex_type: Any, ex_value: Any, ex_traceback: Any) -> None:
-        self.writer.save()
+        super().__init__(os.fspath(filepath), engine="xlsxwriter", mode="w")
 
     def __getitem__(self, sheet_name: str) -> Any:
-        # if self.writer.sheets is None:
-        # self.writer.add_worksheet(sheet_name)
-        return self.writer.sheets.get(sheet_name)
+        return self.sheets.get(sheet_name)
