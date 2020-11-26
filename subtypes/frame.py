@@ -43,8 +43,28 @@ def _check_import_is_available(func: FuncSig) -> FuncSig:
     return cast(FuncSig, wrapper)
 
 
+class Series(pd.Series):
+    def __getitem__(self, key):
+        return self._try_native(super().__getitem__(key))
+
+    def __iter__(self):
+        for element in super().__iter__():
+            yield self._try_native(element)
+
+    def tolist(self) -> list:
+        return list(self)
+
+    def _try_native(self, element):
+        try:
+            return element.item()
+        except AttributeError:
+            return element
+
+
 class Frame(pd.DataFrame):
     columns: Union[Index, Iterable]
+
+    _constructor_sliced = Series
 
     class InferRange(Enum):
         TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID = "trim_surrounding", "strip_nulls", "smallest_valid"
