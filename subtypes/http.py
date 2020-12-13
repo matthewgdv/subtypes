@@ -6,7 +6,11 @@ import simplejson
 
 from requests import Session
 import requests.models
+from requests.exceptions import HTTPError
 from requests.compat import quote, quote_plus
+from requests.adapters import HTTPAdapter
+
+from urllib3.util.retry import Retry
 
 from .enums import Enum
 from .translator import Translator
@@ -35,9 +39,14 @@ class Http(Session):
     class QuoteLevel(Enum):
         NONE, NORMAL, PLUS = "none", "normal", "plus"
 
-    def __init__(self, base_url: str = "", quote_level: Http.QuoteLevel = QuoteLevel.NONE) -> None:
+    Error = HTTPError
+
+    def __init__(self, base_url: str = "", retries: int = None, quote_level: Http.QuoteLevel = QuoteLevel.NONE) -> None:
         super().__init__()
-        self.base_url, self.quote_level = base_url.strip('/'), quote_level
+        self.base_url, self.retries, self.quote_level = base_url.strip('/'), retries, quote_level
+
+        if self.retries:
+            self.mount("https://", HTTPAdapter(max_retries=Retry(total=retries, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])))
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(base_url={repr(self.base_url)}, auth={repr(self.auth)}, headers={repr(self.headers)})"
@@ -50,4 +59,4 @@ class Http(Session):
             self.QuoteLevel.NONE: lambda url_: url_,
             self.QuoteLevel.NORMAL: lambda url_: quote(url_),
             self.QuoteLevel.PLUS: lambda url_: quote_plus(url_),
-        })()
+        })(url)
