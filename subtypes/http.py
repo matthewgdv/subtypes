@@ -39,7 +39,7 @@ class Http(Session):
     class QuoteLevel(Enum):
         NONE, NORMAL, PLUS = "none", "normal", "plus"
 
-    Error = HTTPError
+    Error, Response = HTTPError, Response
 
     def __init__(self, base_url: str = "", retries: int = None, quote_level: Http.QuoteLevel = QuoteLevel.NONE) -> None:
         super().__init__()
