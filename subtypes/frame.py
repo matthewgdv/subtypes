@@ -109,8 +109,8 @@ class Frame(pd.DataFrame):
     def to_table(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail", primary_key: str = "id", sql: Any = None) -> Any:
         """Load this Frame into a SQL database table using the config defaults of the sqlhandler library. An sqlhandler.Sql object can be provided to override the connection defaults."""
         from sqlhandler import Sql
-        sql = sql if sql is not None else Sql(database=database)
-        return sql.frame_to_table(self, table=table, schema=schema, if_exists=Sql.IfExists(if_exists), primary_key=primary_key)
+        sql = sql if sql is not None else Sql.from_connection(database=database)
+        return sql.frame_to_table(self, table=table, schema=schema, if_exists=Sql.Enums.IfExists(if_exists), primary_key=primary_key)
 
     def to_dataframe(self) -> pd.DataFrame:
         """Convert this Frame to a pandas.DataFrame."""
