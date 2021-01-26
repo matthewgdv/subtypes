@@ -1,7 +1,7 @@
 __all__ = [
     "cached_property",
     "Enum", "ValueEnum", "AutoEnum", "ValueAutoEnum",
-    "Html",
+    "Html", "Xml",
     "Http",
     "Singleton",
     "NameSpace",
@@ -17,7 +17,7 @@ __all__ = [
 
 from .lazy import cached_property
 from .enums import Enum, ValueEnum, AutoEnum, ValueAutoEnum
-from .markup import Html
+from .markup import Html, Xml
 from .http import Http
 from .singleton import Singleton
 from .namespace import NameSpace
