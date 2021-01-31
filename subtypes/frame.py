@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 import itertools
 import io
 import functools
@@ -13,7 +12,6 @@ import pandas as pd
 from pandas.io.sql import SQLTable, pandasSQL_builder
 from pandas.io.excel._xlsxwriter import _XlsxWriter
 from pandas.core.indexes.base import Index
-import numpy as np
 from maybe import Maybe
 
 from .str import Str

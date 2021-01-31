@@ -7,13 +7,13 @@ import simplejson
 from requests import Session
 import requests.models
 from requests.exceptions import HTTPError
-from requests.compat import quote, quote_plus
+from urllib.parse import quote, quote_plus
 from requests.adapters import HTTPAdapter
 
 from urllib3.util.retry import Retry
 
 from .enums import Enum
-from .translator import Translator
+from .translator import TranslatableMeta
 
 
 class Response(requests.models.Response):
@@ -25,7 +25,7 @@ class Response(requests.models.Response):
     def json(self) -> Any:
         """Returns Str, List, and Dict items rather than their builtin superclasses. If there is no data will return None rather than raising JSONDecodeError."""
         try:
-            return Translator.default.translate(super().json())
+            return TranslatableMeta.translator.translate(super().json())
         except (json.JSONDecodeError, simplejson.JSONDecodeError):
             return None
 

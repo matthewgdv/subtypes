@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import copy
 import itertools
+from functools import reduce
+from operator import ior
 import re
-from typing import Any, Callable, Iterator, Iterable, List, Tuple, Dict, Mapping, Match, Union
+from typing import Any, Callable, Iterator, Iterable, Tuple, Mapping, Match, Union
 import warnings
 
 import regex as regexmod
@@ -15,7 +17,7 @@ from .lazy import cached_property
 from maybe import Maybe
 
 from .enums import Enum
-from .translator import Translator
+from .translator import TranslatableMeta
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -59,12 +61,9 @@ class RegexAccessor(Accessor):
         def __ror__(self, other: Union[int, re.RegexFlag]) -> int:
             return self.to_flag() | other
 
-        def to_flag(self) -> re.RegexFlag:
-            ret = re.RegexFlag(0)
-            for attr, flag in (self.dotall, re.DOTALL), (self.ignorecase, re.IGNORECASE), (self.multiline, re.MULTILINE):
-                if attr:
-                    ret |= flag
-            return ret
+        def to_flag(self) -> int:
+            flags = [flag for attr, flag in [(self.dotall, re.DOTALL), (self.ignorecase, re.IGNORECASE), (self.multiline, re.MULTILINE)]]
+            return reduce(ior, flags)
 
     def __init__(self, parent: Str = None) -> None:
         self.parent, self.settings = parent, self.Settings()
@@ -149,7 +148,6 @@ class CasingAccessor(Accessor):
 
     def __call__(self, parent: Str = None, acronyms: list = None) -> CasingAccessor:
         self.parent = Maybe(parent).else_(self.parent)
-        self.settings.acronyms = Maybe(acronyms).else_(self.settings.acronyms)
         return self
 
     def snake(self) -> Str:
@@ -394,7 +392,7 @@ class BaseStr(str):
         return type(self)(super().zfill(width))
 
 
-class Str(BaseStr):
+class Str(BaseStr, metaclass=TranslatableMeta):
     """A subclass of the builin 'str' class which supports inplace mutation using item access. Has additional methods and accessor objects with additional methods for casing, regex, fuzzy-matching, trimming, and slicing."""
 
     class Case(Enum):
@@ -403,27 +401,27 @@ class Str(BaseStr):
         IDENTIFIER, PLURAL = CasingAccessor.identifier.__name__, CasingAccessor.plural.__name__
 
     class Accessors(Settings):
-        re, slice, fuzzy = RegexAccessor, SliceAccessor, FuzzyAccessor
+        re, case, slice, trim, fuzzy = RegexAccessor, CasingAccessor, SliceAccessor, TrimAccessor, FuzzyAccessor
 
     @cached_property
     def re(self) -> RegexAccessor:
-        return RegexAccessor(parent=self)
+        return self.Accessors.re(parent=self)
 
     @cached_property
     def case(self) -> CasingAccessor:
-        return CasingAccessor(parent=self)
+        return self.Accessors.case(parent=self)
 
     @cached_property
     def slice(self) -> SliceAccessor:
-        return SliceAccessor(parent=self)
+        return self.Accessors.slice(parent=self)
 
     @cached_property
     def trim(self) -> TrimAccessor:
-        return TrimAccessor(parent=self)
+        return self.Accessors.trim(parent=self)
 
     @cached_property
     def fuzzy(self) -> FuzzyAccessor:
-        return FuzzyAccessor(parent=self)
+        return self.Accessors.fuzzy(parent=self)
 
     def to_clipboard(self) -> None:
         """Save the content of this string to the clipboard"""
@@ -446,6 +444,3 @@ class Str(BaseStr):
     def from_clipboard(cls) -> Str:
         """Create a Str from the content of the clipboard"""
         return cls(clipboard.paste())
-
-
-Translator.translations[str] = Str

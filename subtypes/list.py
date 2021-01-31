@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 import json
-from typing import Any, Iterable, Iterator, List, Callable, Union
+from typing import Any, Iterable, Iterator, Callable, Union
 
 from .lazy import cached_property
 
 from maybe import Maybe
 
 from .str import Accessor, Settings
-from .translator import Translator
+from .translator import TranslatableMeta
 
 
 class SliceAccessor(Accessor):
@@ -106,6 +106,7 @@ class AttributeAccessor(Accessor):
         return type(self.parent)([getattr(item, attr) for item in self.parent])
 
 
+# noinspection PyArgumentList
 class BaseList(list):
     """
     An alternative implementation of collections.UserList that inherits directly from 'list'. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
@@ -169,21 +170,21 @@ class BaseList(list):
         super().clear()
         return self
 
-    def copy(self):
+    def copy(self) -> BaseList:
         return type(self)(self)
 
 
-class List(BaseList):
+class List(BaseList, metaclass=TranslatableMeta):
     """
     Subclass of the builtin 'list' class with additional useful methods. All the 'list' class inplace methods return self and therefore allow chaining when called from this class.
     Recursively traverses its members and converts any str, list and dict instances into into their subtypes equivalents.
     """
 
+    class Settings(Settings):
+        recursive = True
+
     class Accessors(Settings):
         slice = SliceAccessor
-
-    class Settings(Settings):
-        translator, recursive = Translator.default, True
 
     def __init__(self, iterable: Iterable = None) -> None:
         super().__init__(iterable) if iterable is not None else super().__init__()
@@ -191,11 +192,11 @@ class List(BaseList):
 
         if self.settings.recursive:
             for index, val in enumerate(self):
-                self[index] = self.settings.translator.translate(val)
+                self[index] = type(self).translator.translate(val)
 
     @cached_property
     def slice(self) -> SliceAccessor:
-        return SliceAccessor(parent=self)
+        return self.Accessors.slice(parent=self)
 
     @cached_property
     def attr(self) -> AttributeAccessor:
@@ -246,7 +247,7 @@ class List(BaseList):
         return json.dumps(self, indent=indent, **kwargs)
 
     def flatten(self) -> List:
-        """Recursively traverses any Sequence objects within this List and unpacks them in order into a new flat List."""
+        """Recursively traverses any non-textual Sequence objects within this List and unpacks them in order into a new flat List."""
         return self._flatten_more(iterable=self, output=type(self)())
 
     def _flatten_more(self, iterable: Iterable, output: List) -> List:
@@ -265,6 +266,3 @@ class List(BaseList):
             return cls(item)
         else:
             raise TypeError(f"The following json string resolves to type '{type(item).__name__}', not type '{list.__name__}':\n\n{json_string}")
-
-
-Translator.translations[list] = List
