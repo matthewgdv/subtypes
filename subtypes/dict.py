@@ -114,16 +114,22 @@ class Dict(BaseDict, metaclass=TranslatableMeta):
         return self[name]
 
     def __setattr__(self, name: str, val: Any) -> None:
-        if name in self.settings.dict_fields:
+        if name in dict_fields:
             raise AttributeError(f"Cannot assign to attribute '{type(self).__name__}.{name}'.")
 
-        self[name] = val
+        if name.startswith("_") and name.endswith("_"):
+            type.__setattr__(self, name, val)
+        else:
+            self[name] = val
 
     def __delattr__(self, name: str) -> None:
-        if name in self.settings.dict_fields:
+        if name in dict_fields:
             raise AttributeError(f"Cannot delete attribute '{type(self).__name__}.{name}'.")
 
-        del self[name]
+        if name.startswith("_") and name.endswith("_"):
+            type.__delattr__(self, name)
+        else:
+            del self[name]
 
     def _factory_(self, name: str) -> Dict:
         raise AccessError(f"'{name}' not found in {type(self).__name__}: {self}")
