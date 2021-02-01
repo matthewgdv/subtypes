@@ -6,12 +6,12 @@ import json
 
 from .str import Str, Accessor
 from .str import RegexAccessor as StrRegexAccessor, Settings
-from .translator import TranslatableMeta
+from .translator import TranslatableMeta, DoNotTranslateMeta
 
 from maybe import Maybe
 
 
-def is_valid_for_attribute_actions(name: Any, dict_instance: Dict_) -> bool:
+def is_valid_for_attribute_actions(name: Any, dict_instance: Dict) -> bool:
     return isinstance(name, str) and name not in dict_instance.settings.dict_fields and name.isidentifier()
 
 
@@ -22,17 +22,17 @@ class AccessError(KeyError, AttributeError):
 class RegexAccessor(Accessor):
     """An accessor class for all regex-related Dict methods"""
 
-    def __init__(self, parent: Dict_ = None) -> None:
+    def __init__(self, parent: Dict = None) -> None:
         self.parent, self.settings = parent, StrRegexAccessor.Settings()
 
-    def __call__(self, parent: Dict_ = None, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
+    def __call__(self, parent: Dict = None, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
         self.parent = Maybe(parent).else_(self.parent)
         self.settings.dotall = Maybe(dotall).else_(self.settings.dotall)
         self.settings.ignorecase = Maybe(ignorecase).else_(self.settings.ignorecase)
         self.settings.multiline = Maybe(multiline).else_(self.settings.multiline)
         return self
 
-    def filter(self, regex: str) -> Dict_:
+    def filter(self, regex: str) -> Dict:
         """Remove any key-value pairs where the key is not a string, or where it is a string but doesn't match the given regex."""
         return type(self.parent)(
             {key: val for key, val in self.parent.items()
@@ -72,7 +72,7 @@ class BaseDict(dict):
         return type(self)(self)
 
 
-class Dict_(BaseDict):
+class Dict(BaseDict, metaclass=TranslatableMeta):
     """
     Subclass of the builtin 'dict' class with where inplace methods like dict.update() return self and therefore allow chaining.
     Also allows item access dynamically through attribute access. It recursively converts any str, list, and dict instances into Str, List, and Dict.
@@ -128,7 +128,7 @@ class Dict_(BaseDict):
 
         del self[name]
 
-    def _factory_(self, name: str) -> Dict_:
+    def _factory_(self, name: str) -> Dict:
         raise AccessError(f"'{name}' not found in {type(self).__name__}: {self}")
 
     def setdefault_lazy(self, key: Any, factory: Callable = None, pass_key: bool = False) -> Any:
@@ -145,17 +145,13 @@ class Dict_(BaseDict):
         return json.dumps(self, indent=indent, **kwargs)
 
     @classmethod
-    def from_json(cls, json_string: str, **kwargs: Any) -> Dict_:
+    def from_json(cls, json_string: str, **kwargs: Any) -> Dict:
         if isinstance((item := json.loads(json_string, **kwargs)), dict):
             return cls(item)
         else:
             raise TypeError(f"The following json string resolves to type '{type(item).__name__}', not type '{dict.__name__}':\n\n{json_string}")
 
 
-class DefaultDict(Dict_):
+class DefaultDict(Dict, metaclass=DoNotTranslateMeta):
     def _factory_(self, name: str) -> DefaultDict:
         return type(self)()
-
-
-class Dict(Dict_, metaclass=TranslatableMeta):
-    pass

@@ -12,7 +12,7 @@ __all__ = [
     "Frame",
     "Process",
     "Color",
-    "Translator", "TranslatableMeta"
+    "Translator", "TranslatableMeta", "DoNotTranslateMeta"
 ]
 
 from .lazy import cached_property
@@ -21,7 +21,7 @@ from .markup import Html, Xml
 from .http import Http
 from .singleton import Singleton
 from .namespace import NameSpace
-from .translator import Translator, TranslatableMeta
+from .translator import Translator, TranslatableMeta, DoNotTranslateMeta
 from .str import Str, BaseStr
 from .list import List, BaseList
 from .dict import Dict, DefaultDict, BaseDict

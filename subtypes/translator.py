@@ -35,3 +35,8 @@ class TranslatableMeta(type):
 
     def __init__(cls, name: str, bases: tuple, namespace: dict) -> None:
         cls.translator.translations.update({base: cls for base in cls.mro()[1:-1]})
+
+
+class DoNotTranslateMeta(TranslatableMeta):
+    def __init__(cls, name: str, bases: tuple, namespace: dict) -> None:
+        pass
