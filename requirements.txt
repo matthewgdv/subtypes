@@ -16,3 +16,5 @@ regex
 requests
 tabulate
 urllib3
+xlsxwriter
+msoffcrypto-tool

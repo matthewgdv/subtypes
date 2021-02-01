@@ -4,13 +4,13 @@ import itertools
 import io
 import functools
 import os
-from typing import Any, Collection, List, Dict, Union, Type, Iterable, TypeVar, Callable, Iterator, cast, TYPE_CHECKING
+from typing import Any, Collection, Union, Type, Iterable, TypeVar, Callable, cast, TYPE_CHECKING
 import pathlib
 
 import tabulate
 import pandas as pd
 from pandas.io.sql import SQLTable, pandasSQL_builder
-from pandas.io.excel._xlsxwriter import _XlsxWriter
+from pandas.io.excel._xlsxwriter import XlsxWriter
 from pandas.core.indexes.base import Index
 from maybe import Maybe
 
@@ -59,6 +59,7 @@ class Series(pd.Series):
             return element
 
 
+# noinspection PyFinal
 class Frame(pd.DataFrame):
     columns: Union[Index, Iterable]
 
@@ -169,7 +170,8 @@ class Frame(pd.DataFrame):
 
         return final
 
-    def convert_dtypes(self) -> Frame:
+    def convert_dtypes(self, infer_objects: bool = True, convert_string: bool = True, convert_integer: bool = True, convert_boolean: bool = True, convert_floating: bool = True,) -> Frame:
+        print(type(super().convert_dtypes()))
         return type(self)(super().convert_dtypes())
 
     def fillna_as_none(self) -> Frame:
@@ -376,7 +378,7 @@ class Frame(pd.DataFrame):
         return destination_stream
 
 
-class ExcelWriter(_XlsxWriter):
+class ExcelWriter(XlsxWriter):
     def __init__(self, filepath: PathLike) -> None:
         super().__init__(os.fspath(filepath), engine="xlsxwriter", mode="w")
 
