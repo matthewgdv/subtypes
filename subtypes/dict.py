@@ -11,8 +11,11 @@ from .translator import TranslatableMeta, DoNotTranslateMeta
 from maybe import Maybe
 
 
-def is_valid_for_attribute_actions(name: Any, dict_instance: Dict) -> bool:
-    return isinstance(name, str) and name not in dict_instance.settings.dict_fields and name.isidentifier()
+dict_fields = {attr for attr in dir(dict()) if not attr.startswith("_")}
+
+
+def is_valid_for_attribute_actions(name: Any) -> bool:
+    return isinstance(name, str) and name not in dict_fields and name.isidentifier()
 
 
 class AccessError(KeyError, AttributeError):
@@ -78,20 +81,14 @@ class Dict(BaseDict, metaclass=TranslatableMeta):
     Also allows item access dynamically through attribute access. It recursively converts any str, list, and dict instances into Str, List, and Dict.
     """
 
-    class Settings(Settings):
-        def __init__(self) -> None:
-            self.dict_fields, self.recursive = {attr for attr in [*dir(dict()), "settings"] if not attr.startswith("_")}, True
-
     class Accessors(Settings):
         re = RegexAccessor
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        super().__setattr__("settings", self.Settings())
 
-        if self.settings.recursive:
-            for key, val in self.items():
-                self[key] = val
+        for key, val in self.items():
+            self[key] = val
 
     def __getitem__(self, name: str) -> Any:
         try:
@@ -101,16 +98,16 @@ class Dict(BaseDict, metaclass=TranslatableMeta):
             return default
 
     def __setitem__(self, name: str, val: Any) -> None:
-        clean_val = type(self).translator.translate(val) if self.settings.recursive else val
+        clean_val = type(self).translator.translate(val)
         super().__setitem__(name, clean_val)
 
-        if is_valid_for_attribute_actions(name, self):
+        if is_valid_for_attribute_actions(name):
             super().__setattr__(name, clean_val)
 
     def __delitem__(self, name: str) -> None:
         super().__delitem__(name)
 
-        if is_valid_for_attribute_actions(name, self):
+        if is_valid_for_attribute_actions(name):
             super().__delattr__(name)
 
     def __getattr__(self, name: str) -> Dict:

@@ -180,19 +180,14 @@ class List(BaseList, metaclass=TranslatableMeta):
     Recursively traverses its members and converts any str, list and dict instances into into their subtypes equivalents.
     """
 
-    class Settings(Settings):
-        recursive = True
-
     class Accessors(Settings):
         slice = SliceAccessor
 
     def __init__(self, iterable: Iterable = None) -> None:
         super().__init__(iterable) if iterable is not None else super().__init__()
-        self.settings = self.Settings()
 
-        if self.settings.recursive:
-            for index, val in enumerate(self):
-                self[index] = type(self).translator.translate(val)
+        for index, val in enumerate(self):
+            self[index] = type(self).translator.translate(val)
 
     @cached_property
     def slice(self) -> SliceAccessor:
