@@ -118,7 +118,7 @@ class Dict(BaseDict, metaclass=TranslatableMeta):
             raise AttributeError(f"Cannot assign to attribute '{type(self).__name__}.{name}'.")
 
         if name.startswith("_") and name.endswith("_"):
-            type.__setattr__(self, name, val)
+            super().__setattr__(name, val)
         else:
             self[name] = val
 
@@ -127,7 +127,7 @@ class Dict(BaseDict, metaclass=TranslatableMeta):
             raise AttributeError(f"Cannot delete attribute '{type(self).__name__}.{name}'.")
 
         if name.startswith("_") and name.endswith("_"):
-            type.__delattr__(self, name)
+            super().__delattr__(name)
         else:
             del self[name]
 
