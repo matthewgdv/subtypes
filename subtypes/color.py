@@ -168,7 +168,7 @@ class ColorName:
 
 
 class Color(colour.Color):
-    """Subclass of colour.Color with access to a Color.Name emum of color names that are valid to be passed into the Color constructor."""
+    """Subclass of colour.Color with access to a Color.Name namespace holding ColorProxy objects that will return the corresponding color when called."""
     Name = ColorName
 
     def get_rgb(self, max=255) -> tuple:

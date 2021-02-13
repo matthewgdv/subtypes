@@ -1,5 +1,4 @@
 simplejson
-aenum
 bs4
 case_conversion
 colour

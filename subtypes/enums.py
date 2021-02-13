@@ -69,8 +69,8 @@ class BaseEnum(enum.Enum):
         return ret
 
 
-class Enum(BaseEnum, enum.Enum, metaclass=EnumMeta):
-    """A subclass of aenum.Enum with additional methods."""
+class Enum(BaseEnum, metaclass=EnumMeta):
+    """A subclass of enum.Enum with additional methods."""
 
 
 class ValueEnum(BaseEnum, metaclass=ValueEnumMeta):
