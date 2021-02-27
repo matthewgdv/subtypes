@@ -171,7 +171,6 @@ class Frame(pd.DataFrame):
         return final
 
     def convert_dtypes(self, infer_objects: bool = True, convert_string: bool = True, convert_integer: bool = True, convert_boolean: bool = True, convert_floating: bool = True,) -> Frame:
-        print(type(super().convert_dtypes()))
         return type(self)(super().convert_dtypes())
 
     def fillna_as_none(self) -> Frame:
@@ -272,7 +271,7 @@ class Frame(pd.DataFrame):
         elif cls.DEFAULT_PATH_TYPE == Frame.PathType.STRING:
             return os.fspath
         else:
-            raise cls.PathType(cls.DEFAULT_PATH_TYPE)
+            cls.PathType(cls.DEFAULT_PATH_TYPE)
 
     def _infer_column_headers(self) -> None:
         col_run = len(max("".join(["0" if self._value_is_null(col) else "1" for col in self.columns]).split("0")))
