@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import itertools
 from functools import reduce
 from operator import ior
@@ -12,6 +11,7 @@ import regex as regexmod
 import case_conversion
 import inflect
 import clipboard
+
 from .lazy import cached_property
 
 from maybe import Maybe
@@ -24,23 +24,19 @@ with warnings.catch_warnings():
     from fuzzywuzzy import fuzz
 
 
-class Accessor:
+class Case(Enum):
+    SNAKE = CAMEL = PASCAL = CONSTANT = DOT = DASH = SLASH = BACKSLASH = IDENTIFIER = PLURAL = Enum.Auto()
+
+
+class ReprMixin:
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self.__dict__.items() if not attr.startswith('_')])})"
 
 
-class Settings:
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}({', '.join([f'{attr}={repr(val)}' for attr, val in self.__dict__.items() if not attr.startswith('_')])})"
-
-    def deepcopy(self) -> Settings:
-        return copy.deepcopy(self)
-
-
-class RegexAccessor(Accessor):
+class RegexAccessor(ReprMixin):
     """An accessor class for all regex-related Str methods"""
 
-    class Settings(Settings):
+    class Settings(ReprMixin):
         dotall, ignorecase, multiline = True, True, False
 
         def __repr__(self) -> str:
@@ -104,10 +100,10 @@ class RegexAccessor(Accessor):
         return type(self.parent)(re.escape(self.parent))
 
 
-class FuzzyAccessor(Accessor):
+class FuzzyAccessor(ReprMixin):
     """An accessor class for all fuzzy-matching-related Str methods"""
 
-    class Settings(Settings):
+    class Settings(ReprMixin):
         tokenize, partial = False, False
 
     def __init__(self, parent: Str = None) -> None:
@@ -140,7 +136,7 @@ class FuzzyAccessor(Accessor):
                 return
 
 
-class CasingAccessor(Accessor):
+class CasingAccessor(ReprMixin):
     """An accessor class for all casing-related Str methods"""
 
     def __init__(self, parent: Str = None) -> None:
@@ -191,13 +187,26 @@ class CasingAccessor(Accessor):
         return type(self.parent)(inflect.engine().plural(self.parent))
 
     def from_enum(self, case: Str.Case) -> Str:
-        return getattr(self, str(case))()
+        return self.enum_mappings[case]()
+
+    enum_mappings = {
+        Case.SNAKE: snake,
+        Case.CAMEL: camel,
+        Case.PASCAL: pascal,
+        Case.DASH: dash,
+        Case.CONSTANT: constant,
+        Case.DOT: dot,
+        Case.SLASH: slash,
+        Case.BACKSLASH: backslash,
+        Case.IDENTIFIER: identifier,
+        Case.PLURAL: plural,
+    }
 
 
-class SliceAccessor(Accessor):
+class SliceAccessor(ReprMixin):
     """An accessor class for all slicing-related Str methods"""
 
-    class Settings(Settings):
+    class Settings(ReprMixin):
         raise_if_absent = False
 
     def __init__(self, parent: Str = None) -> None:
@@ -280,7 +289,7 @@ class SliceAccessor(Accessor):
         return matches
 
 
-class TrimAccessor(Accessor):
+class TrimAccessor(ReprMixin):
     """An accessor class for all stripping-related Str methods"""
 
     def __init__(self, parent: Str = None) -> None:
@@ -395,12 +404,9 @@ class BaseStr(str):
 class Str(BaseStr, metaclass=TranslatableMeta):
     """A subclass of the builin 'str' class which supports inplace mutation using item access. Has additional methods and accessor objects with additional methods for casing, regex, fuzzy-matching, trimming, and slicing."""
 
-    class Case(Enum):
-        SNAKE, CAMEL, PASCAL, CONSTANT = CasingAccessor.snake.__name__, CasingAccessor.camel.__name__, CasingAccessor.pascal.__name__, CasingAccessor.constant.__name__
-        DOT, DASH, SLASH, BACKSLASH = CasingAccessor.dot.__name__, CasingAccessor.dash.__name__, CasingAccessor.slash.__name__, CasingAccessor.backslash.__name__
-        IDENTIFIER, PLURAL = CasingAccessor.identifier.__name__, CasingAccessor.plural.__name__
+    Case = Case
 
-    class Accessors(Settings):
+    class Accessors(ReprMixin):
         re, case, slice, trim, fuzzy = RegexAccessor, CasingAccessor, SliceAccessor, TrimAccessor, FuzzyAccessor
 
     @cached_property

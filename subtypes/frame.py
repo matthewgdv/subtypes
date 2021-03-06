@@ -65,18 +65,19 @@ class Frame(pd.DataFrame):
 
     _constructor_sliced = Series
 
-    class InferRange(Enum):
-        TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID = "trim_surrounding", "strip_nulls", "smallest_valid"
+    class Enums:
+        class InferRange(Enum):
+            TRIM_SURROUNDING, STRIP_NULLS, SMALLEST_VALID = "trim_surrounding", "strip_nulls", "smallest_valid"
 
-    class ColumnCase(Enum):
-        IGNORE, SNAKE, CAMEL, PASCAL = "ignore", "snake", "camel", "pascal"
+        class ColumnCase(Enum):
+            IGNORE, SNAKE, CAMEL, PASCAL = "ignore", "snake", "camel", "pascal"
 
-    class PathType(Enum):
-        PATHMAGIC, PATHLIB, STRING = "pathmagic", "pathlib", "string"
+        class PathType(Enum):
+            PATHMAGIC, PATHLIB, STRING = "pathmagic", "pathlib", "string"
 
-    DEFAULT_COLUMN_CASE = ColumnCase.SNAKE
-    DEFAULT_INFER_RANGE = InferRange.SMALLEST_VALID
-    DEFAULT_PATH_TYPE = PathType.PATHMAGIC
+    DEFAULT_COLUMN_CASE = Enums.ColumnCase.SNAKE
+    DEFAULT_INFER_RANGE = Enums.InferRange.SMALLEST_VALID
+    DEFAULT_PATH_TYPE = Enums.PathType.PATHMAGIC
     DEFAULT_SHEET_NAME = "Sheet1"
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -122,14 +123,14 @@ class Frame(pd.DataFrame):
 
         casing = Maybe(casing).else_(self.DEFAULT_COLUMN_CASE)
         if casing is not None:
-            if casing == self.ColumnCase.SNAKE:
+            if casing == self.Enums.ColumnCase.SNAKE:
                 df.columns = [Str(colname).case.snake() for colname in df.columns]
-            elif casing == self.ColumnCase.CAMEL:
+            elif casing == self.Enums.ColumnCase.CAMEL:
                 df.columns = [Str(colname).case.camel() for colname in df.columns]
-            elif casing == self.ColumnCase.PASCAL:
+            elif casing == self.Enums.ColumnCase.PASCAL:
                 df.columns = [Str(colname).case.pascal() for colname in df.columns]
             else:
-                self.ColumnCase(casing)
+                self.Enums.ColumnCase(casing)
 
         return df
 
@@ -263,15 +264,15 @@ class Frame(pd.DataFrame):
     @classmethod
     @_check_import_is_available
     def _get_path_constructor(cls) -> Callable[..., PathLike]:
-        if cls.DEFAULT_PATH_TYPE == Frame.PathType.PATHMAGIC:
+        if cls.DEFAULT_PATH_TYPE == Frame.Enums.PathType.PATHMAGIC:
             from pathmagic import File
             return File.from_pathlike
-        elif cls.DEFAULT_PATH_TYPE == Frame.PathType.PATHLIB:
+        elif cls.DEFAULT_PATH_TYPE == Frame.Enums.PathType.PATHLIB:
             return pathlib.Path
-        elif cls.DEFAULT_PATH_TYPE == Frame.PathType.STRING:
+        elif cls.DEFAULT_PATH_TYPE == Frame.Enums.PathType.STRING:
             return os.fspath
         else:
-            cls.PathType(cls.DEFAULT_PATH_TYPE)
+            cls.Enums.PathType(cls.DEFAULT_PATH_TYPE)
 
     def _infer_column_headers(self) -> None:
         col_run = len(max("".join(["0" if self._value_is_null(col) else "1" for col in self.columns]).split("0")))
@@ -285,14 +286,14 @@ class Frame(pd.DataFrame):
             self.columns = [str(val) for val in self.loc[first_longest_index]]
             self.drop(self.loc[:first_longest_index].index.tolist(), axis=0, inplace=True)
 
-    def _infer_range(self, mode: Frame.InferRange = None) -> None:
+    def _infer_range(self, mode: Frame.Enums.InferRange = None) -> None:
         if mode is None:
             pass
 
         self.InferRange(mode).map_to({
-            self.InferRange.TRIM_SURROUNDING: self._trim_nulls_around_table,
-            self.InferRange.STRIP_NULLS: self._strip_fully_null,
-            self.InferRange.SMALLEST_VALID: self._truncate_after_valid,
+            self.Enums.InferRange.TRIM_SURROUNDING: self._trim_nulls_around_table,
+            self.Enums.InferRange.STRIP_NULLS: self._strip_fully_null,
+            self.Enums.InferRange.SMALLEST_VALID: self._truncate_after_valid,
         })()
 
     def _trim_nulls_around_table(self) -> None:

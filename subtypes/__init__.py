@@ -1,6 +1,6 @@
 __all__ = [
     "cached_property",
-    "Enum", "ValueEnum",
+    "Enum",
     "Html", "Xml",
     "Http",
     "Singleton",
@@ -16,7 +16,7 @@ __all__ = [
 ]
 
 from .lazy import cached_property
-from .enums import Enum, ValueEnum
+from .enums import Enum
 from .markup import Html, Xml
 from .http import Http
 from .singleton import Singleton

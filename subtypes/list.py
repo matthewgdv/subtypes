@@ -8,14 +8,14 @@ from .lazy import cached_property
 
 from maybe import Maybe
 
-from .str import Accessor, Settings
+from .str import ReprMixin
 from .translator import TranslatableMeta
 
 
-class SliceAccessor(Accessor):
+class SliceAccessor(ReprMixin):
     """An accessor class for all slicing-related Str methods"""
 
-    class Settings(Settings):
+    class Settings(ReprMixin):
         raise_if_absent = False
 
     def __init__(self, parent: List = None) -> None:
@@ -98,7 +98,7 @@ class SliceAccessor(Accessor):
         return matches
 
 
-class AttributeAccessor(Accessor):
+class AttributeAccessor(ReprMixin):
     def __init__(self, parent: List) -> None:
         self.parent = parent
 
@@ -180,7 +180,7 @@ class List(BaseList, metaclass=TranslatableMeta):
     Recursively traverses its members and converts any str, list and dict instances into into their subtypes equivalents.
     """
 
-    class Accessors(Settings):
+    class Accessors(ReprMixin):
         slice = SliceAccessor
 
     def __init__(self, iterable: Iterable = None) -> None:

@@ -4,8 +4,7 @@ from typing import Any, Callable
 from collections.abc import Mapping
 import json
 
-from .str import Str, Accessor
-from .str import RegexAccessor as StrRegexAccessor, Settings
+from .str import Str, ReprMixin, RegexAccessor as StrRegexAccessor
 from .translator import TranslatableMeta, DoNotTranslateMeta
 
 from maybe import Maybe
@@ -22,7 +21,7 @@ class AccessError(KeyError, AttributeError):
     pass
 
 
-class RegexAccessor(Accessor):
+class RegexAccessor(ReprMixin):
     """An accessor class for all regex-related Dict methods"""
 
     def __init__(self, parent: Dict = None) -> None:
@@ -81,7 +80,7 @@ class Dict(BaseDict, metaclass=TranslatableMeta):
     Also allows item access dynamically through attribute access. It recursively converts any str, list, and dict instances into Str, List, and Dict.
     """
 
-    class Accessors(Settings):
+    class Accessors(ReprMixin):
         re = RegexAccessor
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

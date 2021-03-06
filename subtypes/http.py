@@ -37,7 +37,7 @@ class Http(Session):
     """
 
     class QuoteLevel(Enum):
-        NONE, NORMAL, PLUS = "none", "normal", "plus"
+        NONE = NORMAL = PLUS = Enum.Auto()
 
     Error, Response = HTTPError, Response
 

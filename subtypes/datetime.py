@@ -6,49 +6,48 @@ from typing import Any, Union
 from dateutil.relativedelta import relativedelta
 import parsedatetime
 
-from .enums import Enum, ValueEnum
 from .lazy import cached_property
 
 
-class FormatCode(ValueEnum):
+class FormatCode:
     """An Enum containing all the formatcodes used by DateTime.strptime() and DateTime.strftime(), subdivided into further Enums."""
-    class TIMEZONE(ValueEnum):
+    class TIMEZONE:
         NAME = "%Z"
 
-    class WEEKDAY(ValueEnum):
+    class WEEKDAY:
         SHORT, FULL, NUM = "%a", "%A", "%w"
 
-    class WEEK(ValueEnum):
+    class WEEK:
         OF_YEAR_STARTING_MONDAY, OF_YEAR_STARTING_SUNDAY = "%W", "%U"
 
-    class YEAR(ValueEnum):
+    class YEAR:
         WITHOUT_CENTURY, WITH_CENTURY = "%y", "%Y"
 
-    class MONTH(ValueEnum):
+    class MONTH:
         SHORT, FULL, NUM = "%b", "%B", "%m"
 
-    class DAY(ValueEnum):
+    class DAY:
         NUM, OF_YEAR = "%d", "%j"
 
-    class HOUR(ValueEnum):
+    class HOUR:
         H24, H12, AM_PM = "%H", "%I", "%p"
 
-    class MINUTE(ValueEnum):
+    class MINUTE:
         NUM = "%M"
 
-    class SECOND(ValueEnum):
+    class SECOND:
         NUM = "%S"
 
-    class MICROSECOND(ValueEnum):
+    class MICROSECOND:
         NUM = "%f"
 
 
-class WeekDayName(Enum):
+class WeekDayName:
     """An Enum holding the days of the week."""
     MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"
 
 
-class MonthName(Enum):
+class MonthName:
     """An Enum holding the months of the year."""
     JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE = "january", "february", "march", "april", "may", "june"
     JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER = "july", "august", "september", "october", "november", "december"
@@ -221,7 +220,11 @@ class DateTime(Date, dt.datetime):
     def from_string(cls, text: str) -> DateTime:
         """Attempt to parse a string of text into a DateTime. Returns None upon failure."""
         val, code = cls.calendar.parse(text)
-        return cls(*val[:6 if code == 3 else 3]) if code in (1, 3) else None
+
+        if code in (1, 3):
+            raise ValueError(f"Could not parse stringlike value '{text}' to type '{cls.__name__}'.")
+
+        return cls(*val[:6 if code == 3 else 3])
 
     @classmethod
     def from_datelike(cls, datelike: Union[dt.datetime, dt.date, int, str]) -> DateTime:

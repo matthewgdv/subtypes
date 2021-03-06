@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import subprocess
-from typing import Any, Union, List
+from typing import Any, Union
 
 PathLike = Union[str, os.PathLike]
 
