@@ -30,8 +30,17 @@ class EnumMeta(enum.EnumMeta):
 
         return super().__new__(mcs, name, bases, new_namespace)
 
+    def __init__(cls, name: str, bases: tuple, namespace: dict) -> None:
+        super().__init__(name, bases, namespace)
+
+        vals_to_name_list = {}
+        for name, val in cls.__members__.items():
+            vals_to_name_list.setdefault(val, []).append(name)
+
+        cls.__cached_repr__ = f"""{cls.__name__}({", ".join([str(names[0]) if len(names) == 1 else f"[{', '.join(names)}]" for val, names in vals_to_name_list.items()])})"""
+
     def __repr__(cls) -> str:
-        return f"{cls.__name__}({', '.join([f'{member.name}={repr(member.value)}' for member in cls])})"
+        return cls.__cached_repr__
 
     def __str__(cls) -> str:
         return cls.__name__
