@@ -75,6 +75,10 @@ class Frame(pd.DataFrame):
         class PathType(Enum):
             PATHMAGIC, PATHLIB, STRING = "pathmagic", "pathlib", "string"
 
+        class IfExists(Enum):
+            """Enum describing operation if a table being created already exists."""
+            FAIL = REPLACE = APPEND = Enum.Auto()
+
     DEFAULT_COLUMN_CASE = Enums.ColumnCase.SNAKE
     DEFAULT_INFER_RANGE = Enums.InferRange.SMALLEST_VALID
     DEFAULT_PATH_TYPE = Enums.PathType.PATHMAGIC
@@ -99,18 +103,18 @@ class Frame(pd.DataFrame):
             self._write_to_excel(writer=writer, sheet_name=sheet_name, index=index, **kwargs)
         return self._get_path_constructor()(filepath)
 
-    def to_sql(self, engine: Any, name: str, if_exists: str = "fail", index: bool = True, index_label: str = "id", primary_key: str = "id", schema: str = None, dtype: dict = None, **kwargs: Any) -> None:
+    def to_sql(self, engine: Any, name: str, if_exists: Frame.Enums.IfExists = Enums.IfExists.FAIL, index: bool = True, index_label: str = "id", primary_key: str = "id", schema: str = None, dtype: dict = None, **kwargs: Any) -> None:
         """Override of the pandas.DataFrame.to_sql() method allowing a primary key identity field to be supplied when creating the sql table."""
         table = SQLTable(name, pandasSQL_builder(engine), frame=self, index=index, if_exists=if_exists, index_label=index_label, keys=primary_key, schema=schema, dtype=dtype, **kwargs)
         table.create()
         table.insert(None)
 
     @_check_import_is_available
-    def to_table(self, table: str, schema: str = None, database: str = None, if_exists: str = "fail", primary_key: str = "id", sql: Any = None) -> Any:
+    def to_table(self, table: str, schema: str = None, database: str = None, if_exists: Frame.Enums.IfExists = Enums.IfExists.FAIL, primary_key: str = "id", sql: Any = None) -> Any:
         """Load this Frame into a SQL database table using the config defaults of the sqlhandler library. An sqlhandler.Sql object can be provided to override the connection defaults."""
         from sqlhandler import Sql
         sql = sql if sql is not None else Sql.from_connection(database=database)
-        return sql.frame_to_table(self, table=table, schema=schema, if_exists=Sql.Enums.IfExists(if_exists), primary_key=primary_key)
+        return sql.frame_to_table(self, table=table, schema=schema, if_exists=self.Enums.IfExists(if_exists), primary_key=primary_key)
 
     def to_dataframe(self) -> pd.DataFrame:
         """Convert this Frame to a pandas.DataFrame."""

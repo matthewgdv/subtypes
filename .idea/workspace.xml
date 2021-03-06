@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="96aece36-89b4-4ad9-9b90-0c224bd2be8d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/subtypes/enums.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/enums.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/frame.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/frame.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,7 +24,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../sandbox" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -36,6 +35,7 @@
       <option name="presentableId" value="Default" />
       <updated>1615058734129</updated>
       <workItem from="1615058735447" duration="290000" />
+      <workItem from="1615073200562" duration="3000" />
     </task>
     <servers />
   </component>

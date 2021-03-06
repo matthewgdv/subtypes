@@ -45,12 +45,11 @@ class EnumMeta(enum.EnumMeta):
     def __str__(cls) -> str:
         return cls.__name__
 
-    def __call__(cls, *args: Any, **kwargs: Any):
+    def __getitem__(cls, key):
         try:
-            return super().__call__(*args, **kwargs)
-        except ValueError as ex:
-            msg, = ex.args
-            raise ValueError(f"{msg}, must be one of: {', '.join([repr(member.value) for member in cls])}.")
+            return super().__getitem__(key)
+        except KeyError:
+            raise KeyError(f"{key} is not a valid {cls.__name__}. Must be one of: {', '.join([str(member) for member in cls])}")
 
     @property
     def names(cls) -> list[str]:
@@ -86,7 +85,7 @@ class Enum(enum.Enum, metaclass=EnumMeta):
         return other is not self and other != self.name
 
     def __str__(self) -> str:
-        return str(self.key)
+        return str(self.name)
 
     def map_to(self, mapping: dict, else_: Any = None, raise_for_failure: bool = True) -> Any:
         if (ret := mapping.get(self, else_)) is None and raise_for_failure:
