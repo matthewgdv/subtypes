@@ -10,6 +10,7 @@ from .date import Date
 from .time_ import Time
 from .accessor import TimeZoneAccessor, HourAccessor, MinuteAccessor, SecondAccessor, MicroSecondAccessor
 
+
 class DateTime(Date, dt.datetime):
     """
     A subclass of the stdlib time.time class with additional useful methods.
@@ -24,7 +25,15 @@ class DateTime(Date, dt.datetime):
         pass
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}({repr(self.to_isoformat())})"
+        return f"{type(self).__name__}[{self}]"
+
+    def __str__(self) -> str:
+        text = f"{self.FormatCode.YEAR.WITH_CENTURY}-{self.FormatCode.MONTH.NUM}-{self.FormatCode.DAY.NUM} {self.FormatCode.HOUR.H24}:{self.FormatCode.MINUTE.NUM}:{self.FormatCode.SECOND.NUM}"
+
+        if self.tzinfo is not None:
+            text = f"{text} | {self.tzinfo.tzname(None)}"
+
+        return self.to_format(text)
 
     def shift(self, years: int = 0, months: int = 0, days: int = 0, weeks: int = 0,
               hours: int = 0, minutes: int = 0, seconds: int = 0, microseconds: int = 0) -> DateTime:
@@ -45,16 +54,7 @@ class DateTime(Date, dt.datetime):
         return dt.datetime.fromisoformat(self.isoformat())
 
     def to_isoformat(self, time: bool = True, timezone: bool = False) -> str:
-        code = self.FormatCode
-        text = self.to_format(f"{code.YEAR.WITH_CENTURY}-{code.MONTH.NUM}-{code.DAY.NUM}")
-
-        if time and (self.hour or self.minute or self.second):
-            text = self.to_format(f"{text} {code.HOUR.H24}:{code.MINUTE.NUM}:{code.SECOND.NUM}")
-
-        if timezone and self.tzinfo is not None:
-            text = f"{text}{self.tzinfo}"
-
-        return text
+        return self.isoformat()
 
     def to_format(self, format_string: str) -> str:
         """Create a time string from this DateTime using a format string."""

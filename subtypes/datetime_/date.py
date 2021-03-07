@@ -21,7 +21,10 @@ class Date(dt.date, MetaInfoMixin):
         pass
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}({repr(self.to_isoformat())})"
+        return f"{type(self).__name__}[{self}]"
+
+    def __str__(self) -> str:
+        return self.to_format(f"{self.FormatCode.YEAR.WITH_CENTURY}-{self.FormatCode.MONTH.NUM}-{self.FormatCode.DAY.NUM}")
 
     def shift(self, years: int = 0, months: int = 0, days: int = 0, weeks: int = 0) -> Date:
         """Add/subtract the given amount of time units (as keyword arguments) to this Date. E.g. Date.today().shift(days=-3, weeks=15)"""
@@ -35,8 +38,8 @@ class Date(dt.date, MetaInfoMixin):
         return self.toordinal()
 
     def to_isoformat(self) -> str:
-        """Create an isoformat date string from this Date with several options."""
-        return self.strftime(f"{self.FormatCode.YEAR.WITH_CENTURY}-{self.FormatCode.MONTH.NUM}-{self.FormatCode.DAY.NUM}")
+        """Create an isoformat date string from this Date."""
+        return self.isoformat()
 
     def to_format(self, format_string: str) -> str:
         """Create a date string from this Date using a format string."""

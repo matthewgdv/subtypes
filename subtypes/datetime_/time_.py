@@ -3,6 +3,8 @@ from __future__ import annotations
 import datetime as dt
 from typing import Union
 
+from dateutil.relativedelta import relativedelta
+
 from subtypes import cached_property
 from .mixin import MetaInfoMixin
 from .accessor import TimeZoneAccessor, HourAccessor, MinuteAccessor, SecondAccessor, MicroSecondAccessor
@@ -12,6 +14,37 @@ class Time(dt.time, MetaInfoMixin):
     def __init__(self, hour: int = 0, minute: int = 0, second: int = 0, microsecond: int = 0,
                  tzinfo: dt.timezone = None, *, fold=0) -> None:
         pass
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}[{self}]"
+
+    def __str__(self) -> str:
+        text = f"{self.FormatCode.HOUR.H24}:{self.FormatCode.MINUTE.NUM}:{self.FormatCode.SECOND.NUM}"
+
+        if self.tzinfo is not None:
+            text = f"{text} | {self.tzinfo.tzname(None)}"
+
+        return self.to_format(text)
+
+    def shift(self, hours: int = 0, minutes: int = 0, seconds: int = 0, microseconds: int = 0) -> Time:
+        """Add/subtract the given amount of time units (as keyword arguments) to this Time. E.g. Time.now().shift(hours=-3, seconds=15)"""
+        from .datetime_ import DateTime
+        today = DateTime.today().replace(hour=self.hour, minute=self.minute, second=self.second, microsecond=self.microsecond)
+        return self.from_time((today + relativedelta(hours=hours, minutes=minutes, seconds=seconds, microseconds=microseconds)).time())
+
+    def to_isoformat(self) -> str:
+        """Create an isoformat date string from this Time."""
+        return self.isoformat()
+
+    def to_format(self, format_string: str) -> str:
+        """Create a date string from this Date using a format string."""
+        return self.strftime(format_string)
+
+    @classmethod
+    def now(cls) -> Time:
+        from .datetime_ import DateTime
+        now = DateTime.now()
+        return cls(now.hour, now.minute, now.second, now.microsecond)
 
     @classmethod
     def from_time(cls, time: dt.time) -> Time:
