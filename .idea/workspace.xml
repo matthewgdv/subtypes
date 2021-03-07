@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="96aece36-89b4-4ad9-9b90-0c224bd2be8d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/subtypes/frame.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/frame.py" afterDir="false" />
-    </list>
+    <list default="true" id="96aece36-89b4-4ad9-9b90-0c224bd2be8d" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
