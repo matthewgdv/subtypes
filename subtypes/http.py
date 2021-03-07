@@ -12,7 +12,7 @@ from requests.adapters import HTTPAdapter
 
 from urllib3.util.retry import Retry
 
-from .enums import Enum
+from .enum_ import Enum
 from .translator import TranslatableMeta
 
 

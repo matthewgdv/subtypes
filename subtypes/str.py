@@ -16,7 +16,7 @@ from .lazy import cached_property
 
 from maybe import Maybe
 
-from .enums import Enum
+from .enum_ import Enum
 from .translator import TranslatableMeta
 
 with warnings.catch_warnings():

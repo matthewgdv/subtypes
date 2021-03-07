@@ -8,7 +8,7 @@ __all__ = [
     "Str", "BaseStr",
     "List", "BaseList",
     "Dict", "DefaultDict", "BaseDict",
-    "DateTime", "Date",
+    "DateTime", "Date", "Time",
     "Frame",
     "Process",
     "Color",
@@ -16,7 +16,7 @@ __all__ = [
 ]
 
 from .lazy import cached_property
-from .enums import Enum
+from .enum_ import Enum
 from .markup import Html, Xml
 from .http import Http
 from .singleton import Singleton
@@ -25,7 +25,7 @@ from .translator import Translator, TranslatableMeta, DoNotTranslateMeta
 from .str import Str, BaseStr
 from .list import List, BaseList
 from .dict import Dict, DefaultDict, BaseDict
-from .datetime import DateTime, Date
+from .datetime_ import DateTime, Date, Time
 from .frame import Frame
 from .process import Process
 from .color import Color

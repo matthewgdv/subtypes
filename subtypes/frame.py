@@ -15,8 +15,8 @@ from pandas.core.indexes.base import Index
 from maybe import Maybe
 
 from .str import Str
-from .enums import Enum
-from .datetime import DateTime
+from .enum_ import Enum
+from .datetime_ import DateTime
 
 if TYPE_CHECKING:
     from pathmagic import File
