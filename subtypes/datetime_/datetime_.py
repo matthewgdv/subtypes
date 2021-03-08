@@ -51,22 +51,26 @@ class DateTime(Date, dt.datetime):
 
     def to_stdlib(self) -> dt.datetime:
         """Create the equivalent time.time object from this DateTime."""
-        return dt.datetime.fromisoformat(self.isoformat())
+        return dt.datetime.fromordinal(self.toordinal())
 
-    def to_isoformat(self, time: bool = True, timezone: bool = False) -> str:
-        return self.isoformat()
+    def to_isoformat(self, sep: str = " ", timespec: str = "auto") -> str:
+        return self.isoformat(sep=sep, timespec=timespec)
 
     def to_format(self, format_string: str) -> str:
         """Create a time string from this DateTime using a format string."""
         return self.strftime(format_string)
 
-    def to_logformat(self, labels: bool = False) -> str:
+    def to_logformat(self, labels: bool = False, microseconds: bool = False, brackets: bool = True) -> str:
         """Create a precise time string suitable to be used for logging."""
         code = self.FormatCode
         if labels:
-            return self.strftime(f"[{code.YEAR.WITH_CENTURY}-{code.MONTH.NUM}-{code.DAY.NUM} {code.HOUR.H24}h {code.MINUTE.NUM}m {code.SECOND.NUM}s {code.MICROSECOND.NUM}ms]")
+            formatted = self.strftime(f"{code.YEAR.WITH_CENTURY}-{code.MONTH.NUM}-{code.DAY.NUM} {code.HOUR.H24}h {code.MINUTE.NUM}m {code.SECOND.NUM}s {code.MICROSECOND.NUM}ms")
+            if not microseconds:
+                formatted = f"{formatted[:-5]}ms"
         else:
-            return self.strftime(f"[{code.YEAR.WITH_CENTURY}-{code.MONTH.NUM}-{code.DAY.NUM} {code.HOUR.H24}:{code.MINUTE.NUM}:{code.SECOND.NUM}:{code.MICROSECOND.NUM}]")
+            formatted = self.to_isoformat(timespec="milliseconds" if not microseconds else "microseconds")
+
+        return f"[{formatted}]"
 
     @classmethod
     def from_datetime(cls, datetime: dt.datetime) -> DateTime:
