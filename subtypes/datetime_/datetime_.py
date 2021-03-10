@@ -60,18 +60,6 @@ class DateTime(Date, dt.datetime):
         """Create a time string from this DateTime using a format string."""
         return self.strftime(format_string)
 
-    def to_logformat(self, labels: bool = False, microseconds: bool = False, brackets: bool = True) -> str:
-        """Create a precise time string suitable to be used for logging."""
-        code = self.FormatCode
-        if labels:
-            formatted = self.strftime(f"{code.YEAR.WITH_CENTURY}-{code.MONTH.NUM}-{code.DAY.NUM} {code.HOUR.H24}h {code.MINUTE.NUM}m {code.SECOND.NUM}s {code.MICROSECOND.NUM}ms")
-            if not microseconds:
-                formatted = f"{formatted[:-5]}ms"
-        else:
-            formatted = self.to_isoformat(timespec="milliseconds" if not microseconds else "microseconds")
-
-        return f"[{formatted}]"
-
     @classmethod
     def from_datetime(cls, datetime: dt.datetime) -> DateTime:
         """Create a DateTime from a time.time object."""

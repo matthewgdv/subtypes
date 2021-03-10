@@ -2,7 +2,7 @@
 
 
 class TestNameSpace:
-    def test___call__():  # synced
+    def test___call__(self):  # synced
         assert True
 
     def test___len__(self):  # synced

@@ -1,5 +1,6 @@
 import pytest
-from subtypes.list import List
+
+from subtypes import List
 
 
 @pytest.fixture
@@ -14,48 +15,52 @@ class TestSliceAccessor:
     def test___call__(self):  # synced
         assert True
 
-    def test_before(self, default_list):  # synced
+    def test_before(self):  # synced
         assert default_list.slice.before(2) == [0, 1, 1, 1]
+
         with pytest.raises(ValueError):
             default_list.slice.before(4)
 
-    def test_before_first(self, default_list):  # synced
+    def test_before_first(self):  # synced
         assert default_list.slice.before_first(1) == [0]
 
-    def test_before_last(self, default_list):  # synced
+    def test_before_last(self):  # synced
         assert default_list.slice.before_last(1) == [0, 1, 1]
 
-    def test_after(self, default_list):  # synced
+    def test_after(self):  # synced
         assert default_list.slice.after(3) == [4, 4, 5]
+
         with pytest.raises(ValueError):
             default_list.slice.after(1)
 
-    def test_after_first(self, default_list):  # synced
+    def test_after_first(self):  # synced
         assert default_list.slice.after_first(4) == [4, 5]
 
-    def test_after_last(self, default_list):  # synced
+    def test_after_last(self):  # synced
         assert default_list.slice.after_last(4) == [5]
 
-    def test_from_(self, default_list):  # synced
+    def test_from_(self):  # synced
         assert default_list.slice.from_(3) == [3, 4, 4, 5]
+
         with pytest.raises(ValueError):
             default_list.slice.from_(1)
 
-    def test_from_first(self, default_list):  # synced
+    def test_from_first(self):  # synced
         assert default_list.slice.from_first(4) == [4, 4, 5]
 
-    def test_from_last(self, default_list):  # synced
+    def test_from_last(self):  # synced
         assert default_list.slice.from_last(4) == [4, 5]
 
-    def test_until(self, default_list):  # synced
+    def test_until(self):  # synced
         assert default_list.slice.until(3) == [0, 1, 1, 1, 2, 3]
+
         with pytest.raises(ValueError):
             default_list.slice.until(1)
 
-    def test_until_first(self, default_list):  # synced
+    def test_until_first(self):  # synced
         assert default_list.slice.until_first(1) == [0, 1]
 
-    def test_until_last(self, default_list):  # synced
+    def test_until_last(self):  # synced
         assert default_list.slice.until_last(1) == [0, 1, 1, 1]
 
     def test__slice_helper(self):  # synced
@@ -67,11 +72,10 @@ class TestAttributeAccessor:
         assert True
 
 
-class TestListSettings:
-    pass
-
-
 class TestBaseList:
+    def test___getitem__(self):  # synced
+        assert True
+
     def test___add__(self):  # synced
         assert True
 
@@ -124,6 +128,9 @@ class TestBaseList:
 
 
 class TestList:
+    class TestAccessors:
+        pass
+
     def test_slice(self):  # synced
         assert True
 

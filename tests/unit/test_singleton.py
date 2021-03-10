@@ -2,7 +2,7 @@
 
 
 class TestSingletonMeta:
-    def test___call__():  # synced
+    def test___call__(self):  # synced
         assert True
 
 

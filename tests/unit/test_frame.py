@@ -9,17 +9,38 @@ def test_wrapper():  # synced
     assert True
 
 
+class TestSeries:
+    def test___getitem__(self):  # synced
+        assert True
+
+    def test___iter__(self):  # synced
+        assert True
+
+    def test_tolist(self):  # synced
+        assert True
+
+    def test__try_native(self):  # synced
+        assert True
+
+
 class TestFrame:
-    class TestInferRange:
-        pass
+    class TestEnums:
+        class TestInferRange:
+            pass
 
-    class TestColumnCase:
-        pass
+        class TestColumnCase:
+            pass
 
-    class TestPathType:
-        pass
+        class TestPathType:
+            pass
+
+        class TestIfExists:
+            pass
 
     def test__constructor(self):  # synced
+        assert True
+
+    def test_is_nan(self):  # synced
         assert True
 
     def test_to_excel(self):  # synced
@@ -49,7 +70,7 @@ class TestFrame:
     def test_unpivot(self):  # synced
         assert True
 
-    def test_infer_dtypes(self):  # synced
+    def test_convert_dtypes(self):  # synced
         assert True
 
     def test_fillna_as_none(self):  # synced
@@ -61,31 +82,22 @@ class TestFrame:
     def test_profile_report_to(self):  # synced
         assert True
 
-    def test_many_to_excel():  # synced
+    def test_many_to_excel(self):  # synced
         assert True
 
-    def test_from_excel():  # synced
+    def test_from_excel(self):  # synced
         assert True
 
-    def test_from_csv():  # synced
+    def test_from_csv(self):  # synced
         assert True
 
-    def test_from_object():  # synced
+    def test_from_object(self):  # synced
         assert True
 
-    def test_from_objects():  # synced
+    def test_from_objects(self):  # synced
         assert True
 
-    def test__using_own_constructor(self):  # synced
-        assert True
-
-    def test__use_own_constructor(self):  # synced
-        assert True
-
-    def test__using_parent_constructor(self):  # synced
-        assert True
-
-    def test__get_path_constructor():  # synced
+    def test__get_path_constructor(self):  # synced
         assert True
 
     def test__infer_column_headers(self):  # synced
@@ -121,12 +133,6 @@ class TestFrame:
     def test__drop_fully_null_columns(self):  # synced
         assert True
 
-    def test__clean_dtypes(self):  # synced
-        assert True
-
-    def test__clean_nullable_ints(self):  # synced
-        assert True
-
     def test__infer_boolean_columns(self):  # synced
         assert True
 
@@ -136,10 +142,10 @@ class TestFrame:
     def test__table_from_sheet(self):  # synced
         assert True
 
-    def test__value_is_null():  # synced
+    def test__value_is_null(self):  # synced
         assert True
 
-    def test__decrypted_stream_from_xlsx():  # synced
+    def test__decrypted_stream_from_xlsx(self):  # synced
         assert True
 
 

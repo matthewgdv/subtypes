@@ -13,3 +13,11 @@ class TestTranslator:
 
     def test_translate_json(self):  # synced
         assert True
+
+
+class TestTranslatableMeta:
+    pass
+
+
+class TestDoNotTranslateMeta:
+    pass

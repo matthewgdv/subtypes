@@ -1,5 +1,6 @@
 import pytest
-from subtypes.str import Str
+
+from subtypes import Str
 
 
 @pytest.fixture
@@ -7,13 +8,17 @@ def default_string():
     return Str("Hello World!")
 
 
-class TestAccessor:
+@pytest.fixture
+def casing_test_string():
+    return Str("| HiThis_is a CASINGTest-case &")
+
+
+class TestCase:
     pass
 
 
-class TestSettings:
-    def test_deepcopy(self):  # synced
-        assert True
+class TestReprMixin:
+    pass
 
 
 class TestRegexAccessor:
@@ -73,38 +78,35 @@ class TestFuzzyAccessor:
 
 
 class TestCasingAccessor:
-    class TestSettings:
-        pass
-
     def test___call__(self):  # synced
         assert True
 
     def test_snake(self):  # synced
-        assert Str("| HiThis_is a CASINGTest-case &").case.snake() == "hi_this_is_a_casing_test_case"
+        assert casing_test_string.case.snake() == "hi_this_is_a_casing_test_case"
 
     def test_camel(self):  # synced
-        assert Str("| HiThis_is a CASINGTest-case &").case.camel() == "hiThisIsACasingTestCase"
+        assert casing_test_string.case.camel() == "hiThisIsACasingTestCase"
 
     def test_pascal(self):  # synced
-        assert Str("| HiThis_is a CASINGTest-case &").case.pascal() == "HiThisIsACasingTestCase"
+        assert casing_test_string.case.pascal() == "HiThisIsACasingTestCase"
 
     def test_dash(self):  # synced
-        assert Str("| HiThis_is a CASINGTest-case &").case.dash() == "hi-this-is-a-casing-test-case"
+        assert casing_test_string.case.dash() == "hi-this-is-a-casing-test-case"
 
     def test_constant(self):  # synced
-        assert Str("| HiThis_is a CASINGTest-case &").case.constant() == "HI_THIS_IS_A_CASING_TEST_CASE"
+        assert casing_test_string.case.constant() == "HI_THIS_IS_A_CASING_TEST_CASE"
 
     def test_dot(self):  # synced
-        assert Str("| HiThis_is a CASINGTest-case &").case.dot() == "hi.this.is.a.casing.test.case"
+        assert casing_test_string.case.dot() == "hi.this.is.a.casing.test.case"
 
     def test_slash(self):  # synced
-        assert Str("| HiThis_is a CASINGTest-case &").case.slash() == "Hi/This/is/a/CASING/Test/case"
+        assert casing_test_string.case.slash() == "Hi/This/is/a/CASING/Test/case"
 
     def test_backslash(self):  # synced
-        assert Str("| HiThis_is a CASINGTest-case &").case.slash() == R"Hi\This\is\a\CASING\Test\case"
+        assert casing_test_string.case.slash() == R"Hi\This\is\a\CASING\Test\case"
 
     def test_identifier(self):  # synced
-        assert Str("123Hello World!").case.identifier() == "_123_hello_world"
+        assert casing_test_string.case.identifier() == "_123_hello_world"
 
     @pytest.mark.parametrize(["value", "expected"], [("Snake", "Snakes"), ("Hero", "Heroes"), ("Princess", "Princesses"), ("Leaf", "Leaves"), ("Man", "Men"), ("Woman", "Women"), ("Tooth", "Teeth"), ("Mouse", "Mice"), ("Deer", "Deer")])
     def test_plural(self, value, expected):  # synced
@@ -184,10 +186,6 @@ class TestTrimAccessor:
 
     def test_non_ascii(self):  # synced
         assert Str("★Hi!★").trim.non_ascii() == "Hi!"
-
-
-class TestStrSettings:
-    pass
 
 
 class TestBaseStr:
@@ -274,7 +272,7 @@ class TestBaseStr:
 
 
 class TestStr:
-    class TestCase:
+    class TestAccessors:
         pass
 
     def test_re(self):  # synced
@@ -301,5 +299,5 @@ class TestStr:
     def test_extract_uk_postcode(self):  # synced
         assert Str("Hi, I'm located at eh165pn.").extract_uk_postcode() == "EH16 5PN"
 
-    def test_from_clipboard():  # synced
+    def test_from_clipboard(self):  # synced
         assert True
