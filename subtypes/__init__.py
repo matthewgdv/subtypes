@@ -3,7 +3,6 @@ __all__ = [
     "Enum",
     "Html", "Xml",
     "Http",
-    "Singleton",
     "NameSpace",
     "Str", "BaseStr",
     "List", "BaseList",
@@ -19,7 +18,6 @@ from .lazy import cached_property
 from .enum_ import Enum
 from .markup import Html, Xml
 from .http import Http
-from .singleton import Singleton
 from .namespace import NameSpace
 from .translator import Translator, TranslatableMeta, DoNotTranslateMeta
 from .str import Str, BaseStr

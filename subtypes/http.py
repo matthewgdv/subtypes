@@ -5,18 +5,15 @@ import json
 import simplejson
 
 from requests import Session
-import requests.models
+from requests.models import Response as BaseResponse
 from requests.exceptions import HTTPError
 from urllib.parse import quote, quote_plus
-from requests.adapters import HTTPAdapter
-
-from urllib3.util.retry import Retry
 
 from .enum_ import Enum
 from .translator import TranslatableMeta
 
 
-class Response(requests.models.Response):
+class Response(BaseResponse):
     """Subclass of requests.Response with a modified Response.json() method."""
 
     def __init__(self, namespace: dict) -> None:
@@ -45,17 +42,17 @@ class Http(Session):
         super().__init__()
         self.base_url, self.retries, self.quote_level = base_url.strip('/'), retries, quote_level
 
-        if self.retries:
-            self.mount("https://", HTTPAdapter(max_retries=Retry(total=retries, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])))
-
     def __repr__(self) -> str:
         return f"{type(self).__name__}(base_url={repr(self.base_url)}, auth={repr(self.auth)}, headers={repr(self.headers)})"
 
     def request(self, method: str, url: str, *args: Any, **kwargs: Any) -> Any:
-        return Response(super().request(method=method, url=self._quote_encode(f"""{f"{self.base_url}/{url.strip('/')}".strip("/")}/"""), *args, **kwargs).__dict__)
+        response_raw: BaseResponse = super().request(method=method,
+                                                     url=self._quote_encode(f"""{f"{self.base_url}/{url.strip('/')}".strip("/")}/"""),
+                                                     *args, **kwargs)
+        return Response(response_raw.__dict__)
 
     def _quote_encode(self, url: str) -> str:
-        return self.QuoteLevel(self.quote_level).map_to({
+        return self.QuoteLevel[self.quote_level].map_to({
             self.QuoteLevel.NONE: lambda url_: url_,
             self.QuoteLevel.NORMAL: lambda url_: quote(url_),
             self.QuoteLevel.PLUS: lambda url_: quote_plus(url_),

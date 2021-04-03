@@ -6,8 +6,6 @@ from typing import Any, Iterable, Iterator, Callable, Union
 
 from .lazy import cached_property
 
-from maybe import Maybe
-
 from .str import ReprMixin
 from .translator import TranslatableMeta
 
@@ -21,8 +19,10 @@ class SliceAccessor(ReprMixin):
     def __init__(self, parent: List = None) -> None:
         self.parent, self.settings = parent, self.Settings()
 
-    def __call__(self, parent: List = None, raise_if_absent: bool = None) -> SliceAccessor:
-        self.parent, self.settings.raise_if_absent = Maybe(parent).else_(self.parent), Maybe(raise_if_absent).else_(self.settings.raise_if_absent)
+    def __call__(self, raise_if_absent: bool = None) -> SliceAccessor:
+        if raise_if_absent is not None:
+            self.settings.raise_if_absent = raise_if_absent
+
         return self
 
     def before(self, value: Any) -> List:

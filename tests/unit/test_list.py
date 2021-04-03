@@ -15,52 +15,52 @@ class TestSliceAccessor:
     def test___call__(self):  # synced
         assert True
 
-    def test_before(self):  # synced
+    def test_before(self, default_list):  # synced
         assert default_list.slice.before(2) == [0, 1, 1, 1]
 
         with pytest.raises(ValueError):
             default_list.slice.before(4)
 
-    def test_before_first(self):  # synced
+    def test_before_first(self, default_list):  # synced
         assert default_list.slice.before_first(1) == [0]
 
-    def test_before_last(self):  # synced
+    def test_before_last(self, default_list):  # synced
         assert default_list.slice.before_last(1) == [0, 1, 1]
 
-    def test_after(self):  # synced
+    def test_after(self, default_list):  # synced
         assert default_list.slice.after(3) == [4, 4, 5]
 
         with pytest.raises(ValueError):
             default_list.slice.after(1)
 
-    def test_after_first(self):  # synced
+    def test_after_first(self, default_list):  # synced
         assert default_list.slice.after_first(4) == [4, 5]
 
-    def test_after_last(self):  # synced
+    def test_after_last(self, default_list):  # synced
         assert default_list.slice.after_last(4) == [5]
 
-    def test_from_(self):  # synced
+    def test_from_(self, default_list):  # synced
         assert default_list.slice.from_(3) == [3, 4, 4, 5]
 
         with pytest.raises(ValueError):
             default_list.slice.from_(1)
 
-    def test_from_first(self):  # synced
+    def test_from_first(self, default_list):  # synced
         assert default_list.slice.from_first(4) == [4, 4, 5]
 
-    def test_from_last(self):  # synced
+    def test_from_last(self, default_list):  # synced
         assert default_list.slice.from_last(4) == [4, 5]
 
-    def test_until(self):  # synced
+    def test_until(self, default_list):  # synced
         assert default_list.slice.until(3) == [0, 1, 1, 1, 2, 3]
 
         with pytest.raises(ValueError):
             default_list.slice.until(1)
 
-    def test_until_first(self):  # synced
+    def test_until_first(self, default_list):  # synced
         assert default_list.slice.until_first(1) == [0, 1]
 
-    def test_until_last(self):  # synced
+    def test_until_last(self, default_list):  # synced
         assert default_list.slice.until_last(1) == [0, 1, 1, 1]
 
     def test__slice_helper(self):  # synced
@@ -94,23 +94,23 @@ class TestBaseList:
     def test___imul__(self):  # synced
         assert True
 
-    def test_append(self):  # synced
+    def test_append(self, default_list):  # synced
         ret = default_list.append(6)
         assert ret is default_list and default_list == [0, 1, 1, 1, 2, 3, 4, 4, 5, 6]
 
-    def test_extend(self):  # synced
+    def test_extend(self, default_list):  # synced
         ret = default_list.extend([6, 7])
         assert ret is default_list and default_list == [0, 1, 1, 1, 2, 3, 4, 4, 5, 6, 7]
 
-    def test_insert(self):  # synced
+    def test_insert(self, default_list):  # synced
         ret = default_list.insert(4, 2)
         assert ret is default_list and default_list == [0, 1, 1, 1, 2, 2, 3, 4, 4, 5]
 
-    def test_remove(self):  # synced
+    def test_remove(self, default_list):  # synced
         ret = default_list.remove(1)
         assert ret is default_list and default_list == [0, 1, 1, 2, 3, 4, 4, 5]
 
-    def test_reverse(self):  # synced
+    def test_reverse(self, default_list):  # synced
         ret = default_list.reverse()
         assert ret is default_list and default_list == [5, 4, 4, 3, 2, 1, 1, 1, 0]
 
@@ -119,7 +119,7 @@ class TestBaseList:
         ret = unsorted.sort()
         assert ret is unsorted and unsorted == [1, 2, 3, 4, 5]
 
-    def test_clear(self):  # synced
+    def test_clear(self, default_list):  # synced
         ret = default_list.clear()
         assert ret is default_list and not default_list
 

@@ -12,7 +12,6 @@ convenience methods/properties. Most of these have better `__repr__()` implement
 
 The `Str` class (subclasses `str`)
 --------------------
-* Can be sliced
 * Complex slicing methods
 * Regular expression operations
 * Fuzzy matching
@@ -30,7 +29,7 @@ The `Dict` class (subclasses `dict`)
 --------------------
 * Method chaining on in-place mutation methods (`dict.update()`, `dict.clear()` etc.)
 * filtering and getting values based on regular expressions, for keys that are strings.
-* Allows its attributes to be accessed and modified using item access
+* Item access now sets an attribute with the given value if the key is a valid python identifier and not an existing `dict` attribute
 * Recursively replaces dicts with `Dict` instances when constructed and when settings an attribute or item
 
 The `DateTime` class (subclasses `datetime.datetime`)
@@ -43,14 +42,14 @@ The `DateTime` class (subclasses `datetime.datetime`)
 
 The `Enum` class (subclasses `aenum.Enum`)
 --------------------
-* Incorporates the aenum library's `extend_enum` function directly as `Enum.extend_enum()`
-* Provides `Enum.names` and `Enum.values` attributes that return lists
-* A `ValueEnum` subclass which returns the value of its members on attribute access, rather than the members themselves.
-* An `AutoEnum` class which does not require values to be explicitly set, and sets the values to be lowercased versions of the name
+* An `Enum.Auto` that can be used with multiple assignment (`RED = BLUE = GREEN = Enum.Auto()`) 
+* An `Enum.Alias` for creating aliases without specifying a value (`BLACK = DARK = Enum.Alias()`)
+* A new `repr` for both Enum classes and their members that emphasize their names over their values, since the value of an Enum should not matter
+  (enum: `Color(RED, BLUE, GREEN, [BLACK, DARK])`, member: `Color[RED]`)
 
 The `Markup` class (subclasses `bs4.BeautifulSoup`)
 --------------------
-* Ensures the 'html.parser' is selected , rather than the system's best available parser
+* Provides a new interface for building up markup trees using contextmanagers
 
 The `Frame` class (subclasses `pandas.DataFrame`)
 --------------------

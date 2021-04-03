@@ -44,14 +44,14 @@ class TestRegexAccessor:
     def test___call__(self):  # synced
         assert True
 
-    def test_search(self):  # synced
+    def test_search(self, default_string):  # synced
         assert default_string.re.search(r"\bwor[A-Za-z]+\b").group() == "World"
 
-    def test_sub(self):  # synced
+    def test_sub(self, default_string):  # synced
         assert default_string.re.sub(r"world", "Friend") == "Hello Friend!"
 
-    def test_finditer(self):  # synced
-        assert [match.group() for match in default_string.re.finditer(r"\b[A-Za-z]+\b")] == ["Hello", "World"]
+    def test_findall(self, default_string):  # synced
+        assert [match.group() for match in default_string.re.findall(r"\b[A-Za-z]+\b")] == ["Hello", "World"]
 
     def test_split(self):  # synced
         assert Str("Hi, how's it going?").re.split(r",?\s+") == ["Hi", "how's", "it", "going?"]
@@ -67,11 +67,15 @@ class TestFuzzyAccessor:
     def test___call__(self):  # synced
         assert True
 
-    def test_match(self):  # synced
+    def test_match(self, default_string):  # synced
         assert default_string.fuzzy.match("Hello Worlds!") > 95
 
-    def test_best_n_matches(self):  # synced
-        assert [match for match, score in default_string.fuzzy.best_n_matches(["Hello Worlds!", "Haii, I'm a world!", "Hiya World!", "Hi Friend!"], num=2)] == ["Hello Worlds!", "Hiya World!"]
+    def test_best_n_matches(self, default_string):  # synced
+        assert [
+            match for match, score in default_string.fuzzy.best_n_matches(
+                ["Hello Worlds!", "Haii, I'm a world!", "Hiya World!", "Hi Friend!"], num=2
+            ).items()
+        ] == ["Hello Worlds!", "Hiya World!"]
 
     def test__determine_matcher(self):  # synced
         assert True
@@ -81,34 +85,37 @@ class TestCasingAccessor:
     def test___call__(self):  # synced
         assert True
 
-    def test_snake(self):  # synced
+    def test_snake(self, casing_test_string):  # synced
         assert casing_test_string.case.snake() == "hi_this_is_a_casing_test_case"
 
-    def test_camel(self):  # synced
+    def test_camel(self, casing_test_string):  # synced
         assert casing_test_string.case.camel() == "hiThisIsACasingTestCase"
 
-    def test_pascal(self):  # synced
+    def test_pascal(self, casing_test_string):  # synced
         assert casing_test_string.case.pascal() == "HiThisIsACasingTestCase"
 
-    def test_dash(self):  # synced
+    def test_dash(self, casing_test_string):  # synced
         assert casing_test_string.case.dash() == "hi-this-is-a-casing-test-case"
 
-    def test_constant(self):  # synced
+    def test_constant(self, casing_test_string):  # synced
         assert casing_test_string.case.constant() == "HI_THIS_IS_A_CASING_TEST_CASE"
 
-    def test_dot(self):  # synced
+    def test_dot(self, casing_test_string):  # synced
         assert casing_test_string.case.dot() == "hi.this.is.a.casing.test.case"
 
-    def test_slash(self):  # synced
+    def test_slash(self, casing_test_string):  # synced
         assert casing_test_string.case.slash() == "Hi/This/is/a/CASING/Test/case"
 
-    def test_backslash(self):  # synced
-        assert casing_test_string.case.slash() == R"Hi\This\is\a\CASING\Test\case"
+    def test_backslash(self, casing_test_string):  # synced
+        assert casing_test_string.case.backslash() == R"Hi\This\is\a\CASING\Test\case"
 
-    def test_identifier(self):  # synced
-        assert casing_test_string.case.identifier() == "_123_hello_world"
+    def test_identifier(self, casing_test_string):  # synced
+        assert Str("123 Hello-world").case.identifier() == "_123_hello_world"
 
-    @pytest.mark.parametrize(["value", "expected"], [("Snake", "Snakes"), ("Hero", "Heroes"), ("Princess", "Princesses"), ("Leaf", "Leaves"), ("Man", "Men"), ("Woman", "Women"), ("Tooth", "Teeth"), ("Mouse", "Mice"), ("Deer", "Deer")])
+    @pytest.mark.parametrize(["value", "expected"], [
+        ("Snake", "Snakes"), ("Hero", "Heroes"), ("Princess", "Princesses"), ("Leaf", "Leaves"),
+        ("Man", "Men"), ("Woman", "Women"), ("Tooth", "Teeth"), ("Mouse", "Mice"), ("Deer", "Deer")
+    ])
     def test_plural(self, value, expected):  # synced
         assert Str(value).case.plural() == expected
 
@@ -123,48 +130,48 @@ class TestSliceAccessor:
     def test___call__(self):  # synced
         assert True
 
-    def test_before(self):  # synced
+    def test_before(self, default_string):  # synced
         assert default_string.slice.before(r"w") == "Hello "
         with pytest.raises(ValueError):
             default_string.slice.before(r"l")
 
-    def test_before_first(self):  # synced
+    def test_before_first(self, default_string):  # synced
         assert default_string.slice.before_first(r"l") == "He"
 
-    def test_before_last(self):  # synced
+    def test_before_last(self, default_string):  # synced
         assert default_string.slice.before_last(r"l") == "Hello Wor"
 
-    def test_after(self):  # synced
+    def test_after(self, default_string):  # synced
         assert default_string.slice.after(r"w") == "orld!"
         with pytest.raises(ValueError):
             default_string.slice.after(r"l")
 
-    def test_after_first(self):  # synced
+    def test_after_first(self, default_string):  # synced
         assert default_string.slice.after_first(r"l") == "lo World!"
 
-    def test_after_last(self):  # synced
+    def test_after_last(self, default_string):  # synced
         assert default_string.slice.after_last(r"l") == "d!"
 
-    def test_from_(self):  # synced
+    def test_from_(self, default_string):  # synced
         assert default_string.slice.from_(r"w") == "World!"
         with pytest.raises(ValueError):
             default_string.slice.from_(r"l")
 
-    def test_from_first(self):  # synced
+    def test_from_first(self, default_string):  # synced
         assert default_string.slice.from_first(r"l") == "llo World!"
 
-    def test_from_last(self):  # synced
+    def test_from_last(self, default_string):  # synced
         assert default_string.slice.from_last(r"l") == "ld!"
 
-    def test_until(self):  # synced
+    def test_until(self, default_string):  # synced
         assert default_string.slice.until(r"w") == "Hello W"
         with pytest.raises(ValueError):
             default_string.slice.until(r"l")
 
-    def test_until_first(self):  # synced
+    def test_until_first(self, default_string):  # synced
         assert default_string.slice.until_first(r"l") == "Hel"
 
-    def test_until_last(self):  # synced
+    def test_until_last(self, default_string):  # synced
         assert default_string.slice.until_last(r"l") == "Hello Worl"
 
     def test__slice_helper(self):  # synced
@@ -181,7 +188,7 @@ class TestTrimAccessor:
     def test_whitespace_runs(self):  # synced
         assert Str("\nHello   World!\n\t").trim.whitespace_runs() == "Hello World!"
 
-    def test_non_alphanumeric(self):  # synced
+    def test_non_alphanumeric(self, default_string):  # synced
         assert default_string.trim.non_alphanumeric() == "HelloWorld"
 
     def test_non_ascii(self):  # synced
@@ -292,12 +299,6 @@ class TestStr:
 
     def test_to_clipboard(self):  # synced
         assert True
-
-    def test_find_all(self):  # synced
-        assert default_string.find_all("l") == [2, 3, 9]
-
-    def test_extract_uk_postcode(self):  # synced
-        assert Str("Hi, I'm located at eh165pn.").extract_uk_postcode() == "EH16 5PN"
 
     def test_from_clipboard(self):  # synced
         assert True

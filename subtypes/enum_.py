@@ -49,17 +49,10 @@ class EnumMeta(enum.EnumMeta):
         try:
             return super().__getitem__(key)
         except KeyError:
-            raise KeyError(f"{key} is not a valid {cls.__name__}. Must be one of: {', '.join([str(member) for member in cls])}")
-
-    @property
-    def names(cls) -> list[str]:
-        """A list of the names in this Enum."""
-        return [member.name for member in cls]
-
-    @property
-    def values(cls) -> list[Any]:
-        """A list of the values in this Enum."""
-        return [member.value for member in cls]
+            if isinstance(key, cls):
+                return key
+            else:
+                raise KeyError(f"{key} is not a valid {cls.__name__}. Must be one of: {', '.join([str(member) for member in cls])}")
 
     def is_enum(cls, candidate: Any) -> bool:
         """Returns True if the candidate is a subclass of Enum, otherwise returns False."""
@@ -82,7 +75,7 @@ class Enum(enum.Enum, metaclass=EnumMeta):
         return other is self or other == self.name
 
     def __ne__(self, other: Any) -> bool:
-        return other is not self and other != self.name
+        return not (self == other)
 
     def __str__(self) -> str:
         return str(self.name)

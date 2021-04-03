@@ -60,6 +60,9 @@ class BaseDict(dict):
     An alternative implementation of collections.UserDict that inherits directly from 'dict'. All the 'dict' class inplace methods return self and therefore allow chaining when called from this class.
     """
 
+    def __init__(self, seq: Any = None, **kwargs: Any) -> None:
+        super().__init__(seq if seq is not None else {}, **kwargs)
+
     def update(self, item: Mapping = None, **kwargs) -> BaseDict:
         """Same as dict.update(), but returns self and thus allows chaining."""
         super().update(item)

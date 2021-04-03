@@ -20,13 +20,13 @@ class TestRegexAccessor:
     def test___call__(self):  # synced
         assert True
 
-    def test_filter(self):  # synced
+    def test_filter(self, example_dict):  # synced
         assert example_dict.re.filter(r"one") == {"one": 1, "done": None}
 
-    def test_get_all(self):  # synced
+    def test_get_all(self, example_dict):  # synced
         assert example_dict.re.get_all(r"one") == [1, None]
 
-    def test_get_one(self):  # synced
+    def test_get_one(self, example_dict):  # synced
         assert example_dict.re.get_one(r"^tw") == 2
 
         with pytest.raises(KeyError):
@@ -34,11 +34,11 @@ class TestRegexAccessor:
 
 
 class TestBaseDict:
-    def test_update(self):  # synced
+    def test_update(self, example_dict):  # synced
         updated = example_dict.update({"six": 6, "done": True})
         assert updated.get("six") == 6 and updated.get("done") == True and example_dict is updated
 
-    def test_clear(self):  # synced
+    def test_clear(self, example_dict):  # synced
         cleared = example_dict.clear()
         assert cleared == {} and example_dict is cleared
 

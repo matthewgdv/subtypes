@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterator, Tuple
+from typing import Any, Iterator, Optional, Tuple
 
 
 class NameSpace:
@@ -26,13 +26,13 @@ class NameSpace:
     def __len__(self) -> int:
         return len([item for item in self])
 
-    def __getitem__(self, name: str) -> Any:
+    def __getitem__(self, name: Optional[str]) -> Any:
         return getattr(self, name if name is not None else "__none__")
 
-    def __setitem__(self, name: str, val: Any) -> None:
+    def __setitem__(self, name: Optional[str], val: Any) -> None:
         setattr(self, name if val is not None else "__none__", val)
 
-    def __delitem__(self, name: str) -> None:
+    def __delitem__(self, name: Optional[str]) -> None:
         delattr(self, name if name is not None else "__none__")
 
     def __iter__(self) -> Iterator[Tuple[str, Any]]:
