@@ -5,7 +5,7 @@ from typing import Any, Union
 
 from dateutil.relativedelta import relativedelta
 
-from subtypes import cached_property
+from functools import cached_property
 from .mixin import MetaInfoMixin
 from .accessor import YearAccessor, MonthAccessor, DayAccessor, WeekAccessor, WeekDayAccessor
 

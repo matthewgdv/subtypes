@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any, Callable, Generic, TypeVar
 from collections.abc import Mapping
 import json
 
@@ -9,6 +9,9 @@ from .translator import TranslatableMeta, DoNotTranslateMeta
 
 from maybe import Maybe
 
+
+K = TypeVar("K")
+V = TypeVar("V")
 
 dict_fields = {attr for attr in dir(dict()) if not attr.startswith("_")}
 
@@ -27,8 +30,7 @@ class RegexAccessor(ReprMixin):
     def __init__(self, parent: Dict = None) -> None:
         self.parent, self.settings = parent, StrRegexAccessor.Settings()
 
-    def __call__(self, parent: Dict = None, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
-        self.parent = Maybe(parent).else_(self.parent)
+    def __call__(self, dotall: bool = None, ignorecase: bool = None, multiline: bool = None) -> RegexAccessor:
         self.settings.dotall = Maybe(dotall).else_(self.settings.dotall)
         self.settings.ignorecase = Maybe(ignorecase).else_(self.settings.ignorecase)
         self.settings.multiline = Maybe(multiline).else_(self.settings.multiline)
@@ -38,7 +40,9 @@ class RegexAccessor(ReprMixin):
         """Remove any key-value pairs where the key is not a string, or where it is a string but doesn't match the given regex."""
         return type(self.parent)(
             {key: val for key, val in self.parent.items()
-             if isinstance(key, str) and Str(key).re(dotall=self.settings.dotall, ignorecase=self.settings.ignorecase, multiline=self.settings.multiline).search(regex) is not None}
+             if isinstance(key, str) and Str(key).re(dotall=self.settings.dotall,
+                                                     ignorecase=self.settings.ignorecase,
+                                                     multiline=self.settings.multiline).search(regex) is not None}
         )
 
     def get_all(self, regex: str, limit: int = None) -> list[Any]:
@@ -63,6 +67,9 @@ class BaseDict(dict):
     def __init__(self, seq: Any = None, **kwargs: Any) -> None:
         super().__init__(seq if seq is not None else {}, **kwargs)
 
+    def __or__(self, other: dict) -> BaseDict:
+        return type(self)(super().__or__(other))
+
     def update(self, item: Mapping = None, **kwargs) -> BaseDict:
         """Same as dict.update(), but returns self and thus allows chaining."""
         super().update(item)
@@ -77,7 +84,7 @@ class BaseDict(dict):
         return type(self)(self)
 
 
-class Dict(BaseDict, metaclass=TranslatableMeta):
+class Dict(BaseDict, Generic[K, V], metaclass=TranslatableMeta):
     """
     Subclass of the builtin 'dict' class with where inplace methods like dict.update() return self and therefore allow chaining.
     Also allows item access dynamically through attribute access. It recursively converts any str, list, and dict instances into Str, List, and Dict.
@@ -92,30 +99,30 @@ class Dict(BaseDict, metaclass=TranslatableMeta):
         for key, val in self.items():
             self[key] = val
 
-    def __getitem__(self, name: str) -> Any:
+    def __getitem__(self, key: K) -> V:
         try:
-            return super().__getitem__(name)
+            return super().__getitem__(key)
         except KeyError:
-            self[name] = default = self._factory_(name=name)
+            self[key] = default = self._factory_(name=key)
             return default
 
-    def __setitem__(self, name: str, val: Any) -> None:
+    def __setitem__(self, key: K, val: V) -> None:
         clean_val = type(self).translator.translate(val)
-        super().__setitem__(name, clean_val)
+        super().__setitem__(key, clean_val)
 
-        if is_valid_for_attribute_actions(name):
-            super().__setattr__(name, clean_val)
+        if is_valid_for_attribute_actions(key):
+            super().__setattr__(key, clean_val)
 
-    def __delitem__(self, name: str) -> None:
-        super().__delitem__(name)
+    def __delitem__(self, key: K) -> None:
+        super().__delitem__(key)
 
-        if is_valid_for_attribute_actions(name):
-            super().__delattr__(name)
+        if is_valid_for_attribute_actions(key):
+            super().__delattr__(key)
 
-    def __getattr__(self, name: str) -> Dict:
+    def __getattr__(self, name: str) -> V:
         return self[name]
 
-    def __setattr__(self, name: str, val: Any) -> None:
+    def __setattr__(self, name: str, val: V) -> None:
         if name in dict_fields:
             raise AttributeError(f"Cannot assign to attribute '{type(self).__name__}.{name}'.")
 

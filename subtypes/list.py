@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from functools import cached_property
 import json
 from typing import Any, Iterable, Iterator, Callable, Union
 
-from .lazy import cached_property
 
 from .str import ReprMixin
 from .translator import TranslatableMeta
@@ -238,9 +238,6 @@ class List(BaseList, metaclass=TranslatableMeta):
             for run in range(0, len(self), batch_size):
                 yield self[run:run + batch_size]
 
-    def to_json(self, indent: int = 4, **kwargs: Any) -> str:
-        return json.dumps(self, indent=indent, **kwargs)
-
     def flatten(self) -> List:
         """Recursively traverses any non-textual Sequence objects within this List and unpacks them in order into a new flat List."""
         return self._flatten_more(iterable=self, output=type(self)())
@@ -253,6 +250,9 @@ class List(BaseList, metaclass=TranslatableMeta):
                 output.append(item)
 
         return output
+
+    def to_json(self, indent: int = 4, **kwargs: Any) -> str:
+        return json.dumps(self, indent=indent, **kwargs)
 
     @classmethod
     def from_json(cls, json_string: str, **kwargs: Any) -> List:

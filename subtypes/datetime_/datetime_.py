@@ -5,7 +5,7 @@ from typing import Union
 
 from dateutil.relativedelta import relativedelta
 
-from subtypes import cached_property
+from functools import cached_property
 from .date import Date
 from .time_ import Time
 from .accessor import TimeZoneAccessor, HourAccessor, MinuteAccessor, SecondAccessor, MicroSecondAccessor
@@ -100,7 +100,11 @@ class DateTime(Date, dt.datetime):
         elif isinstance(datelike, dt.date):
             return cls.from_date(datelike)
         elif isinstance(datelike, int):
-            return cls.from_ordinal(datelike)
+            try:
+                return cls.fromtimestamp(datelike)
+            except OSError:
+                return cls.fromtimestamp(datelike//1000)
+
         elif isinstance(datelike, str):
             try:
                 return cls.from_isoformat(datelike)

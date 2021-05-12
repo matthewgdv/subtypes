@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import cached_property
 from typing import Any
 
 from bs4 import BeautifulSoup, Tag
@@ -15,13 +16,18 @@ class Markup(BeautifulSoup):
 
     parser = None
 
-    def __init__(self, html: str = None, features: str = None, **kwargs: Any) -> None:
-        kwargs["element_classes"] = {**{Tag: self.Tag}, **kwargs.get("element_classes", {})}
-        super().__init__(markup=html or "", features=features or self.parser, **kwargs)
-        self.tag = TagAccessor(self)
+    def __init__(self, markup: str = "", **kwargs: Any) -> None:
+        super().__init__(markup=markup,
+                         features=self.parser,
+                         element_classes={Tag: self.Tag} | kwargs.pop("element_classes", {}),
+                         **kwargs)
         self._stack = []
 
-    def __repr__(self, encoding="unicode-escape") -> str:
+        for tag in self.find_all():
+            tag._markup = self
+
+    # noinspection PyMethodOverriding
+    def __repr__(self) -> str:
         return str(self)
 
     def __enter__(self) -> Markup:
@@ -31,31 +37,33 @@ class Markup(BeautifulSoup):
     def __exit__(self, ex_type: Any, ex_value: Any, ex_traceback: Any) -> None:
         self._stack.pop()
 
+    @cached_property
+    def tag(self) -> TagAccessor:
+        return TagAccessor(self)
+
     def _tag(self, name: str, content: str = None, /, attrs: dict = None, **kwattrs: Any) -> Markup.Tag:
         tag = self.new_tag(name=name, attrs=attrs or {}, **kwattrs)
-        tag._root = self
+        tag._markup = self
 
         if content:
             tag.string = content
 
         if self._stack:
             self._stack[-1].append(tag)
-        else:
-            self.append(tag)
 
         return tag
 
     class Tag(Tag):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self._root = None
+            self._markup = None
 
         def __enter__(self) -> Markup.Tag:
-            self._root._stack.append(self)
+            self._markup._stack.append(self)
             return self
 
         def __exit__(self, ex_type: Any, ex_value: Any, ex_traceback: Any) -> None:
-            self._root._stack.pop()
+            self._markup._stack.pop()
 
 
 class Html(Markup):
@@ -77,18 +85,18 @@ class Xml(Markup):
     parser = "xml"
 
     def __str__(self) -> str:
-        return Str(parse_xml(super().__str__()).toprettyxml()).re(multiline=True).sub(r"^(\t+)", lambda m: m.group(1).replace("\t", "    "))
+        return Str(parse_xml(super().__str__()).toprettyxml(indent="    ", newl=""))
 
 
 class TagAccessor:
     def __init__(self, parent: Markup) -> None:
         self._parent = parent
 
-    def __call__(self, name: str, content: str = None, /, attrs: dict = None, **kwattrs: Any) -> Markup.Tag:
-        return self._parent._tag(name, content, attrs=attrs, **kwattrs)
-
     def __getattr__(self, name) -> TagProxy:
         return TagProxy(name, parent=self._parent)
+
+    def __getitem__(self, item) -> TagProxy:
+        return TagProxy(item, parent=self._parent)
 
 
 class TagProxy:
@@ -97,9 +105,3 @@ class TagProxy:
 
     def __call__(self, content: str = None, /, attrs: dict = None, **kwattrs: Any) -> Markup.Tag:
         return self._parent._tag(self._name, content, attrs=attrs, **kwattrs)
-
-    def __enter__(self) -> Markup.Tag:
-        return self._parent._tag(self._name).__enter__()
-
-    def __exit__(self, ex_type: Any, ex_value: Any, ex_traceback: Any) -> None:
-        pass

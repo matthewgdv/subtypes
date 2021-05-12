@@ -5,7 +5,7 @@ from typing import Union
 
 from dateutil.relativedelta import relativedelta
 
-from subtypes import cached_property
+from functools import cached_property
 from .mixin import MetaInfoMixin
 from .accessor import TimeZoneAccessor, HourAccessor, MinuteAccessor, SecondAccessor, MicroSecondAccessor
 
@@ -43,8 +43,7 @@ class Time(dt.time, MetaInfoMixin):
     @classmethod
     def now(cls) -> Time:
         from .datetime_ import DateTime
-        now = DateTime.now()
-        return cls(now.hour, now.minute, now.second, now.microsecond)
+        return cls.from_time(DateTime.now().time())
 
     @classmethod
     def from_time(cls, time: dt.time) -> Time:

@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../iotools/.idea/iotools.iml" filepath="$PROJECT_DIR$/../iotools/.idea/iotools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../sqlhandler/.idea/sqlhandler.iml" filepath="$PROJECT_DIR$/../sqlhandler/.idea/sqlhandler.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/subtypes.iml" filepath="$PROJECT_DIR$/.idea/subtypes.iml" />
     </modules>
   </component>

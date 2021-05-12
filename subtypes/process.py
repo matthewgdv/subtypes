@@ -45,8 +45,7 @@ class Process(subprocess.Popen):
         else:
             stdout = []
             while self.poll() is None:
-                line = self.stdout.readline()
-                stdout.append(line)
+                stdout.append(line := self.stdout.readline())
 
                 if self.verbose:
                     print(line, end="")

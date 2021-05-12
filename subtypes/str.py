@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import itertools
-from functools import reduce
+from functools import reduce, cached_property
 from operator import ior
 import re
 from typing import Any, Callable, Iterable, Tuple, Mapping, Match, Union
@@ -11,8 +11,6 @@ import regex
 import case_conversion
 import inflect
 import clipboard
-
-from .lazy import cached_property
 
 from .enum_ import Enum
 from .translator import TranslatableMeta

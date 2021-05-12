@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, MutableSequence, MutableMapping
 from json import loads
 
 
@@ -17,10 +17,10 @@ class Translator:
     def translate_recursively(self, item: Any) -> Any:
         translated = self.translate(item)
 
-        if isinstance(translated, list):
+        if isinstance(translated, MutableSequence):
             for index, val in enumerate(translated):
                 translated[index] = self.translate_recursively(val)
-        elif isinstance(translated, dict):
+        elif isinstance(translated, MutableMapping):
             for key, val in translated.items():
                 translated[key] = self.translate_recursively(val)
 
@@ -34,7 +34,7 @@ class TranslatableMeta(type):
     translator = Translator()
 
     def __init__(cls, name: str, bases: tuple, namespace: dict) -> None:
-        cls.translator.translations.update({base: cls for base in cls.mro()[1:-1]})
+        cls.translator.translations.update({base: cls for base in cls.mro()[1:] if base is not object})
 
 
 class DoNotTranslateMeta(TranslatableMeta):

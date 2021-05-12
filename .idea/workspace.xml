@@ -1,16 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="96aece36-89b4-4ad9-9b90-0c224bd2be8d" name="Default Changelist" comment="" />
+    <list default="true" id="96aece36-89b4-4ad9-9b90-0c224bd2be8d" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../iotools/.idea/iotools.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/.idea/iotools.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/iotools/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/iotools/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/iotools/command/argparser.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/iotools/command/argparser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/iotools/misc/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/iotools/misc/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/iotools/misc/cache.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/iotools/misc/cache.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/iotools/misc/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/iotools/misc/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/iotools/misc/console.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/iotools/misc/console.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/iotools/misc/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/iotools/misc/serializer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/iotools/misc/validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/iotools/misc/validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../iotools/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../iotools/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sqlhandler/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../sqlhandler/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/subtypes.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/subtypes.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/datetime_/date.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/datetime_/date.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/datetime_/datetime_.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/datetime_/datetime_.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/datetime_/time_.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/datetime_/time_.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/dict.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/dict.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/frame.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/lazy.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/list.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/list.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/markup.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/markup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/process.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/process.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/str.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/str.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subtypes/translator.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtypes/translator.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/../sqlhandler/sqlhandler/sql.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../sqlhandler/sqlhandler/frame/frame.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="ProjectId" id="1pOenqBw51PgVJuCnmKP2U5YvyO" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollToSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -22,7 +65,19 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../sqlhandler/sqlhandler/frame" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+  </component>
+  <component name="ReaderModeSettings">
+    <option name="enabled" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\matthewgdv\Documents\python\repos\sqlhandler\sqlhandler\frame" />
+    </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -34,10 +89,25 @@
       <updated>1615058734129</updated>
       <workItem from="1615058735447" duration="290000" />
       <workItem from="1615073200562" duration="3000" />
+      <workItem from="1620462982932" duration="1436000" />
+      <workItem from="1620467713634" duration="11850000" />
+      <workItem from="1620752577759" duration="3849000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>
