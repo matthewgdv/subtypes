@@ -38,16 +38,16 @@ class Http(Session):
 
     Error, Response = HTTPError, Response
 
-    def __init__(self, base_url: str = "", retries: int = None, quote_level: Http.QuoteLevel = QuoteLevel.NONE) -> None:
+    def __init__(self, base_url: str = "", auth: tuple[str, str] = None, quote_level: Http.QuoteLevel = QuoteLevel.NONE) -> None:
         super().__init__()
-        self.base_url, self.retries, self.quote_level = base_url.strip('/'), retries, quote_level
+        self.base_url, self.auth, self.quote_level = base_url.strip('/'), auth, quote_level
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(base_url={repr(self.base_url)}, auth={repr(self.auth)}, headers={repr(self.headers)})"
 
     def request(self, method: str, url: str, *args: Any, **kwargs: Any) -> Any:
         response_raw: BaseResponse = super().request(method=method,
-                                                     url=self._quote_encode(f"""{f"{self.base_url}/{url.strip('/')}".strip("/")}/"""),
+                                                     url=self._quote_encode(f"{self.base_url}/{url.strip('/')}".strip("/")),
                                                      *args, **kwargs)
         return Response(response_raw.__dict__)
 

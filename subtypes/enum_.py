@@ -18,6 +18,8 @@ class EnumMeta(enum.EnumMeta):
 
     def __new__(mcs, name: str, bases: tuple, namespace: dict):
         new_namespace = enum._EnumDict()
+        new_namespace._cls_name = name
+
         aliases: dict[EnumMeta.Alias, enum.auto] = {}
 
         for key, val in namespace.items():
@@ -45,6 +47,9 @@ class EnumMeta(enum.EnumMeta):
     def __str__(cls) -> str:
         return cls.__name__
 
+    def __call__(cls, key):
+        return cls[key]
+
     def __getitem__(cls, key):
         try:
             return super().__getitem__(key)
@@ -66,7 +71,7 @@ class Enum(enum.Enum, metaclass=EnumMeta):
     """A subclass of enum.Enum with additional methods."""
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}[{self.name}]"
+        return f"{type(self).__name__}.{self.name}"
 
     def __hash__(self) -> int:
         return id(self)
